@@ -3,5 +3,5 @@ build:
     makepkg -scr --noconfirm
   artifacts:
     paths:
-      - *.pkg.tar.*
+    - /^pkg.tar-.*$/
     expire_in: 1 week
