@@ -1,7 +1,3 @@
 run:
   script:
-    makepkg -scr --noconfirm 
-
-run:
-  script:
-    mv *.pkg.tar.* /opt/jenkins/community/
+    makepkg -scr --noconfirm && mv *.pkg.tar.* /opt/jenkins/community/
