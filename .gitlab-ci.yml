@@ -1,3 +1,7 @@
-run:
+build:
   script:
-    makepkg -scr --noconfirm && mv *.pkg.tar.* /opt/jenkins/community/
+    makepkg -scr --noconfirm
+  artifacts:
+    paths:
+      - *.pkg.tar.*
+    expire_in: 1 week
