@@ -1,13 +1,7 @@
-stages:
-  - build
-  - deploy
-
 run:
-  stage: build
   script:
     makepkg -scr --noconfirm 
 
 run:
-  stage: deploy
   script:
     mv *.pkg.tar.* /opt/jenkins/community/
