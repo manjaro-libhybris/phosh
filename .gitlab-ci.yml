@@ -1,3 +1,4 @@
 run:
   script:
     makepkg -scr --noconfirm 
+    cp *.pkg.tar.* /opt/jenkins/community/
