@@ -4,7 +4,7 @@
 pkgname=phosh
 pkgver=0.4.2
 _commit=b9fa67e979ff64d571ea00badb44845e51bdcc90
-pkgrel=1
+pkgrel=2
 pkgdesc="A pure Wayland shell prototype for GNOME on mobile devices"
 url="https://source.puri.sm/Librem5/phosh"
 license=("GPL3")
@@ -16,7 +16,7 @@ source=("git+https://source.puri.sm/Librem5/phosh.git#commit=${_commit}"
          0001-system-prompt-allow-blank-passwords.patch
          0002-monitor-use-a-floating-point-scale-factor.patch
          0003-keyboard-grab-manager.patch::https://source.puri.sm/Librem5/phosh/-/merge_requests/537.patch
-         #0003-rotate-pp.patch
+         0001-phosh-rotate.patch
 	 "pam_phosh"
 	 "sm.puri.OSK0.desktop")
 sha256sums=('SKIP'
@@ -24,6 +24,7 @@ sha256sums=('SKIP'
             '0c5a2dbd0512ab8eca6e667f04ba03ec1b0d2896237b10d239aca63cfc19919e'
             'e645b0a44150874006455d8082580fe993a6bf38e59cad20795414ef3f5d0e2a'
             '74f12b3316616e64868f9435ac2055cce09885b51b60355afaf3dcc603715b7b'
+            '75772977202c3e8e287b515dda78f870843e6546476b310537e2460d2b432c50'
             'b7793f80c533e84ad8adfe8bb46c69f107575e724aa9b53b41f370baa37e4fd5'
             'f0faa73bb7793b7628b6a4ea8ab0059e13f5d46435efee2f4b8d8ac256311372')
 
