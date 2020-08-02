@@ -1,0 +1,107 @@
+diff -Npur phosh-orig/src/background-manager.c phosh/src/background-manager.c
+--- phosh-orig/src/background-manager.c	2020-07-01 09:58:33.000000000 +0200
++++ phosh/src/background-manager.c	2020-08-01 21:26:41.000000000 +0200
+@@ -37,10 +37,22 @@ create_background_for_monitor (PhoshBack
+ {
+   PhoshWayland *wl = phosh_wayland_get_default();
+   PhoshBackground *background;
++  gint display_width;
++  gint display_height;
++
++  if (phosh_monitor_get_rotation(monitor) == 0 || phosh_monitor_get_rotation(monitor) == 180) {
++    display_height = monitor->height;
++    display_width = monitor->width;
++  } else {
++    display_height = monitor->width;
++    display_width = monitor->height;
++  }
+ 
+   background = g_object_ref_sink(PHOSH_BACKGROUND (phosh_background_new (
+                                                      phosh_wayland_get_zwlr_layer_shell_v1(wl),
+                                                      monitor->wl_output,
++                                                     display_width / monitor->scale,
++                                                     display_height / monitor->scale,
+                                                      MAX(1, monitor->scale),
+                                                      monitor == self->primary_monitor)));
+   g_hash_table_insert (self->backgrounds,
+diff -Npur phosh-orig/src/background.c phosh/src/background.c
+--- phosh-orig/src/background.c	2020-07-01 09:58:33.000000000 +0200
++++ phosh/src/background.c	2020-08-01 21:26:41.000000000 +0200
+@@ -263,7 +263,7 @@ background_update (PhoshBackground *self
+   if (self->primary)
+     phosh_shell_get_usable_area (phosh_shell_get_default (), NULL, NULL, &width, &height);
+   else
+-    g_object_get (self, "configured-width", &width, "configured-height", &height, NULL);
++    g_object_get (self, "width", &width, "height", &height, NULL);
+ 
+   g_debug ("Scaling %p to %dx%d, scale %d", self, width, height, self->scale);
+   self->pixbuf = image_background (pixbuf, width * self->scale, height * self->scale, style, &self->color);
+@@ -409,6 +409,16 @@ on_background_setting_changed (PhoshBack
+   load_background (self);
+ }
+ 
++static void
++rotation_notify_cb (PhoshBackground *self,
++                    GParamSpec *pspec,
++                    PhoshShell *shell)
++{
++  g_return_if_fail (PHOSH_IS_BACKGROUND (self));
++  g_return_if_fail (PHOSH_IS_SHELL (shell));
++
++  on_background_setting_changed (self, NULL, self->settings);
++}
+ 
+ static void
+ on_phosh_background_configured (PhoshLayerSurface *surface)
+@@ -437,6 +447,11 @@ phosh_background_constructed (GObject *o
+                     "swapped_signal::changed::" BG_KEY_PRIMARY_COLOR,
+                     G_CALLBACK (on_background_setting_changed), self,
+                     NULL);
++  g_signal_connect_swapped (phosh_shell_get_default (),
++                            "notify::rotation",
++                            G_CALLBACK (rotation_notify_cb),
++                            self);
++
+ 
+   get_settings (self);
+   g_signal_connect (self, "configured", G_CALLBACK (on_phosh_background_configured), self);
+@@ -514,12 +529,16 @@ phosh_background_init (PhoshBackground *
+ GtkWidget *
+ phosh_background_new (gpointer layer_shell,
+                       gpointer wl_output,
++                               guint width,
++                               guint height,
+                       guint    scale,
+                       gboolean primary)
+ {
+   return g_object_new (PHOSH_TYPE_BACKGROUND,
+                        "layer-shell", layer_shell,
+                        "wl-output", wl_output,
++                       "width", width,
++                       "height", height,
+                        "anchor", (ZWLR_LAYER_SURFACE_V1_ANCHOR_TOP |
+                                   ZWLR_LAYER_SURFACE_V1_ANCHOR_BOTTOM |
+                                   ZWLR_LAYER_SURFACE_V1_ANCHOR_LEFT |
+diff -Npur phosh-orig/src/background.h phosh/src/background.h
+--- phosh-orig/src/background.h	2020-07-01 09:58:33.000000000 +0200
++++ phosh/src/background.h	2020-08-01 21:26:41.000000000 +0200
+@@ -18,6 +18,8 @@ G_DECLARE_FINAL_TYPE (PhoshBackground, p
+ 
+ GtkWidget *phosh_background_new (gpointer layer_shell,
+                                  gpointer wl_output,
++                                 guint width,
++                                 guint height,
+                                  guint scale,
+                                  gboolean primary);
+ void phosh_background_set_primary (PhoshBackground *self, gboolean primary);
+ diff -Npur phosh-orig/tests/meson.build phosh/tests/meson.build
+--- phosh-orig/tests/meson.build	2020-07-01 09:58:33.000000000 +0200
++++ phosh/tests/meson.build	2020-08-01 21:26:41.000000000 +0200
+@@ -71,7 +71,6 @@ tests = [
+ ]
+ 
+ tests_phoc = [
+-  'background',
+   'layer-surface',
+   'lockshield',
+   'notification-banner',
