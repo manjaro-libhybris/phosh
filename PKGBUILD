@@ -4,7 +4,7 @@
 pkgname=phosh
 pkgver=0.4.2
 _commit=b9fa67e979ff64d571ea00badb44845e51bdcc90
-pkgrel=4
+pkgrel=5
 pkgdesc="A pure Wayland shell prototype for GNOME on mobile devices"
 url="https://source.puri.sm/Librem5/phosh"
 license=("GPL3")
@@ -19,7 +19,8 @@ source=("git+https://source.puri.sm/Librem5/phosh.git#commit=${_commit}"
          0001-rotate-MR-434.patch
          0002-improve-rotation.patch
 	 "pam_phosh"
-	 "sm.puri.OSK0.desktop")
+	 "sm.puri.OSK0.desktop"
+         "phosh.service")
 sha256sums=('SKIP'
             'SKIP'
             '0c5a2dbd0512ab8eca6e667f04ba03ec1b0d2896237b10d239aca63cfc19919e'
@@ -28,7 +29,8 @@ sha256sums=('SKIP'
             'b61af47aca79c38badd4a576ca6c76e1b815c1d809fd245127f035991728af91'
             '8006049c812f5b7dec864c1fb3e7d23cc4ccebe7b34468e7f69ac75d8252516d'
             'b7793f80c533e84ad8adfe8bb46c69f107575e724aa9b53b41f370baa37e4fd5'
-            'f0faa73bb7793b7628b6a4ea8ab0059e13f5d46435efee2f4b8d8ac256311372')
+            'f0faa73bb7793b7628b6a4ea8ab0059e13f5d46435efee2f4b8d8ac256311372'
+            'ed6fac614d6799e3a1e0cdcff6ccf8d446c3b53c607dc3e93f1262d6b05843cc')
 
 pkgver() {
   cd $pkgname
@@ -61,7 +63,7 @@ build() {
 package() {
     DESTDIR="${pkgdir}" ninja -C build install
 
-	install -Dm644 "$srcdir"/phosh/debian/phosh.service \
+	install -Dm644 "$srcdir"/phosh.service \
 		"$pkgdir"/usr/lib/systemd/system/phosh.service
 	install -Dm644 "$srcdir"/pam_phosh \
 		"$pkgdir"/etc/pam.d/phosh
