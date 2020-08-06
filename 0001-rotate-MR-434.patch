@@ -1,7 +1,214 @@
-From 6d828c6dcd3f69eeeab1292074073f6468250058 Mon Sep 17 00:00:00 2001
+From 41def00e9600f91cf54672a99a31f5eaabfdda94 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
+Date: Wed, 5 Aug 2020 16:09:23 +0200
+Subject: [PATCH 1/5] settings: Fix indentation
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Guido Günther <guido.gunther@puri.sm>
+---
+ src/settings.c | 73 +++++++++++++++++++++++++-------------------------
+ 1 file changed, 37 insertions(+), 36 deletions(-)
+
+diff --git a/src/settings.c b/src/settings.c
+index bd390c97..1cb5c424 100644
+--- a/src/settings.c
++++ b/src/settings.c
+@@ -49,29 +49,28 @@ enum {
+ };
+ static guint signals[N_SIGNALS] = { 0 };
+ 
+-typedef struct _PhoshSettings
+-{
+-  GtkBin parent;
++typedef struct _PhoshSettings {
++  GtkBin               parent;
+ 
+-  GtkWidget *box_settings;
+-  GtkWidget *quick_settings;
+-  GtkWidget *scale_brightness;
+-  GtkWidget *output_vol_bar;
++  GtkWidget           *box_settings;
++  GtkWidget           *quick_settings;
++  GtkWidget           *scale_brightness;
++  GtkWidget           *output_vol_bar;
+ 
+   /* Output volume control */
+-  GvcMixerControl *mixer_control;
+-  GvcMixerStream *output_stream;
+-  gboolean allow_volume_above_100_percent;
+-  gboolean setting_volume;
++  GvcMixerControl     *mixer_control;
++  GvcMixerStream      *output_stream;
++  gboolean             allow_volume_above_100_percent;
++  gboolean             setting_volume;
+ 
+   /* Notifications */
+-  GtkWidget *list_notifications;
+-  GtkWidget *sw_notifications;
+-  LfbEvent  *notify_event;
++  GtkWidget           *list_notifications;
++  GtkWidget           *sw_notifications;
++  LfbEvent            *notify_event;
+ 
+   /* KeyboardEvents */
+   PhoshKeyboardEvents *keyboard_events;
+-  GHashTable *accelerator_callbacks;
++  GHashTable          *accelerator_callbacks;
+ } PhoshSettings;
+ 
+ 
+@@ -148,8 +147,9 @@ battery_setting_clicked_cb (PhoshSettings *self)
+   g_signal_emit (self, signals[SETTING_DONE], 0);
+ }
+ 
+-static void change_volume (PhoshSettings *self,
+-                           gint steps)
++static void
++change_volume (PhoshSettings *self,
++               gint           steps)
+ {
+   GtkAdjustment *adj;
+   gdouble vol, inc;
+@@ -166,34 +166,36 @@ static void change_volume (PhoshSettings *self,
+   gtk_adjustment_set_value (adj, vol);
+ }
+ 
+-static void lower_volume (PhoshSettings *self)
++static void
++lower_volume (PhoshSettings *self)
+ {
+   change_volume (self, -1);
+ }
+ 
+-static void raise_volume (PhoshSettings *self)
++static void
++raise_volume (PhoshSettings *self)
+ {
+   change_volume (self, 1);
+ }
+ 
+ static void
+ accelerator_grabbed_cb (PhoshSettings *self,
+-                        const gchar *accelerator,
+-                        uint32_t action_id)
++                        const gchar   *accelerator,
++                        uint32_t       action_id)
+ {
+   guint64 action = action_id;
++
+   if (g_strcmp0 (accelerator, "XF86AudioLowerVolume") == 0) {
+     g_hash_table_insert (self->accelerator_callbacks, (gpointer) action, (gpointer) lower_volume);
+-  }
+-  else if (g_strcmp0 (accelerator, "XF86AudioRaiseVolume") == 0) {
+-     g_hash_table_insert (self->accelerator_callbacks, (gpointer) action, (gpointer) raise_volume);
++  }else if (g_strcmp0 (accelerator, "XF86AudioRaiseVolume") == 0)  {
++    g_hash_table_insert (self->accelerator_callbacks, (gpointer) action, (gpointer) raise_volume);
+   }
+ }
+ 
+ static void
+ accelerator_activated_cb (PhoshSettings *self,
+-                          uint32_t action_id,
+-                          uint32_t timestamp)
++                          uint32_t       action_id,
++                          uint32_t       timestamp)
+ {
+   void (*callback)(PhoshSettings *);
+   guint64 action = action_id;
+@@ -359,10 +361,10 @@ end_notify_feedback (PhoshSettings *self)
+ 
+ static void
+ on_notifcation_items_changed (PhoshSettings *self,
+-                              guint position,
+-                              guint removed,
+-                              guint added,
+-                              GListModel *list)
++                              guint          position,
++                              guint          removed,
++                              guint          added,
++                              GListModel    *list)
+ {
+   gboolean is_empty;
+ 
+@@ -370,7 +372,7 @@ on_notifcation_items_changed (PhoshSettings *self,
+   g_return_if_fail (G_IS_LIST_MODEL (list));
+ 
+   is_empty = !g_list_model_get_n_items (list);
+-  g_debug("Notification list empty: %d", is_empty);
++  g_debug ("Notification list empty: %d", is_empty);
+ 
+   gtk_widget_set_visible (GTK_WIDGET (self->sw_notifications), !is_empty);
+   if (is_empty) {
+@@ -395,7 +397,7 @@ phosh_settings_constructed (GObject *object)
+   brightness_init (GTK_SCALE (self->scale_brightness));
+   g_signal_connect (self->scale_brightness,
+                     "value-changed",
+-                    G_CALLBACK(brightness_value_changed_cb),
++                    G_CALLBACK (brightness_value_changed_cb),
+                     NULL);
+ 
+   self->output_vol_bar = create_vol_channel_bar (self);
+@@ -448,8 +450,7 @@ phosh_settings_dispose (GObject *object)
+     g_clear_object (&self->notify_event);
+   }
+ 
+-  if (self->accelerator_callbacks != NULL)
+-  {
++  if (self->accelerator_callbacks != NULL) {
+     g_hash_table_remove_all (self->accelerator_callbacks);
+     g_hash_table_unref (self->accelerator_callbacks);
+     self->accelerator_callbacks = NULL;
+@@ -485,8 +486,8 @@ phosh_settings_class_init (PhoshSettingsClass *klass)
+                                                "/sm/puri/phosh/ui/settings-menu.ui");
+ 
+   signals[SETTING_DONE] = g_signal_new ("setting-done",
+-      G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_LAST, 0, NULL, NULL,
+-      NULL, G_TYPE_NONE, 0);
++                                        G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_LAST, 0, NULL, NULL,
++                                        NULL, G_TYPE_NONE, 0);
+ 
+   g_type_ensure (PHOSH_TYPE_BT_INFO);
+   g_type_ensure (PHOSH_TYPE_QUICK_SETTING);
+-- 
+2.26.2
+
+
+From 513a5b464aafafd6d71c5addf2aaba24e846b068 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
+Date: Wed, 5 Aug 2020 16:07:16 +0200
+Subject: [PATCH 2/5] rotateinfo: Fix indentation
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Guido Günther <guido.gunther@puri.sm>
+---
+ src/rotateinfo.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/rotateinfo.c b/src/rotateinfo.c
+index 178d8ba5..f588d859 100644
+--- a/src/rotateinfo.c
++++ b/src/rotateinfo.c
+@@ -40,7 +40,7 @@ set_state (PhoshRotateInfo *self)
+   monitor_is_landscape = ((double)monitor->width / (double)monitor->height) > 1.0;
+   portrait = monitor_is_landscape ? !portrait : portrait;
+ 
+-  g_debug ("Potrait: %d, width: %d, height: %d", portrait, monitor->width , monitor->height);
++  g_debug ("Potrait: %d, width: %d, height: %d", portrait, monitor->width, monitor->height);
+   if (portrait) {
+     phosh_status_icon_set_icon_name (PHOSH_STATUS_ICON (self), "screen-rotation-portrait-symbolic");
+     phosh_status_icon_set_info (PHOSH_STATUS_ICON (self), _("Portrait"));
+-- 
+2.26.2
+
+
+From 65996d0b6e8835babdae26b73c84f2f535c502f9 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Tue, 23 Jun 2020 14:05:57 +0200
-Subject: [PATCH 1/3] Add rotation-manager
+Subject: [PATCH 3/5] Add rotation-manager
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -26,10 +233,10 @@ Signed-off-by: Guido Günther <guido.gunther@puri.sm>
  create mode 100644 src/rotation-manager.h
 
 diff --git a/docs/phosh-docs.xml b/docs/phosh-docs.xml
-index 1621049b..61101609 100644
+index 3d4958dd..34f2153e 100644
 --- a/docs/phosh-docs.xml
 +++ b/docs/phosh-docs.xml
-@@ -77,6 +77,7 @@
+@@ -79,6 +79,7 @@
        <xi:include href="xml/proximity.xml"/>
        <xi:include href="xml/quick-setting.xml"/>
        <xi:include href="xml/rotateinfo.xml"/>
@@ -38,10 +245,10 @@ index 1621049b..61101609 100644
        <xi:include href="xml/sensor-proxy-manager.xml"/>
        <xi:include href="xml/session.xml"/>
 diff --git a/src/meson.build b/src/meson.build
-index d528d932..2e8a9ee3 100644
+index 6266914b..5c11885e 100644
 --- a/src/meson.build
 +++ b/src/meson.build
-@@ -120,6 +120,8 @@ libphosh_sources = [
+@@ -122,6 +122,8 @@ libphosh_sources = [
    'polkit-auth-prompt.h',
    'proximity.h',
    'proximity.c',
@@ -133,11 +340,11 @@ index 00000000..298e662c
 +
 +  if (!g_strcmp0 ("normal", orient)) {
 +    degree = 0;
-+  } else if (!g_strcmp0 ("left-up", orient)) {
++  } else if (!g_strcmp0 ("right-up", orient)) {
 +    degree = 90;
 +  } else if (!g_strcmp0 ("bottom-up", orient)) {
 +    degree = 180;
-+  } else if (!g_strcmp0 ("right-up", orient)) {
++  } else if (!g_strcmp0 ("left-up", orient)) {
 +    degree = 270;
 +  }
 +  phosh_shell_rotate_display (shell, degree);
@@ -582,31 +789,34 @@ index 3074a611..2fcd0485 100644
 2.26.2
 
 
-From 28fbcef6e86aa15fa56af9e546197fa268d9c671 Mon Sep 17 00:00:00 2001
+From 0a21904da3eec40c2e6d35fed4e753a63f87c5d7 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Tue, 23 Jun 2020 14:08:53 +0200
-Subject: [PATCH 2/3] rotateinfo: Display rotation lock instead of orientation
+Subject: [PATCH 4/5] rotateinfo: Display either rotation lock or orientation
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-
-Now that we have orientation information use that instead
-of displaying whether we're rotated or not.
 
 We listen for the shell's rotation-manager property first
 and if that show up connect to `orientation-locked` to
 update the icon status.
 
+If no orientation manager is available use the current
+portrait/landscape mode.
+
+Add helpers that allow to switch between the two modes.
+
 Signed-off-by: Guido Günther <guido.gunther@puri.sm>
 ---
- src/rotateinfo.c | 102 ++++++++++++++++++++++++++++++-----------------
- 1 file changed, 65 insertions(+), 37 deletions(-)
+ src/rotateinfo.c | 147 +++++++++++++++++++++++++++++++++++++++++------
+ src/rotateinfo.h |  16 +++++-
+ 2 files changed, 144 insertions(+), 19 deletions(-)
 
 diff --git a/src/rotateinfo.c b/src/rotateinfo.c
-index 178d8ba5..18157734 100644
+index f588d859..3e8f7975 100644
 --- a/src/rotateinfo.c
 +++ b/src/rotateinfo.c
-@@ -13,10 +13,10 @@
+@@ -13,22 +13,25 @@
  
  /**
   * SECTION:rotateinfo
@@ -615,41 +825,48 @@ index 178d8ba5..18157734 100644
   * @Title: PhoshRotateInfo
   *
 - * Rotate Info widget
-+ * A #PhoshStatusIcon to display the current rotation lock status.
++ * A #PhoshStatusIcon to display the rotation lock status.
++ * It can either display whether a rotation lock is currently active or
++ * if the output is in portrait/landscape mode.
   */
  
  typedef struct _PhoshRotateInfo {
-@@ -26,61 +26,89 @@ typedef struct _PhoshRotateInfo {
+-  PhoshStatusIcon parent;
++  PhoshStatusIcon     parent;
++
++  PhoshRotateInfoMode mode;
+ } PhoshRotateInfo;
+ 
  
  G_DEFINE_TYPE (PhoshRotateInfo, phosh_rotate_info, PHOSH_TYPE_STATUS_ICON)
  
 -
--static void
+ static void
 -set_state (PhoshRotateInfo *self)
-+static gboolean
-+binding_set_icon (GBinding        *binding,
-+                  const GValue    *from_value,
-+                  GValue          *to_value,
-+                  PhoshRotateInfo *self)
++set_toggle_state (PhoshRotateInfo *self)
  {
--  PhoshShell *shell = phosh_shell_get_default ();
--  /* TODO: switch to builtin monitor once we support wlr-output-management */
--  PhoshMonitor *monitor = phosh_shell_get_primary_monitor (shell);
--  gboolean monitor_is_landscape;
--  gboolean portrait = !phosh_shell_get_rotation (shell);
--
--  /* If we have a landscape monitor (tv, laptop) flip the rotation */
--  monitor_is_landscape = ((double)monitor->width / (double)monitor->height) > 1.0;
--  portrait = monitor_is_landscape ? !portrait : portrait;
--
--  g_debug ("Potrait: %d, width: %d, height: %d", portrait, monitor->width , monitor->height);
--  if (portrait) {
--    phosh_status_icon_set_icon_name (PHOSH_STATUS_ICON (self), "screen-rotation-portrait-symbolic");
--    phosh_status_icon_set_info (PHOSH_STATUS_ICON (self), _("Portrait"));
--  } else {
--    phosh_status_icon_set_icon_name (PHOSH_STATUS_ICON (self), "screen-rotation-landscape-symbolic");
--    phosh_status_icon_set_info (PHOSH_STATUS_ICON (self), _("Landscape"));
--  }
+   PhoshShell *shell = phosh_shell_get_default ();
+   /* TODO: switch to builtin monitor once we support wlr-output-management */
+@@ -36,6 +39,9 @@ set_state (PhoshRotateInfo *self)
+   gboolean monitor_is_landscape;
+   gboolean portrait = !phosh_shell_get_rotation (shell);
+ 
++  if (self->mode != PHOSH_ROTATE_INFO_MODE_TOGGLE)
++    return;
++
+   /* If we have a landscape monitor (tv, laptop) flip the rotation */
+   monitor_is_landscape = ((double)monitor->width / (double)monitor->height) > 1.0;
+   portrait = monitor_is_landscape ? !portrait : portrait;
+@@ -50,39 +56,144 @@ set_state (PhoshRotateInfo *self)
+   }
+ }
+ 
++static gboolean
++binding_set_lock_icon (GBinding        *binding,
++                       const GValue    *from_value,
++                       GValue          *to_value,
++                       PhoshRotateInfo *self)
++{
 +  gboolean locked = g_value_get_boolean (from_value);
 +  const char *icon_name;
 +
@@ -657,13 +874,13 @@ index 178d8ba5..18157734 100644
 +  g_value_set_string (to_value, icon_name);
 +
 +  return TRUE;
- }
- 
++}
++
 +static gboolean
-+binding_set_info (GBinding        *binding,
-+                  const GValue    *from_value,
-+                  GValue          *to_value,
-+                  PhoshRotateInfo *self)
++binding_set_lock_info (GBinding        *binding,
++                       const GValue    *from_value,
++                       GValue          *to_value,
++                       PhoshRotateInfo *self)
  
 -static void
 -phosh_rotate_info_finalize (GObject *object)
@@ -673,15 +890,18 @@ index 178d8ba5..18157734 100644
 +  const gchar *info;
  
 -  g_signal_handlers_disconnect_by_data (phosh_shell_get_default (), self);
++  if (self->mode != PHOSH_ROTATE_INFO_MODE_LOCK)
++    return TRUE;
+ 
+-  G_OBJECT_CLASS (phosh_rotate_info_parent_class)->finalize (object);
 +  /* Translators: Automatic screen orientation is either on (enabled) or off (locked/disabled) */
 +  info = locked ? _("Off") : _("On");
 +  g_value_set_string (to_value, info);
- 
--  G_OBJECT_CLASS (phosh_rotate_info_parent_class)->finalize (object);
++
 +  return TRUE;
  }
  
--
+ 
  static void
  phosh_rotate_info_class_init (PhoshRotateInfoClass *klass)
  {
@@ -689,17 +909,26 @@ index 178d8ba5..18157734 100644
 -  object_class->finalize = phosh_rotate_info_finalize;
  }
  
-+static void
+ 
+ static void
+-phosh_rotate_info_init (PhoshRotateInfo *self)
 +on_rotation_manager_changed (PhoshRotateInfo *self, GParamSpec *pspec, PhoshShell *shell)
-+{
+ {
+-  g_signal_connect_swapped (phosh_shell_get_default (),
+-                            "notify::rotation",
+-                            G_CALLBACK (set_state),
+-                            self);
+-  set_state (self);
 +  PhoshRotationManager *rotation_manager;
 +
 +  g_return_if_fail (PHOSH_IS_ROTATE_INFO (self));
 +  g_return_if_fail (PHOSH_SHELL (shell));
 +
 +  rotation_manager = phosh_shell_get_rotation_manager (shell);
-+  if (!rotation_manager)
++  if (!rotation_manager) {
++    phosh_rotate_info_set_mode (self, PHOSH_ROTATE_INFO_MODE_TOGGLE);
 +    return;
++  }
 +
 +  g_object_bind_property_full (rotation_manager,
 +                               "orientation-locked",
@@ -707,7 +936,7 @@ index 178d8ba5..18157734 100644
 +                               "icon-name",
 +                               G_BINDING_SYNC_CREATE
 +                               | G_BINDING_DEFAULT,
-+                               (GBindingTransformFunc)binding_set_icon,
++                               (GBindingTransformFunc)binding_set_lock_icon,
 +                               NULL,
 +                               self,
 +                               NULL);
@@ -717,20 +946,25 @@ index 178d8ba5..18157734 100644
 +                               "info",
 +                               G_BINDING_SYNC_CREATE
 +                               | G_BINDING_DEFAULT,
-+                               (GBindingTransformFunc)binding_set_info,
++                               (GBindingTransformFunc)binding_set_lock_info,
 +                               NULL,
 +                               self,
 +                               NULL);
-+}
++  phosh_rotate_info_set_mode (self, PHOSH_ROTATE_INFO_MODE_LOCK);
+ }
  
- static void
- phosh_rotate_info_init (PhoshRotateInfo *self)
- {
--  g_signal_connect_swapped (phosh_shell_get_default (),
--                            "notify::rotation",
--                            G_CALLBACK (set_state),
--                            self);
--  set_state (self);
++static void
++phosh_rotate_info_init (PhoshRotateInfo *self)
++{
++  self->mode = PHOSH_ROTATE_INFO_MODE_TOGGLE;
++
++  g_signal_connect_object (phosh_shell_get_default (),
++                           "notify::rotation",
++                           G_CALLBACK (set_toggle_state),
++                           self,
++                           G_CONNECT_SWAPPED);
++  set_toggle_state (self);
++
 +  /* Rotation manager might not be there when iio-sensor-proxy is missing
 +     so only connect to it once valid */
 +  g_signal_connect_object (phosh_shell_get_default (),
@@ -738,80 +972,190 @@ index 178d8ba5..18157734 100644
 +                           G_CALLBACK (on_rotation_manager_changed),
 +                           self,
 +                           G_CONNECT_SWAPPED);
- }
++}
  
--
  GtkWidget *
  phosh_rotate_info_new (void)
  {
+   return g_object_new (PHOSH_TYPE_ROTATE_INFO, NULL);
+ }
++
++PhoshRotateInfoMode
++phosh_rotate_info_get_mode (PhoshRotateInfo *self)
++{
++  g_return_val_if_fail (PHOSH_IS_ROTATE_INFO (self), PHOSH_ROTATE_INFO_MODE_LOCK);
++
++  return self->mode;
++}
++
++void
++phosh_rotate_info_set_mode (PhoshRotateInfo *self, PhoshRotateInfoMode mode)
++{
++  PhoshRotationManager *rotation_manager;
++  PhoshShell *shell  = phosh_shell_get_default ();
++
++  g_return_if_fail (PHOSH_IS_ROTATE_INFO (self));
++
++  if (mode == self->mode)
++    return;
++
++  self->mode = mode;
++
++  g_debug ("Setting mode: %d", mode);
++  switch (mode) {
++  case PHOSH_ROTATE_INFO_MODE_TOGGLE:
++    set_toggle_state (self);
++    break;
++  case PHOSH_ROTATE_INFO_MODE_LOCK:
++    rotation_manager = phosh_shell_get_rotation_manager (shell);
++    if (rotation_manager)
++      g_object_notify (G_OBJECT (rotation_manager), "orientation-locked");
++    break;
++  default:
++    g_assert_not_reached ();
++  }
++}
+diff --git a/src/rotateinfo.h b/src/rotateinfo.h
+index c236ff01..c95f1ceb 100644
+--- a/src/rotateinfo.h
++++ b/src/rotateinfo.h
+@@ -11,10 +11,24 @@
+ 
+ G_BEGIN_DECLS
+ 
++/**
++ * PhoshRotateInfoMode:
++ * @PHOSH_ROTATE_INFO_MODE_LOCK: Button toggles rotation lock
++ * @PHOSH_ROTATE_INFO_MODE_TOGGLE: Button toggles potrait/landscape
++ *
++ * The power save mode of a monitor
++ */
++typedef enum {
++  PHOSH_ROTATE_INFO_MODE_LOCK,
++  PHOSH_ROTATE_INFO_MODE_TOGGLE,
++} PhoshRotateInfoMode;
++
+ #define PHOSH_TYPE_ROTATE_INFO (phosh_rotate_info_get_type())
+ 
+ G_DECLARE_FINAL_TYPE (PhoshRotateInfo, phosh_rotate_info, PHOSH, ROTATE_INFO, PhoshStatusIcon)
+ 
+-GtkWidget * phosh_rotate_info_new (void);
++GtkWidget           *phosh_rotate_info_new (void);
++PhoshRotateInfoMode  phosh_rotate_info_get_mode (PhoshRotateInfo *self);
++void                 phosh_rotate_info_set_mode (PhoshRotateInfo *self, PhoshRotateInfoMode mode);
+ 
+ G_END_DECLS
 -- 
 2.26.2
 
 
-From 05f584da2ba38cc6ad0233e0c5ecc9c4fcc22de0 Mon Sep 17 00:00:00 2001
+From b533dabfc1b4e135b37b4af4db8cc1595feac4dc Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Tue, 23 Jun 2020 14:10:38 +0200
-Subject: [PATCH 3/3] settings: Toggle orientation lock in quick settings
+Subject: [PATCH 5/5] settings: Add orientation lock to rotate quick setting
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Instead of just switching landscape and back toggle the
-orientation-lock.
+Long press switches between potrait/landscape and rotation lock.
 
 Signed-off-by: Guido Günther <guido.gunther@puri.sm>
 ---
- src/settings.c          | 16 +++++++++-------
- src/ui/settings-menu.ui |  2 +-
- 2 files changed, 10 insertions(+), 8 deletions(-)
+ src/settings.c          | 49 ++++++++++++++++++++++++++++++++++++++---
+ src/ui/settings-menu.ui |  1 +
+ 2 files changed, 47 insertions(+), 3 deletions(-)
 
 diff --git a/src/settings.c b/src/settings.c
-index d71e64b7..8fa81012 100644
+index 1cb5c424..f33b1e8c 100644
 --- a/src/settings.c
 +++ b/src/settings.c
-@@ -81,15 +81,16 @@ brightness_value_changed_cb (GtkScale *scale_brightness, gpointer *unused)
+@@ -71,6 +71,9 @@ typedef struct _PhoshSettings {
+   /* KeyboardEvents */
+   PhoshKeyboardEvents *keyboard_events;
+   GHashTable          *accelerator_callbacks;
++
++  /* QuickSettings */
++  GtkWidget           *rotateinfo;
+ } PhoshSettings;
  
  
- static void
--rotation_setting_clicked_cb (PhoshSettings *self)
-+rotation_locked_setting_clicked_cb (PhoshSettings *self)
+@@ -90,14 +93,51 @@ static void
+ rotation_setting_clicked_cb (PhoshSettings *self)
  {
    PhoshShell *shell = phosh_shell_get_default ();
 -  gboolean rotated;
 +  PhoshRotationManager *rotation_manager;
-+  gboolean locked;
++  gboolean locked, rotated;
++  PhoshRotateInfoMode mode;
  
--  g_return_if_fail (PHOSH_IS_SETTINGS (self));
+   g_return_if_fail (PHOSH_IS_SETTINGS (self));
 -  rotated = phosh_shell_get_rotation (shell);
 -  phosh_shell_rotate_display (shell, !rotated ? 90 : 0);
--  g_signal_emit (self, signals[SETTING_DONE], 0);
-+  rotation_manager = phosh_shell_get_rotation_manager (shell);
-+  g_return_if_fail (rotation_manager);
-+  locked = phosh_rotation_manager_get_orientation_locked (rotation_manager);
-+  phosh_rotation_manager_set_orientation_locked (rotation_manager, !locked);
++  mode = phosh_rotate_info_get_mode (PHOSH_ROTATE_INFO (self->rotateinfo));
++
++  switch (mode) {
++  case PHOSH_ROTATE_INFO_MODE_TOGGLE:
++    rotated = phosh_shell_get_rotation (shell);
++    phosh_shell_rotate_display (shell, !rotated ? 90 : 0);
++    break;
++  case PHOSH_ROTATE_INFO_MODE_LOCK:
++    rotation_manager = phosh_shell_get_rotation_manager (shell);
++    g_return_if_fail (rotation_manager);
++    locked = phosh_rotation_manager_get_orientation_locked (rotation_manager);
++    phosh_rotation_manager_set_orientation_locked (rotation_manager, !locked);
++    break;
++  default:
++    g_assert_not_reached ();
++  }
++
+   g_signal_emit (self, signals[SETTING_DONE], 0);
  }
  
++static void
++rotation_setting_long_pressed_cb (PhoshSettings *self)
++{
++  PhoshRotateInfoMode mode;
++
++  mode = phosh_rotate_info_get_mode (PHOSH_ROTATE_INFO (self->rotateinfo));
++  switch (mode) {
++  case PHOSH_ROTATE_INFO_MODE_TOGGLE:
++    mode = PHOSH_ROTATE_INFO_MODE_LOCK;
++    break;
++  case PHOSH_ROTATE_INFO_MODE_LOCK:
++    mode = PHOSH_ROTATE_INFO_MODE_TOGGLE;
++    break;
++  default:
++    g_assert_not_reached ();
++  }
++  g_debug ("Rotateifo mode: %d", mode);
++  phosh_rotate_info_set_mode (PHOSH_ROTATE_INFO (self->rotateinfo), mode);
++}
++
  static void
-@@ -429,7 +430,8 @@ phosh_settings_class_init (PhoshSettingsClass *klass)
+ feedback_setting_clicked_cb (PhoshSettings *self)
+ {
+@@ -500,9 +540,12 @@ phosh_settings_class_init (PhoshSettingsClass *klass)
+   gtk_widget_class_bind_template_child (widget_class, PhoshSettings, scale_brightness);
+   gtk_widget_class_bind_template_child (widget_class, PhoshSettings, list_notifications);
    gtk_widget_class_bind_template_child (widget_class, PhoshSettings, sw_notifications);
++  gtk_widget_class_bind_template_child (widget_class, PhoshSettings, rotateinfo);
  
    gtk_widget_class_bind_template_callback (widget_class, battery_setting_clicked_cb);
--  gtk_widget_class_bind_template_callback (widget_class, rotation_setting_clicked_cb);
-+  gtk_widget_class_bind_template_callback (widget_class, rotation_locked_setting_clicked_cb);  
+   gtk_widget_class_bind_template_callback (widget_class, rotation_setting_clicked_cb);
++  gtk_widget_class_bind_template_callback (widget_class, rotation_setting_long_pressed_cb);
 +
    gtk_widget_class_bind_template_callback (widget_class, feedback_setting_clicked_cb);
    gtk_widget_class_bind_template_callback (widget_class, feedback_setting_long_pressed_cb);
    gtk_widget_class_bind_template_callback (widget_class, wifi_setting_clicked_cb);
 diff --git a/src/ui/settings-menu.ui b/src/ui/settings-menu.ui
-index a094f376..6d39f837 100644
+index a094f376..ccd2ba14 100644
 --- a/src/ui/settings-menu.ui
 +++ b/src/ui/settings-menu.ui
-@@ -94,7 +94,7 @@
-                   <object class="PhoshQuickSetting">
+@@ -95,6 +95,7 @@
                      <property name="visible">True</property>
                      <property name="can_focus">False</property>
--                    <signal name="clicked" handler="rotation_setting_clicked_cb" object="PhoshSettings" swapped="yes"/>
-+                    <signal name="clicked" handler="rotation_locked_setting_clicked_cb" object="PhoshSettings" swapped="yes"/>
+                     <signal name="clicked" handler="rotation_setting_clicked_cb" object="PhoshSettings" swapped="yes"/>
++                    <signal name="long-pressed" handler="rotation_setting_long_pressed_cb" object="PhoshSettings" swapped="yes"/>
                      <child>
                        <object class="PhoshRotateInfo" id="rotateinfo">
                          <property name="visible">True</property>
