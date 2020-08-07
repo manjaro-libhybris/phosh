@@ -19,7 +19,6 @@ source=("git+https://source.puri.sm/Librem5/phosh.git#commit=${_commit}"
          0002-improve-rotation.patch
          0001-rotate-MR-434-fix-PP.patch
          0001-showing-unlock-page-re-orients-the-screen.patch
-         0001-lock-rotation-on-lockscreen.patch
 	 "pam_phosh"
 	 "sm.puri.OSK0.desktop"
          "phosh.service")
