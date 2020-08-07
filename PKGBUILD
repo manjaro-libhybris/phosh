@@ -4,7 +4,7 @@
 pkgname=phosh
 pkgver=0.4.3
 _commit=99d18088f1e44a19db870649559451e91adf204e
-pkgrel=2
+pkgrel=3
 pkgdesc="A pure Wayland shell prototype for GNOME on mobile devices"
 url="https://source.puri.sm/Librem5/phosh"
 license=("GPL3")
@@ -18,6 +18,8 @@ source=("git+https://source.puri.sm/Librem5/phosh.git#commit=${_commit}"
          0001-rotate-MR-434.patch
          0002-improve-rotation.patch
          0001-rotate-MR-434-fix-PP.patch
+         0001-showing-unlock-page-re-orients-the-screen.patch
+         0001-lock-rotation-on-lockscreen.patch
 	 "pam_phosh"
 	 "sm.puri.OSK0.desktop"
          "phosh.service")
@@ -28,6 +30,8 @@ sha256sums=('SKIP'
             'ff70acf4aafc4a859e2e9d234c3ce0d07760da0005322d9495445edf59f67140'
             '8006049c812f5b7dec864c1fb3e7d23cc4ccebe7b34468e7f69ac75d8252516d'
             '45569ad26fab175595ed0aa9a4139551a665c6d244eaaf43d8f9d951f6782b28'
+            '4275a6d5601125251c1d55ffa67d235339b82ee8ca68b2988ff47fda986ec32f'
+            '62a515a555150dd009d5e69e2980a40001551f5d03a860da5e266ffa0531a88d'
             'b7793f80c533e84ad8adfe8bb46c69f107575e724aa9b53b41f370baa37e4fd5'
             'f0faa73bb7793b7628b6a4ea8ab0059e13f5d46435efee2f4b8d8ac256311372'
             'ed6fac614d6799e3a1e0cdcff6ccf8d446c3b53c607dc3e93f1262d6b05843cc')
