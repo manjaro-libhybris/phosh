@@ -1,0 +1,64 @@
+From 41a399f1bd65f6ef36d30fe119a626507e1f12c7 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
+Date: Fri, 17 Apr 2020 17:27:34 +0200
+Subject: [PATCH] Move system modal dialogs to top layer
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+We had them in overlay but that makes them pop up over the lock screen.
+
+Notifications stay in overlay for the moment until we have the
+notification center merged.
+
+Closes: #299, #254
+
+Signed-off-by: Guido Günther <guido.gunther@puri.sm>
+---
+ src/network-auth-prompt.c | 2 +-
+ src/polkit-auth-prompt.c  | 2 +-
+ src/system-prompt.c       | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/src/network-auth-prompt.c b/src/network-auth-prompt.c
+index 53361156..814ad9bf 100644
+--- a/src/network-auth-prompt.c
++++ b/src/network-auth-prompt.c
+@@ -399,7 +399,7 @@ phosh_network_auth_prompt_new (ShellNetworkAgent *agent,
+                        ZWLR_LAYER_SURFACE_V1_ANCHOR_BOTTOM |
+                        ZWLR_LAYER_SURFACE_V1_ANCHOR_LEFT |
+                        ZWLR_LAYER_SURFACE_V1_ANCHOR_RIGHT,
+-                       "layer", ZWLR_LAYER_SHELL_V1_LAYER_OVERLAY,
++                       "layer", ZWLR_LAYER_SHELL_V1_LAYER_TOP,
+                        "kbd-interactivity", TRUE,
+                        "exclusive-zone", -1,
+                        "namespace", "phosh prompter",
+diff --git a/src/polkit-auth-prompt.c b/src/polkit-auth-prompt.c
+index 1900a4ea..19214eb7 100644
+--- a/src/polkit-auth-prompt.c
++++ b/src/polkit-auth-prompt.c
+@@ -597,7 +597,7 @@ phosh_polkit_auth_prompt_new (const gchar *action_id,
+                        ZWLR_LAYER_SURFACE_V1_ANCHOR_BOTTOM |
+                        ZWLR_LAYER_SURFACE_V1_ANCHOR_LEFT |
+                        ZWLR_LAYER_SURFACE_V1_ANCHOR_RIGHT,
+-                       "layer", ZWLR_LAYER_SHELL_V1_LAYER_OVERLAY,
++                       "layer", ZWLR_LAYER_SHELL_V1_LAYER_TOP,
+                        "kbd-interactivity", TRUE,
+                        "exclusive-zone", -1,
+                        "namespace", "phosh prompter",
+diff --git a/src/system-prompt.c b/src/system-prompt.c
+index 30aa3f17..7f18d8f9 100644
+--- a/src/system-prompt.c
++++ b/src/system-prompt.c
+@@ -765,7 +765,7 @@ phosh_system_prompt_new (gpointer layer_shell,
+                        ZWLR_LAYER_SURFACE_V1_ANCHOR_BOTTOM |
+                        ZWLR_LAYER_SURFACE_V1_ANCHOR_LEFT |
+                        ZWLR_LAYER_SURFACE_V1_ANCHOR_RIGHT,
+-                       "layer", ZWLR_LAYER_SHELL_V1_LAYER_OVERLAY,
++                       "layer", ZWLR_LAYER_SHELL_V1_LAYER_TOP,
+                        "kbd-interactivity", TRUE,
+                        "exclusive-zone", -1,
+                        "namespace", "phosh prompter",
+-- 
+2.26.2
+
