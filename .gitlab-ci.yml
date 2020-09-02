@@ -2,7 +2,6 @@ build:
   tags:
     - bigbuilds
     - strit
-    - philm
   script:
     - sudo pacman -Syy && makepkg -scr --noconfirm
   artifacts:
