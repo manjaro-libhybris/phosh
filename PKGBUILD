@@ -14,7 +14,7 @@ makedepends=('meson' 'git')
 source=("git+https://source.puri.sm/Librem5/phosh.git#commit=${_commit}"
         "git+https://gitlab.gnome.org/GNOME/libgnome-volume-control.git"
          0001-system-prompt-allow-blank-passwords.patch
-         0002-monitor-use-a-floating-point-scale-factor.patch
+         #0002-monitor-use-a-floating-point-scale-factor.patch
          0001-rotate-MR-434.patch
          0001-rotate-MR-434-fix-PP.patch
          0001-showing-unlock-page-re-orients-the-screen.patch
