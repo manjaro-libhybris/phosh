@@ -2,9 +2,9 @@
 # Contributor: Philip Goto <philip.goto@gmail.com>
 
 pkgname=phosh
-pkgver=0.4.3
+pkgver=0.4.3+63+g9c07dc6
 _commit=9c07dc65ac9296b34adefaf8503a4219c5c65adf
-pkgrel=5
+pkgrel=1
 pkgdesc="A pure Wayland shell prototype for GNOME on mobile devices"
 url="https://source.puri.sm/Librem5/phosh"
 license=("GPL3")
@@ -25,9 +25,9 @@ source=("git+https://source.puri.sm/Librem5/phosh.git#commit=${_commit}"
 sha256sums=('SKIP'
             'SKIP'
             '0c5a2dbd0512ab8eca6e667f04ba03ec1b0d2896237b10d239aca63cfc19919e'
-            'ff70acf4aafc4a859e2e9d234c3ce0d07760da0005322d9495445edf59f67140'
+            'f17fd7851e529b8bcea779ee721f4ef0feb2e4a482a5d836c3bc52c37cbfce39'
             '45569ad26fab175595ed0aa9a4139551a665c6d244eaaf43d8f9d951f6782b28'
-            '4275a6d5601125251c1d55ffa67d235339b82ee8ca68b2988ff47fda986ec32f'
+            '6c994797c382f63838b807ecfeea45ec2f8db25bf5795d40605085b493e75932'
             'f9d62f004e9763d96ab4a18eb3f6be2ea3f0e43e670cad3a9009173ce9f70e5e'
             'b7793f80c533e84ad8adfe8bb46c69f107575e724aa9b53b41f370baa37e4fd5'
             'f0faa73bb7793b7628b6a4ea8ab0059e13f5d46435efee2f4b8d8ac256311372'

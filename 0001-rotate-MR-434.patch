@@ -59,64 +59,6 @@ index bd390c97..1cb5c424 100644
  } PhoshSettings;
  
  
-@@ -148,8 +147,9 @@ battery_setting_clicked_cb (PhoshSettings *self)
-   g_signal_emit (self, signals[SETTING_DONE], 0);
- }
- 
--static void change_volume (PhoshSettings *self,
--                           gint steps)
-+static void
-+change_volume (PhoshSettings *self,
-+               gint           steps)
- {
-   GtkAdjustment *adj;
-   gdouble vol, inc;
-@@ -166,34 +166,36 @@ static void change_volume (PhoshSettings *self,
-   gtk_adjustment_set_value (adj, vol);
- }
- 
--static void lower_volume (PhoshSettings *self)
-+static void
-+lower_volume (PhoshSettings *self)
- {
-   change_volume (self, -1);
- }
- 
--static void raise_volume (PhoshSettings *self)
-+static void
-+raise_volume (PhoshSettings *self)
- {
-   change_volume (self, 1);
- }
- 
- static void
- accelerator_grabbed_cb (PhoshSettings *self,
--                        const gchar *accelerator,
--                        uint32_t action_id)
-+                        const gchar   *accelerator,
-+                        uint32_t       action_id)
- {
-   guint64 action = action_id;
-+
-   if (g_strcmp0 (accelerator, "XF86AudioLowerVolume") == 0) {
-     g_hash_table_insert (self->accelerator_callbacks, (gpointer) action, (gpointer) lower_volume);
--  }
--  else if (g_strcmp0 (accelerator, "XF86AudioRaiseVolume") == 0) {
--     g_hash_table_insert (self->accelerator_callbacks, (gpointer) action, (gpointer) raise_volume);
-+  }else if (g_strcmp0 (accelerator, "XF86AudioRaiseVolume") == 0)  {
-+    g_hash_table_insert (self->accelerator_callbacks, (gpointer) action, (gpointer) raise_volume);
-   }
- }
- 
- static void
- accelerator_activated_cb (PhoshSettings *self,
--                          uint32_t action_id,
--                          uint32_t timestamp)
-+                          uint32_t       action_id,
-+                          uint32_t       timestamp)
- {
-   void (*callback)(PhoshSettings *);
-   guint64 action = action_id;
 @@ -359,10 +361,10 @@ end_notify_feedback (PhoshSettings *self)
  
  static void
@@ -769,7 +711,7 @@ diff --git a/src/shell.h b/src/shell.h
 index 3074a611..2fcd0485 100644
 --- a/src/shell.h
 +++ b/src/shell.h
-@@ -12,6 +12,7 @@
+@@ -13,6 +13,7 @@
  #include "monitor/monitor.h"
  #include "lockscreen-manager.h"
  #include "osk-manager.h"
@@ -777,14 +719,14 @@ index 3074a611..2fcd0485 100644
  #include "toplevel-manager.h"
  #include "wifimanager.h"
  #include "bt-manager.h"
-@@ -49,6 +50,7 @@ PhoshToplevelManager *phosh_shell_get_toplevel_manager (PhoshShell *self);
+@@ -51,6 +52,7 @@ PhoshToplevelManager *phosh_shell_get_to
  PhoshWifiManager    *phosh_shell_get_wifi_manager    (PhoshShell *self);
  PhoshFeedbackManager *phosh_shell_get_feedback_manager (PhoshShell *self);
  PhoshBtManager      *phosh_shell_get_bt_manager      (PhoshShell *self);
 +PhoshRotationManager *phosh_shell_get_rotation_manager (PhoshShell *self);
+ PhoshWWan           *phosh_shell_get_wwan        (PhoshShell *self);
  void                 phosh_shell_fade_out (PhoshShell *self, guint timeout);
  void                 phosh_shell_enable_power_save (PhoshShell *self, gboolean enable);
- gboolean             phosh_shell_started_by_display_manager(PhoshShell *self);
 -- 
 2.26.2
 

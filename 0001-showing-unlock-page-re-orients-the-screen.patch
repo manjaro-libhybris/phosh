@@ -11,7 +11,7 @@ diff --git a/src/lockscreen.c b/src/lockscreen.c
 index e428f6a..3a486df 100644
 --- a/src/lockscreen.c
 +++ b/src/lockscreen.c
-@@ -16,6 +16,7 @@
+@@ -20,6 +20,7 @@
  #include <glib/gi18n.h>
  #include <math.h>
  #include <time.h>
@@ -19,20 +19,15 @@ index e428f6a..3a486df 100644
  
  #define HANDY_USE_UNSTABLE_API
  #include <handy.h>
-@@ -398,9 +399,12 @@ paginator_position_notified_cb (PhoshLockscreen *self,
-                                 GParamSpec      *pspec,
-                                 HdyPaginator    *paginator)
+@@ -402,6 +403,7 @@ carousel_position_notified_cb (PhoshLock
+                                GParamSpec      *pspec,
+                                HdyCarousel     *carousel)
  {
 +  PhoshShell *shell = phosh_shell_get_default ();
    PhoshLockscreenPrivate *priv = phosh_lockscreen_get_instance_private (self);
    double position;
  
-+  
-+
-   position = hdy_paginator_get_position (HDY_PAGINATOR (priv->paginator));
- 
-   if (position <= 0) {
-@@ -414,6 +418,7 @@ paginator_position_notified_cb (PhoshLockscreen *self,
+@@ -418,6 +420,7 @@ carousel_position_notified_cb (PhoshLock
        priv->idle_timer = g_timeout_add_seconds (LOCKSCREEN_IDLE_SECONDS,
                                                  (GSourceFunc) keypad_check_idle,
                                                  self);
