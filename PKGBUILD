@@ -3,7 +3,7 @@
 
 pkgname=phosh
 pkgver=0.4.3+63+g9c07dc6
-_commit=8a7097caeb9873e84e1514cb0d347b6d93414448
+_commit=be692ac9998ffce85675a1f8db3393637bc492e8
 pkgrel=1
 pkgdesc="A pure Wayland shell prototype for GNOME on mobile devices"
 url="https://source.puri.sm/Librem5/phosh"
