@@ -1,0 +1,864 @@
+From 5308da0f10aea5105c9f596a1c9c6002736473a2 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
+Date: Thu, 8 Oct 2020 16:55:53 +0200
+Subject: [PATCH 1/2] monitor-manager: Add property for number of monitors
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+This allows to listen to a single signal when the number
+of monitors changed.
+
+Signed-off-by: Guido Günther <guido.gunther@puri.sm>
+---
+ src/monitor-manager.c | 41 +++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 41 insertions(+)
+
+diff --git a/src/monitor-manager.c b/src/monitor-manager.c
+index 211fda36..c2dcf472 100644
+--- a/src/monitor-manager.c
++++ b/src/monitor-manager.c
+@@ -26,6 +26,13 @@
+  * @Title: PhoshMonitorManager
+  */
+ 
++enum {
++  PROP_0,
++  PROP_N_MONITORS,
++  PROP_LAST_PROP
++};
++static GParamSpec *props[PROP_LAST_PROP];
++
+ enum {
+   SIGNAL_MONITOR_ADDED,
+   SIGNAL_MONITOR_REMOVED,
+@@ -836,6 +843,7 @@ on_monitor_removed (PhoshMonitorManager *self,
+ 
+   g_debug("Monitor %p (%s) removed", monitor, monitor->name);
+   g_ptr_array_remove (self->monitors, monitor);
++  g_object_notify_by_pspec (G_OBJECT (self), props[PROP_N_MONITORS]);
+ }
+ 
+ 
+@@ -975,6 +983,24 @@ phosh_monitor_manager_finalize (GObject *object)
+  * PhoshMonitorManager Class
+  */
+ 
++static void
++phosh_monitor_manager_get_property (GObject    *object,
++                                    guint       property_id,
++                                    GValue     *value,
++                                    GParamSpec *pspec)
++{
++  PhoshMonitorManager *self = PHOSH_MONITOR_MANAGER (object);
++
++  switch (property_id) {
++  case PROP_N_MONITORS:
++    g_value_set_int (value, self->monitors->len);
++    break;
++  default:
++    G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
++    break;
++  }
++}
++
+ static void
+ phosh_monitor_manager_constructed (GObject *object)
+ {
+@@ -1023,6 +1049,20 @@ phosh_monitor_manager_class_init (PhoshMonitorManagerClass *klass)
+ 
+   object_class->constructed = phosh_monitor_manager_constructed;
+   object_class->finalize = phosh_monitor_manager_finalize;
++  object_class->get_property = phosh_monitor_manager_get_property;
++
++  props[PROP_N_MONITORS] =
++    g_param_spec_int ("n-monitors",
++                      "Number of monitors",
++                      "The number of enabled monitors",
++                      0,
++                      G_MAXINT,
++                      0,
++                      G_PARAM_READABLE |
++                      G_PARAM_EXPLICIT_NOTIFY |
++                      G_PARAM_STATIC_STRINGS);
++
++  g_object_class_install_properties (object_class, PROP_LAST_PROP, props);
+ 
+   /**
+    * PhoshMonitorManager::monitor-added:
+@@ -1076,6 +1116,7 @@ phosh_monitor_manager_add_monitor (PhoshMonitorManager *self, PhoshMonitor *moni
+ {
+   g_ptr_array_add (self->monitors, monitor);
+   g_signal_emit (self, signals[SIGNAL_MONITOR_ADDED], 0, monitor);
++  g_object_notify_by_pspec (G_OBJECT (self), props[PROP_N_MONITORS]);
+ }
+ 
+ 
+-- 
+2.26.2
+
+
+From a47e668b17a2b890b843deca076a6d194e3fd0c4 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
+Date: Thu, 8 Oct 2020 14:11:56 +0200
+Subject: [PATCH 2/2] Add 'docked' quick setting and manager
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+This allows to toggle floating windows mode, etc.
+
+Signed-off-by: Guido Günther <guido.gunther@puri.sm>
+---
+ po/POTFILES.in          |   1 +
+ src/docked-info.c       | 204 ++++++++++++++++++++++++++++
+ src/docked-info.h       |  20 +++
+ src/docked-manager.c    | 286 ++++++++++++++++++++++++++++++++++++++++
+ src/docked-manager.h    |  23 ++++
+ src/meson.build         |   4 +
+ src/settings.c          |  19 +++
+ src/shell.c             |  20 +++
+ src/shell.h             |   2 +
+ src/ui/settings-menu.ui |  15 +++
+ 10 files changed, 594 insertions(+)
+ create mode 100644 src/docked-info.c
+ create mode 100644 src/docked-info.h
+ create mode 100644 src/docked-manager.c
+ create mode 100644 src/docked-manager.h
+
+diff --git a/po/POTFILES.in b/po/POTFILES.in
+index 275609a4..ac9eb466 100644
+--- a/po/POTFILES.in
++++ b/po/POTFILES.in
+@@ -10,6 +10,7 @@ src/background.c
+ src/background-manager.c
+ src/batteryinfo.c
+ src/bt-info.c
++src/docked-info.c
+ src/fader.c
+ src/favorite-list-model.c
+ src/feedbackinfo.c
+diff --git a/src/docked-info.c b/src/docked-info.c
+new file mode 100644
+index 00000000..d59736c4
+--- /dev/null
++++ b/src/docked-info.c
+@@ -0,0 +1,204 @@
++/*
++ * Copyright (C) 2020 Purism SPC
++ *
++ * SPDX-License-Identifier: GPL-3.0-or-later
++ *
++ * Author: Guido Günther <agx@sigxcpu.org>
++ */
++
++#define G_LOG_DOMAIN "phosh-docked-info"
++
++#include "config.h"
++
++#include "shell.h"
++#include "docked-info.h"
++#include "docked-manager.h"
++
++/**
++ * SECTION:docked-info
++ * @short_description: A widget to display the docked status
++ * @Title: PhoshDockedInfo
++ *
++ * #PhoshDockedInfo displays whether the device is docked
++ */
++
++enum {
++  PROP_0,
++  PROP_ENABLED,
++  PROP_PRESENT,
++  PROP_LAST_PROP
++};
++static GParamSpec *props[PROP_LAST_PROP];
++
++
++struct _PhoshDockedInfo {
++  PhoshStatusIcon     parent;
++
++  gboolean            enabled;
++  gboolean            present;
++  PhoshDockedManager *docked;
++};
++G_DEFINE_TYPE (PhoshDockedInfo, phosh_docked_info, PHOSH_TYPE_STATUS_ICON);
++
++
++static void
++phosh_docked_info_get_property (GObject    *object,
++                                guint       property_id,
++                                GValue     *value,
++                                GParamSpec *pspec)
++{
++  PhoshDockedInfo *self = PHOSH_DOCKED_INFO (object);
++
++  switch (property_id) {
++  case PROP_ENABLED:
++    g_value_set_boolean (value, self->enabled);
++    break;
++  case PROP_PRESENT:
++    g_value_set_boolean (value, self->present);
++    break;
++  default:
++    G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
++    break;
++  }
++}
++
++
++static void
++on_docked_enabled (PhoshDockedInfo *self, GParamSpec *pspec, PhoshDockedManager *docked)
++{
++  gboolean enabled;
++
++  g_debug ("Updating docked status");
++  g_return_if_fail (PHOSH_IS_DOCKED_INFO (self));
++  g_return_if_fail (PHOSH_IS_DOCKED_MANAGER (docked));
++
++  enabled = phosh_docked_manager_get_enabled (docked);
++  if (self->enabled == enabled)
++    return;
++
++  self->enabled = enabled;
++  phosh_status_icon_set_info (PHOSH_STATUS_ICON (self),
++                              enabled ? _("Docked") : ("Undocked"));
++
++  g_object_notify_by_pspec (G_OBJECT (self), props[PROP_ENABLED]);
++}
++
++
++static void
++on_docked_present (PhoshDockedInfo *self, GParamSpec *pspec, PhoshDockedManager *docked)
++{
++  gboolean present;
++
++  g_return_if_fail (PHOSH_IS_DOCKED_INFO (self));
++  g_return_if_fail (PHOSH_IS_DOCKED_MANAGER (docked));
++
++  present = phosh_docked_manager_get_present (docked);
++  if (self->present == present)
++    return;
++
++  self->present = present;
++  g_object_notify_by_pspec (G_OBJECT (self), props[PROP_PRESENT]);
++}
++
++
++static gboolean
++on_idle (PhoshDockedInfo *self)
++{
++  g_object_bind_property (self->docked, "icon-name", self, "icon-name",
++                          G_BINDING_SYNC_CREATE);
++
++  /* We don't use a binding for self->enabled so we can keep
++     the property r/o */
++  g_signal_connect_swapped (self->docked,
++                            "notify::present",
++                            G_CALLBACK (on_docked_present),
++                            self);
++  on_docked_present (self, NULL, self->docked);
++
++  g_signal_connect_swapped (self->docked,
++                            "notify::enabled",
++                            G_CALLBACK (on_docked_enabled),
++                            self);
++  on_docked_enabled (self, NULL, self->docked);
++
++
++  return FALSE;
++}
++
++
++static void
++phosh_docked_info_constructed (GObject *object)
++{
++  PhoshDockedInfo *self = PHOSH_DOCKED_INFO (object);
++  PhoshShell *shell;
++
++  G_OBJECT_CLASS (phosh_docked_info_parent_class)->constructed (object);
++
++  shell = phosh_shell_get_default ();
++  self->docked = g_object_ref (phosh_shell_get_docked_manager (shell));
++
++  if (self->docked == NULL) {
++    g_warning ("Failed to get docked manager");
++    return;
++  }
++
++  g_idle_add ((GSourceFunc) on_idle, self);
++}
++
++
++static void
++phosh_docked_info_dispose (GObject *object)
++{
++  PhoshDockedInfo *self = PHOSH_DOCKED_INFO (object);
++
++  if (self->docked) {
++    g_signal_handlers_disconnect_by_data (self->docked, self);
++    g_clear_object (&self->docked);
++  }
++
++  G_OBJECT_CLASS (phosh_docked_info_parent_class)->dispose (object);
++}
++
++
++static void
++phosh_docked_info_class_init (PhoshDockedInfoClass *klass)
++{
++  GObjectClass *object_class = G_OBJECT_CLASS (klass);
++
++  object_class->constructed = phosh_docked_info_constructed;
++  object_class->dispose = phosh_docked_info_dispose;
++  object_class->get_property = phosh_docked_info_get_property;
++
++  props[PROP_ENABLED] =
++    g_param_spec_boolean ("enabled",
++                          "enabled",
++                          "Whether the docked is enabled",
++                          FALSE,
++                          G_PARAM_READABLE |
++                          G_PARAM_STATIC_STRINGS |
++                          G_PARAM_EXPLICIT_NOTIFY);
++  props[PROP_PRESENT] =
++    g_param_spec_boolean ("present",
++                          "Present",
++                          "Whether docked hardware is present",
++                          FALSE,
++                          G_PARAM_READABLE |
++                          G_PARAM_STATIC_STRINGS |
++                          G_PARAM_EXPLICIT_NOTIFY);
++
++  g_object_class_install_properties (object_class, PROP_LAST_PROP, props);
++}
++
++
++static void
++phosh_docked_info_init (PhoshDockedInfo *self)
++{
++  phosh_status_icon_set_info (PHOSH_STATUS_ICON (self), _("Undocked"));
++}
++
++
++GtkWidget *
++phosh_docked_info_new (void)
++{
++  return g_object_new (PHOSH_TYPE_DOCKED_INFO, NULL);
++}
+diff --git a/src/docked-info.h b/src/docked-info.h
+new file mode 100644
+index 00000000..bdcbfd0d
+--- /dev/null
++++ b/src/docked-info.h
+@@ -0,0 +1,20 @@
++/*
++ * Copyright (C) 2020 Purism SPC
++ *
++ * SPDX-License-Identifier: GPL-3.0-or-later
++ */
++
++#pragma once
++
++#include <gtk/gtk.h>
++#include "status-icon.h"
++
++G_BEGIN_DECLS
++
++#define PHOSH_TYPE_DOCKED_INFO (phosh_docked_info_get_type ())
++
++G_DECLARE_FINAL_TYPE (PhoshDockedInfo, phosh_docked_info, PHOSH, DOCKED_INFO, PhoshStatusIcon)
++
++GtkWidget * phosh_docked_info_new (void);
++
++G_END_DECLS
+diff --git a/src/docked-manager.c b/src/docked-manager.c
+new file mode 100644
+index 00000000..c04c66d7
+--- /dev/null
++++ b/src/docked-manager.c
+@@ -0,0 +1,286 @@
++/*
++ * Copyright (C) 2020 Purism SPC
++ *
++ * SPDX-License-Identifier: GPL-3.0-or-later
++ *
++ * Author: Guido Günther <agx@sigxcpu.org>
++ */
++
++#define G_LOG_DOMAIN "phosh-docked-manager"
++
++#include "config.h"
++
++#include "docked-manager.h"
++#include "shell.h"
++
++#define DOCKED_DISABLED_ICON "switch-off-symbolic"
++#define DOCKED_ENABLED_ICON  "switch-on-symbolic"
++
++#define PHOC_KEY_MAXIMIZE "auto-maximize"
++#define A11Y_KEY_OSK "screen-keyboard-enabled"
++#define WM_KEY_LAYOUT "button-layout"
++
++/* TODO: no need to have that in the shell, could go into g-s-d
++ * so gnome-shell can use the same logic */
++/**
++ * SECTION:docked-manager
++ * @short_description: Determines if the phone is docked
++ * @Title: PhoshDockedManager
++ *
++ * #PhoshDockedManager tracks the docked status and
++ * and toggles appropriate actions (disable OSK, ...)
++ */
++
++enum {
++  PROP_0,
++  PROP_ICON_NAME,
++  PROP_ENABLED,
++  PROP_PRESENT,
++  PROP_LAST_PROP
++};
++static GParamSpec *props[PROP_LAST_PROP];
++
++struct _PhoshDockedManager {
++  GObject              parent;
++
++  gboolean             enabled;
++  gboolean             present;
++  const char          *icon_name;
++
++  PhoshMonitorManager *monitor_manager;
++
++  GSettings           *phoc_settings;
++  GSettings           *wm_settings;
++  GSettings           *a11y_settings;
++};
++G_DEFINE_TYPE (PhoshDockedManager, phosh_docked_manager, G_TYPE_OBJECT);
++
++
++static void
++phosh_docked_manager_get_property (GObject    *object,
++                                   guint       property_id,
++                                   GValue     *value,
++                                   GParamSpec *pspec)
++{
++  PhoshDockedManager *self = PHOSH_DOCKED_MANAGER (object);
++
++  switch (property_id) {
++  case PROP_ICON_NAME:
++    g_value_set_string (value, self->icon_name);
++    break;
++  case PROP_PRESENT:
++    g_value_set_boolean (value, self->present);
++    break;
++  case PROP_ENABLED:
++    g_value_set_boolean (value, self->enabled);
++    break;
++  default:
++    G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
++    break;
++  }
++}
++
++
++static void
++docked_enable (PhoshDockedManager *self, gboolean enable)
++{
++  /* The other settings are updated when this changes */
++  g_debug ("%sabling docked mode", enable ? "En" : "Dis");
++  g_settings_set_boolean (self->phoc_settings, PHOC_KEY_MAXIMIZE, !enable);
++}
++
++
++static void
++on_maximize_changed (PhoshDockedManager *self,
++                     GParamSpec         *pspec,
++                     GSettings          *settings)
++{
++  g_autofree char *owner = NULL;
++  const char *icon_name;
++  gboolean docked;
++  PhoshShell *shell = phosh_shell_get_default ();
++
++  g_return_if_fail (PHOSH_IS_DOCKED_MANAGER (self));
++
++  docked = !g_settings_get_boolean (self->phoc_settings, PHOC_KEY_MAXIMIZE);
++  if (docked == self->enabled)
++    return;
++
++  self->enabled = docked;
++  g_settings_set_boolean (self->a11y_settings, A11Y_KEY_OSK, !docked);
++  if (docked)
++    g_settings_reset (self->wm_settings, WM_KEY_LAYOUT);
++  else
++    g_settings_set_string (self->wm_settings, WM_KEY_LAYOUT, "appmenu:");
++
++  g_object_freeze_notify (G_OBJECT (self));
++  icon_name = self->enabled ? DOCKED_ENABLED_ICON : DOCKED_DISABLED_ICON;
++  if (icon_name != self->icon_name) {
++    self->icon_name = icon_name;
++    g_object_notify_by_pspec (G_OBJECT (self), props[PROP_ICON_NAME]);
++  }
++
++  if (!docked) {
++    PhoshMonitor *monitor;
++
++    monitor = phosh_shell_get_builtin_monitor (shell);
++    phosh_shell_set_primary_monitor (shell, monitor);
++  }
++
++  g_object_notify_by_pspec (G_OBJECT (self), props[PROP_ENABLED]);
++  g_object_thaw_notify (G_OBJECT (self));
++}
++
++
++static void
++on_n_monitors_changed (PhoshDockedManager *self, GParamSpec *pspec, PhoshMonitorManager *manager)
++{
++  gboolean present;
++  int num;
++
++  g_return_if_fail (PHOSH_IS_DOCKED_MANAGER (self));
++  g_return_if_fail (PHOSH_IS_MONITOR_MANAGER (manager));
++
++  num = phosh_monitor_manager_get_num_monitors (manager);
++  g_debug ("Monitors: %d", num);
++  present = (num > 1);
++  if (present == self->present)
++    return;
++
++  g_debug ("Docked mode possible: %d", present);
++  self->present = present;
++
++  g_object_notify_by_pspec (G_OBJECT (self), props[PROP_PRESENT]);
++
++  /* TODO: Make enabled only follow present when we also have a keyboard  */
++  docked_enable (self, present);
++}
++
++
++static void
++phosh_docked_manager_constructed (GObject *object)
++{
++  PhoshDockedManager *self = PHOSH_DOCKED_MANAGER (object);
++
++  G_OBJECT_CLASS (phosh_docked_manager_parent_class)->constructed (object);
++
++  self->phoc_settings = g_settings_new ("sm.puri.phoc");
++  self->a11y_settings = g_settings_new ("org.gnome.desktop.a11y.applications");
++  self->wm_settings = g_settings_new ("org.gnome.desktop.wm.preferences");
++  self->monitor_manager = phosh_shell_get_monitor_manager (phosh_shell_get_default ());
++
++  /* Too simplistic */
++  g_signal_connect_swapped (self->phoc_settings,
++                            "changed::" PHOC_KEY_MAXIMIZE,
++                            G_CALLBACK (on_maximize_changed),
++                            self);
++
++  /* TODO: ref mm and properly disconnect signals */
++  g_signal_connect_swapped (self->monitor_manager,
++                            "notify::n-monitors",
++                            G_CALLBACK (on_n_monitors_changed),
++                            self);
++  on_n_monitors_changed (self, NULL, self->monitor_manager);
++  on_maximize_changed (self, NULL, self->phoc_settings);
++}
++
++
++static void
++phosh_docked_manager_dispose (GObject *object)
++{
++  PhoshDockedManager *self = PHOSH_DOCKED_MANAGER (object);
++
++  g_clear_object (&self->phoc_settings);
++  g_clear_object (&self->a11y_settings);
++  g_clear_object (&self->wm_settings);
++
++  G_OBJECT_CLASS (phosh_docked_manager_parent_class)->dispose (object);
++}
++
++
++static void
++phosh_docked_manager_class_init (PhoshDockedManagerClass *klass)
++{
++  GObjectClass *object_class = G_OBJECT_CLASS (klass);
++
++  object_class->constructed = phosh_docked_manager_constructed;
++  object_class->dispose = phosh_docked_manager_dispose;
++  object_class->get_property = phosh_docked_manager_get_property;
++
++  props[PROP_ICON_NAME] =
++    g_param_spec_string ("icon-name",
++                         "icon name",
++                         "The docked icon name",
++                         DOCKED_DISABLED_ICON,
++                         G_PARAM_READABLE | G_PARAM_EXPLICIT_NOTIFY);
++
++  props[PROP_ENABLED] =
++    g_param_spec_boolean ("enabled",
++                          "enabled",
++                          "Whether docked is enabled",
++                          FALSE,
++                          G_PARAM_READABLE |
++                          G_PARAM_EXPLICIT_NOTIFY |
++                          G_PARAM_STATIC_STRINGS);
++
++  props[PROP_PRESENT] =
++    g_param_spec_boolean ("present",
++                          "Present",
++                          "Whether a docked led is present",
++                          FALSE,
++                          G_PARAM_READABLE |
++                          G_PARAM_EXPLICIT_NOTIFY |
++                          G_PARAM_STATIC_STRINGS);
++
++  g_object_class_install_properties (object_class, PROP_LAST_PROP, props);
++}
++
++
++static void
++phosh_docked_manager_init (PhoshDockedManager *self)
++{
++  self->icon_name = DOCKED_DISABLED_ICON;
++}
++
++
++PhoshDockedManager *
++phosh_docked_manager_new (void)
++{
++  return PHOSH_DOCKED_MANAGER (g_object_new (PHOSH_TYPE_DOCKED_MANAGER, NULL));
++}
++
++
++const char *
++phosh_docked_manager_get_icon_name (PhoshDockedManager *self)
++{
++  g_return_val_if_fail (PHOSH_IS_DOCKED_MANAGER (self), NULL);
++
++  return self->icon_name;
++}
++
++
++gboolean
++phosh_docked_manager_get_enabled (PhoshDockedManager *self)
++{
++  g_return_val_if_fail (PHOSH_IS_DOCKED_MANAGER (self), FALSE);
++
++  return self->enabled;
++}
++
++
++gboolean
++phosh_docked_manager_get_present (PhoshDockedManager *self)
++{
++  g_return_val_if_fail (PHOSH_IS_DOCKED_MANAGER (self), FALSE);
++
++  return self->present;
++}
++
++
++void
++phosh_docked_manager_toggle (PhoshDockedManager *self)
++{
++  g_return_if_fail (PHOSH_IS_DOCKED_MANAGER (self));
++
++  docked_enable (self, !self->enabled);
++}
+diff --git a/src/docked-manager.h b/src/docked-manager.h
+new file mode 100644
+index 00000000..b6062b93
+--- /dev/null
++++ b/src/docked-manager.h
+@@ -0,0 +1,23 @@
++/*
++ * Copyright (C) 2020 Purism SPC
++ *
++ * SPDX-License-Identifier: GPL-3.0-or-later
++ */
++
++#pragma once
++
++#include <glib-object.h>
++
++G_BEGIN_DECLS
++
++#define PHOSH_TYPE_DOCKED_MANAGER (phosh_docked_manager_get_type ())
++
++G_DECLARE_FINAL_TYPE (PhoshDockedManager, phosh_docked_manager, PHOSH, DOCKED_MANAGER, GObject)
++
++PhoshDockedManager *phosh_docked_manager_new (void);
++const char *phosh_docked_manager_get_icon_name (PhoshDockedManager *self);
++gboolean    phosh_docked_manager_get_enabled (PhoshDockedManager *self);
++gboolean    phosh_docked_manager_get_present (PhoshDockedManager *self);
++void        phosh_docked_manager_toggle (PhoshDockedManager *self);
++
++G_END_DECLS
+diff --git a/src/meson.build b/src/meson.build
+index 8794c521..3a8accf7 100644
+--- a/src/meson.build
++++ b/src/meson.build
+@@ -52,6 +52,10 @@ libphosh_tool_sources = [
+   'background.h',
+   'connectivity-info.c',
+   'connectivity-info.h',
++  'docked-info.c',
++  'docked-info.h',
++  'docked-manager.c',
++  'docked-manager.h',
+   'favorite-list-model.c',
+   'favorite-list-model.h',
+   'feedback-manager.c',
+diff --git a/src/settings.c b/src/settings.c
+index 9ba477e6..c519019e 100644
+--- a/src/settings.c
++++ b/src/settings.c
+@@ -11,6 +11,8 @@
+ #include <glib/gi18n.h>
+ 
+ #include "bt-info.h"
++#include "docked-info.h"
++#include "docked-manager.h"
+ #include "shell.h"
+ #include "settings.h"
+ #include "quick-setting.h"
+@@ -166,6 +168,21 @@ torch_setting_clicked_cb (PhoshSettings *self)
+   phosh_torch_manager_toggle (manager);
+ }
+ 
++
++static void
++docked_setting_clicked_cb (PhoshSettings *self)
++{
++  PhoshShell *shell;
++  PhoshDockedManager *manager;
++
++  shell = phosh_shell_get_default ();
++  g_return_if_fail (PHOSH_IS_SHELL (shell));
++  manager = phosh_shell_get_docked_manager (shell);
++  g_return_if_fail (PHOSH_IS_DOCKED_MANAGER (manager));
++  phosh_docked_manager_toggle (manager);
++}
++
++
+ static void
+ change_volume (PhoshSettings *self,
+                int            steps)
+@@ -513,6 +530,7 @@ phosh_settings_class_init (PhoshSettingsClass *klass)
+       NULL, G_TYPE_NONE, 0);
+ 
+   g_type_ensure (PHOSH_TYPE_BT_INFO);
++  g_type_ensure (PHOSH_TYPE_DOCKED_INFO);
+   g_type_ensure (PHOSH_TYPE_FEEDBACK_INFO);
+   g_type_ensure (PHOSH_TYPE_MEDIA_PLAYER);
+   g_type_ensure (PHOSH_TYPE_QUICK_SETTING);
+@@ -527,6 +545,7 @@ phosh_settings_class_init (PhoshSettingsClass *klass)
+ 
+   gtk_widget_class_bind_template_callback (widget_class, battery_setting_clicked_cb);
+   gtk_widget_class_bind_template_callback (widget_class, bt_setting_clicked_cb);
++  gtk_widget_class_bind_template_callback (widget_class, docked_setting_clicked_cb);
+   gtk_widget_class_bind_template_callback (widget_class, feedback_setting_clicked_cb);
+   gtk_widget_class_bind_template_callback (widget_class, feedback_setting_long_pressed_cb);
+   gtk_widget_class_bind_template_callback (widget_class, on_media_player_raised);
+diff --git a/src/shell.c b/src/shell.c
+index 241a06c5..39b9fc68 100644
+--- a/src/shell.c
++++ b/src/shell.c
+@@ -29,6 +29,7 @@
+ #include "batteryinfo.h"
+ #include "background-manager.h"
+ #include "bt-manager.h"
++#include "docked-manager.h"
+ #include "fader.h"
+ #include "feedback-manager.h"
+ #include "home.h"
+@@ -99,6 +100,7 @@ typedef struct
+   PhoshBtManager *bt_manager;
+   PhoshWWan *wwan;
+   PhoshTorchManager *torch_manager;
++  PhoshDockedManager *docked_manager;
+ 
+   /* sensors */
+   PhoshSensorProxyManager *sensor_proxy_manager;
+@@ -330,6 +332,7 @@ phosh_shell_dispose (GObject *object)
+   g_clear_object (&priv->notification_banner);
+ 
+   /* dispose managers in opposite order of declaration */
++  g_clear_object (&priv->docked_manager);
+   g_clear_object (&priv->torch_manager);
+   g_clear_object (&priv->wwan);
+   g_clear_object (&priv->bt_manager);
+@@ -892,6 +895,23 @@ phosh_shell_get_torch_manager (PhoshShell *self)
+   return priv->torch_manager;
+ }
+ 
++
++PhoshDockedManager *
++phosh_shell_get_docked_manager (PhoshShell *self)
++{
++  PhoshShellPrivate *priv;
++
++  g_return_val_if_fail (PHOSH_IS_SHELL (self), NULL);
++  priv = phosh_shell_get_instance_private (self);
++
++  if (!priv->docked_manager)
++    priv->docked_manager = phosh_docked_manager_new ();
++
++  g_return_val_if_fail (PHOSH_IS_DOCKED_MANAGER (priv->docked_manager), NULL);
++  return priv->docked_manager;
++}
++
++
+ /**
+  * Returns the usable area in pixels usable by a client on the phone
+  * display
+diff --git a/src/shell.h b/src/shell.h
+index 6f85a103..35164aab 100644
+--- a/src/shell.h
++++ b/src/shell.h
+@@ -9,6 +9,7 @@
+ #pragma once
+ 
+ #include "bt-manager.h"
++#include "docked-manager.h"
+ #include "feedback-manager.h"
+ #include "lockscreen-manager.h"
+ #include "monitor-manager.h"
+@@ -54,6 +55,7 @@ PhoshFeedbackManager *phosh_shell_get_feedback_manager (PhoshShell *self);
+ PhoshBtManager      *phosh_shell_get_bt_manager      (PhoshShell *self);
+ PhoshWWan           *phosh_shell_get_wwan        (PhoshShell *self);
+ PhoshTorchManager   *phosh_shell_get_torch_manager (PhoshShell *self);
++PhoshDockedManager  *phosh_shell_get_docked_manager (PhoshShell *self);
+ void                 phosh_shell_fade_out (PhoshShell *self, guint timeout);
+ void                 phosh_shell_enable_power_save (PhoshShell *self, gboolean enable);
+ gboolean             phosh_shell_started_by_display_manager(PhoshShell *self);
+diff --git a/src/ui/settings-menu.ui b/src/ui/settings-menu.ui
+index 227d8b26..63e49286 100644
+--- a/src/ui/settings-menu.ui
++++ b/src/ui/settings-menu.ui
+@@ -134,6 +134,21 @@
+                     </child>
+                   </object>
+                 </child>
++                <child>
++                  <object class="PhoshQuickSetting" id="docked_quick_setting">
++                    <property name="visible">True</property>
++                    <property name="sensitive" bind-source="dockedinfo" bind-property="present" bind-flags="sync-create"/>
++                    <property name="can_focus">False</property>
++                    <signal name="clicked" handler="docked_setting_clicked_cb" object="PhoshSettings" swapped="yes"/>
++                    <child>
++                      <object class="PhoshDockedInfo" id="dockedinfo">
++                        <property name="visible">True</property>
++                        <property name="can_focus">False</property>
++                        <property name="icon-size">GTK_ICON_SIZE_LARGE_TOOLBAR</property>
++                      </object>
++                    </child>
++                  </object>
++                </child>
+               </object>
+               <packing>
+                 <property name="expand">False</property>
+-- 
+2.26.2
+
