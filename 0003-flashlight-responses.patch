@@ -61,13 +61,13 @@ index c4c5a00..59398d8 100644
 +
 +  if (currently_on)
 +  {
-+    phosh_status_icon_set_icon_name(PHOSH_STATUS_ICON (self->flashlightinfo), "torch-disabled-symbolic.svg");
++    phosh_status_icon_set_icon_name(PHOSH_STATUS_ICON (self->flashlightinfo), "torch-disabled-symbolic");
 +    phosh_status_icon_set_info (PHOSH_STATUS_ICON (self->flashlightinfo), "Off");
 +    set_flashlight_status(0);
 +  }
 +  if (currently_off)
 +  {
-+    phosh_status_icon_set_icon_name(PHOSH_STATUS_ICON (self->flashlightinfo), "torch-enabled-symbolic.svg");
++    phosh_status_icon_set_icon_name(PHOSH_STATUS_ICON (self->flashlightinfo), "torch-enabled-symbolic");
 +    phosh_status_icon_set_info (PHOSH_STATUS_ICON (self->flashlightinfo), "On");
 +    set_flashlight_status(1);
 +  }
