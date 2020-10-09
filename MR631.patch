@@ -98,7 +98,7 @@ index 211fda36..c2dcf472 100644
 2.26.2
 
 
-From 846234cca662da0e7c8141e6a9fb277e1b65c106 Mon Sep 17 00:00:00 2001
+From a47e668b17a2b890b843deca076a6d194e3fd0c4 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Thu, 8 Oct 2020 14:11:56 +0200
 Subject: [PATCH 2/2] Add 'docked' quick setting and manager
@@ -110,6 +110,7 @@ This allows to toggle floating windows mode, etc.
 
 Signed-off-by: Guido Günther <guido.gunther@puri.sm>
 ---
+ po/POTFILES.in          |   1 +
  src/docked-info.c       | 204 ++++++++++++++++++++++++++++
  src/docked-info.h       |  20 +++
  src/docked-manager.c    | 286 ++++++++++++++++++++++++++++++++++++++++
@@ -119,15 +120,27 @@ Signed-off-by: Guido Günther <guido.gunther@puri.sm>
  src/shell.c             |  20 +++
  src/shell.h             |   2 +
  src/ui/settings-menu.ui |  15 +++
- 9 files changed, 593 insertions(+)
+ 10 files changed, 594 insertions(+)
  create mode 100644 src/docked-info.c
  create mode 100644 src/docked-info.h
  create mode 100644 src/docked-manager.c
  create mode 100644 src/docked-manager.h
 
+diff --git a/po/POTFILES.in b/po/POTFILES.in
+index 275609a4..ac9eb466 100644
+--- a/po/POTFILES.in
++++ b/po/POTFILES.in
+@@ -10,6 +10,7 @@ src/background.c
+ src/background-manager.c
+ src/batteryinfo.c
+ src/bt-info.c
++src/docked-info.c
+ src/fader.c
+ src/favorite-list-model.c
+ src/feedbackinfo.c
 diff --git a/src/docked-info.c b/src/docked-info.c
 new file mode 100644
-index 00000000..1f3a0226
+index 00000000..d59736c4
 --- /dev/null
 +++ b/src/docked-info.c
 @@ -0,0 +1,204 @@
@@ -165,10 +178,10 @@ index 00000000..1f3a0226
 +
 +
 +struct _PhoshDockedInfo {
-+  PhoshStatusIcon    parent;
++  PhoshStatusIcon     parent;
 +
-+  gboolean           enabled;
-+  gboolean           present;
++  gboolean            enabled;
++  gboolean            present;
 +  PhoshDockedManager *docked;
 +};
 +G_DEFINE_TYPE (PhoshDockedInfo, phosh_docked_info, PHOSH_TYPE_STATUS_ICON);
@@ -176,9 +189,9 @@ index 00000000..1f3a0226
 +
 +static void
 +phosh_docked_info_get_property (GObject    *object,
-+                               guint       property_id,
-+                               GValue     *value,
-+                               GParamSpec *pspec)
++                                guint       property_id,
++                                GValue     *value,
++                                GParamSpec *pspec)
 +{
 +  PhoshDockedInfo *self = PHOSH_DOCKED_INFO (object);
 +
@@ -363,7 +376,7 @@ index 00000000..bdcbfd0d
 +G_END_DECLS
 diff --git a/src/docked-manager.c b/src/docked-manager.c
 new file mode 100644
-index 00000000..5e5a7ac8
+index 00000000..c04c66d7
 --- /dev/null
 +++ b/src/docked-manager.c
 @@ -0,0 +1,286 @@
@@ -410,26 +423,26 @@ index 00000000..5e5a7ac8
 +static GParamSpec *props[PROP_LAST_PROP];
 +
 +struct _PhoshDockedManager {
-+  GObject               parent;
++  GObject              parent;
 +
-+  gboolean enabled;
-+  gboolean present;
-+  const char *icon_name;
++  gboolean             enabled;
++  gboolean             present;
++  const char          *icon_name;
 +
 +  PhoshMonitorManager *monitor_manager;
 +
-+  GSettings *phoc_settings;
-+  GSettings *wm_settings;
-+  GSettings *a11y_settings;
++  GSettings           *phoc_settings;
++  GSettings           *wm_settings;
++  GSettings           *a11y_settings;
 +};
 +G_DEFINE_TYPE (PhoshDockedManager, phosh_docked_manager, G_TYPE_OBJECT);
 +
 +
 +static void
 +phosh_docked_manager_get_property (GObject    *object,
-+                                  guint       property_id,
-+                                  GValue     *value,
-+                                  GParamSpec *pspec)
++                                   guint       property_id,
++                                   GValue     *value,
++                                   GParamSpec *pspec)
 +{
 +  PhoshDockedManager *self = PHOSH_DOCKED_MANAGER (object);
 +
@@ -460,9 +473,9 @@ index 00000000..5e5a7ac8
 +
 +
 +static void
-+on_maximize_changed (PhoshDockedManager    *self,
-+                     GParamSpec            *pspec,
-+                     GSettings             *settings)
++on_maximize_changed (PhoshDockedManager *self,
++                     GParamSpec         *pspec,
++                     GSettings          *settings)
 +{
 +  g_autofree char *owner = NULL;
 +  const char *icon_name;
@@ -521,7 +534,7 @@ index 00000000..5e5a7ac8
 +
 +  g_object_notify_by_pspec (G_OBJECT (self), props[PROP_PRESENT]);
 +
-+  /* Make enabled follow present by default */
++  /* TODO: Make enabled only follow present when we also have a keyboard  */
 +  docked_enable (self, present);
 +}
 +
@@ -655,7 +668,7 @@ index 00000000..5e5a7ac8
 +}
 diff --git a/src/docked-manager.h b/src/docked-manager.h
 new file mode 100644
-index 00000000..bd16c179
+index 00000000..b6062b93
 --- /dev/null
 +++ b/src/docked-manager.h
 @@ -0,0 +1,23 @@
@@ -676,10 +689,10 @@ index 00000000..bd16c179
 +G_DECLARE_FINAL_TYPE (PhoshDockedManager, phosh_docked_manager, PHOSH, DOCKED_MANAGER, GObject)
 +
 +PhoshDockedManager *phosh_docked_manager_new (void);
-+const char        *phosh_docked_manager_get_icon_name (PhoshDockedManager *self);
-+gboolean           phosh_docked_manager_get_enabled (PhoshDockedManager *self);
-+gboolean           phosh_docked_manager_get_present (PhoshDockedManager *self);
-+void               phosh_docked_manager_toggle (PhoshDockedManager *self);
++const char *phosh_docked_manager_get_icon_name (PhoshDockedManager *self);
++gboolean    phosh_docked_manager_get_enabled (PhoshDockedManager *self);
++gboolean    phosh_docked_manager_get_present (PhoshDockedManager *self);
++void        phosh_docked_manager_toggle (PhoshDockedManager *self);
 +
 +G_END_DECLS
 diff --git a/src/meson.build b/src/meson.build
