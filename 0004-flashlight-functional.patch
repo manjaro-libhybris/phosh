@@ -1,0 +1,54 @@
+From e2b9adb6955be2846c13374c6ad9bd633aaedff9 Mon Sep 17 00:00:00 2001
+From: clover <m.alexanderrobinson@yahoo.com>
+Date: Mon, 3 Aug 2020 22:54:34 -0500
+Subject: [PATCH] working flashlight widget
+
+---
+ src/flashlightinfo.c | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+
+diff --git a/src/flashlightinfo.c b/src/flashlightinfo.c
+index 1aa1742..b724d56 100644
+--- a/src/flashlightinfo.c
++++ b/src/flashlightinfo.c
+@@ -8,6 +8,9 @@
+ 
+ #include "flashlightinfo.h"
+ #include "shell.h"
++#include <fcntl.h>
++
++#define FLASH_SYSFS_PATH "/sys/devices/platform/led-controller/leds/white:flash/brightness"
+ 
+ /**
+  * SECTION:flashlightinfo
+@@ -24,9 +27,22 @@
+ int flashlight_status;
+ G_DEFINE_TYPE (PhoshFlashlightInfo, phosh_flashlight_info, PHOSH_TYPE_STATUS_ICON)
+ 
++static void
++toggle_flashlight(int status)
++{
++  int fd = open(FLASH_SYSFS_PATH, O_WRONLY);
++  if (fd < 0)
++  {
++    // Unable to open file
++    return;
++  }
++  write(fd, status ? "1" : "0", 1);
++}
++
+ void
+ set_flashlight_status(int new_status)
+ {
++  toggle_flashlight(new_status);
+   flashlight_status = new_status;
+ }
+ 
+@@ -36,6 +52,7 @@ get_flashlight_status(void)
+   return flashlight_status;
+ }
+ 
++
+ static void
+ phosh_flashlight_info_finalize (GObject *object)
+ {
