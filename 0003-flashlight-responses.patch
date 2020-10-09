@@ -15,7 +15,7 @@ index c06cda9..1aa1742 100644
 +++ b/src/flashlightinfo.c
 @@ -59,11 +59,11 @@ phosh_flashlight_info_init (PhoshFlashlightInfo *self)
  {
-   phosh_status_icon_set_icon_name (PHOSH_STATUS_ICON (self), "display-brightness-symbolic");
+   phosh_status_icon_set_icon_name (PHOSH_STATUS_ICON (self), "torch-disabled-symbolic");
    phosh_status_icon_set_info (PHOSH_STATUS_ICON (self), "Off");
 -  set_flashlight_status(1);  
 +  set_flashlight_status(0);  
