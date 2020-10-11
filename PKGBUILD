@@ -16,7 +16,6 @@ source=("git+https://source.puri.sm/Librem5/phosh.git#commit=${_commit}"
          0001-system-prompt-allow-blank-passwords.patch
          #0002-monitor-use-a-floating-point-scale-factor.patch
          MR490.patch
-         MR630.patch
          MR631.patch
          0001-flashlight-initial-addition.patch
          0002-flashlight-compiles.patch
@@ -29,7 +28,6 @@ sha256sums=('SKIP'
             'SKIP'
             '0c5a2dbd0512ab8eca6e667f04ba03ec1b0d2896237b10d239aca63cfc19919e'
             'f9d62f004e9763d96ab4a18eb3f6be2ea3f0e43e670cad3a9009173ce9f70e5e'
-            '41abd65619ae0f4faec0963ad8cf97d143c58cba53859c5295e66e2a16990a0f'
             'f4e4108e19f96477a3c470f4b62b8744782c84335d85f6b315f198e8c433dc85'
             'beb6ca3f38fcb217ceebf40cc5207fc4a9cabc9bb2eb43b1350e961e793a3e66'
             'd789a3c65f455c7917bc678a69a3d2ae7c1d802829206427bae7c510c078c3b8'
