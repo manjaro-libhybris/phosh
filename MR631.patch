@@ -1,4 +1,4 @@
-From 5308da0f10aea5105c9f596a1c9c6002736473a2 Mon Sep 17 00:00:00 2001
+From 99614d023fdeb22299d124a309c4f9c5e8b32fa9 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Thu, 8 Oct 2020 16:55:53 +0200
 Subject: [PATCH 1/2] monitor-manager: Add property for number of monitors
@@ -98,7 +98,7 @@ index 211fda36..c2dcf472 100644
 2.26.2
 
 
-From a47e668b17a2b890b843deca076a6d194e3fd0c4 Mon Sep 17 00:00:00 2001
+From 98d4845d103d2846a9b1be22dacdc544f283094a Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Thu, 8 Oct 2020 14:11:56 +0200
 Subject: [PATCH 2/2] Add 'docked' quick setting and manager
@@ -696,7 +696,7 @@ index 00000000..b6062b93
 +
 +G_END_DECLS
 diff --git a/src/meson.build b/src/meson.build
-index 8794c521..3a8accf7 100644
+index d0039a20..24bdda42 100644
 --- a/src/meson.build
 +++ b/src/meson.build
 @@ -52,6 +52,10 @@ libphosh_tool_sources = [
@@ -762,7 +762,7 @@ index 9ba477e6..c519019e 100644
    gtk_widget_class_bind_template_callback (widget_class, feedback_setting_long_pressed_cb);
    gtk_widget_class_bind_template_callback (widget_class, on_media_player_raised);
 diff --git a/src/shell.c b/src/shell.c
-index 241a06c5..39b9fc68 100644
+index 2773446a..1d8129d3 100644
 --- a/src/shell.c
 +++ b/src/shell.c
 @@ -29,6 +29,7 @@
@@ -789,7 +789,7 @@ index 241a06c5..39b9fc68 100644
    g_clear_object (&priv->torch_manager);
    g_clear_object (&priv->wwan);
    g_clear_object (&priv->bt_manager);
-@@ -892,6 +895,23 @@ phosh_shell_get_torch_manager (PhoshShell *self)
+@@ -931,6 +934,23 @@ phosh_shell_get_torch_manager (PhoshShell *self)
    return priv->torch_manager;
  }
  
