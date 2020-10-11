@@ -2,9 +2,9 @@
 # Contributor: Philip Goto <philip.goto@gmail.com>
 
 pkgname=phosh
-pkgver=0.4.4+74+g9ba7f11
-_commit=9ba7f117cb5c941a02b4310c51c8941dd4e1d00f
-pkgrel=2
+pkgver=0.4.5
+_commit=098eff0076011213dfaaa112236cc2a21eeea6b9
+pkgrel=1
 pkgdesc="A pure Wayland shell prototype for GNOME on mobile devices"
 url="https://source.puri.sm/Librem5/phosh"
 license=("GPL3")
@@ -15,9 +15,6 @@ source=("git+https://source.puri.sm/Librem5/phosh.git#commit=${_commit}"
         "git+https://gitlab.gnome.org/GNOME/libgnome-volume-control.git"
          0001-system-prompt-allow-blank-passwords.patch
          #0002-monitor-use-a-floating-point-scale-factor.patch
-         #0001-rotate-MR-434.patch
-         #0001-rotate-MR-434-fix-PP.patch
-         #0001-showing-unlock-page-re-orients-the-screen.patch
          MR490.patch
          MR630.patch
          MR631.patch
