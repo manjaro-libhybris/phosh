@@ -4,7 +4,7 @@
 pkgname=phosh
 pkgver=0.4.5
 _commit=098eff0076011213dfaaa112236cc2a21eeea6b9
-pkgrel=3
+pkgrel=4
 pkgdesc="A pure Wayland shell prototype for GNOME on mobile devices"
 url="https://source.puri.sm/Librem5/phosh"
 license=("GPL3")
@@ -14,8 +14,6 @@ makedepends=('meson' 'git')
 source=("git+https://source.puri.sm/Librem5/phosh.git#commit=${_commit}"
         "git+https://gitlab.gnome.org/GNOME/libgnome-volume-control.git"
          0001-system-prompt-allow-blank-passwords.patch
-         #0002-monitor-use-a-floating-point-scale-factor.patch
-         MR490.patch
          MR631.patch
          MR634.patch
          0001-flashlight-initial-addition.patch
@@ -28,7 +26,6 @@ source=("git+https://source.puri.sm/Librem5/phosh.git#commit=${_commit}"
 sha256sums=('SKIP'
             'SKIP'
             '0c5a2dbd0512ab8eca6e667f04ba03ec1b0d2896237b10d239aca63cfc19919e'
-            'f9d62f004e9763d96ab4a18eb3f6be2ea3f0e43e670cad3a9009173ce9f70e5e'
             '736dd9bf47b6c38ed5c712445f05532d8ff4c10ef11d7a3d6245e81cdbbe70bc'
             '7611508e2d748b8d731ca1da041e289b69440c143f03f0e1d14423c2dabeaaa5'
             'beb6ca3f38fcb217ceebf40cc5207fc4a9cabc9bb2eb43b1350e961e793a3e66'
