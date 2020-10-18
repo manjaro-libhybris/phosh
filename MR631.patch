@@ -1,37 +1,7 @@
-From 31b89e4e307b372160986480dfa4f7697f825ce4 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
-Date: Wed, 14 Oct 2020 19:42:44 +0200
-Subject: [PATCH 1/9] panel: Fix typo
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
-Signed-off-by: Guido Günther <guido.gunther@puri.sm>
----
- src/panel.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/src/panel.h b/src/panel.h
-index faecffc6..9d518236 100644
---- a/src/panel.h
-+++ b/src/panel.h
-@@ -16,7 +16,7 @@ G_DECLARE_FINAL_TYPE (PhoshPanel, phosh_panel, PHOSH, PANEL, PhoshLayerSurface)
- 
- /**
-  * PhoshPanelState:
-- * @PHOSH_PANEL_STATE_FOLDED: Ony top-bar is visible
-+ * @PHOSH_PANEL_STATE_FOLDED: Only top-bar is visible
-  * @PHOSH_PANEL_STATE_UNFOLDED: Settings menu is unfolded
-  */
- typedef enum {
--- 
-2.26.2
-
-
-From cc4392ae2373301a53752f2b8d56e5010c3da31c Mon Sep 17 00:00:00 2001
+From 99614d023fdeb22299d124a309c4f9c5e8b32fa9 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Thu, 8 Oct 2020 16:55:53 +0200
-Subject: [PATCH 2/9] monitor-manager: Add property for number of monitors
+Subject: [PATCH 1/2] monitor-manager: Add property for number of monitors
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -128,1037 +98,34 @@ index 211fda36..c2dcf472 100644
 2.26.2
 
 
-From be6ed58109d60783d6280981571c7576b7fc5e32 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
-Date: Thu, 15 Oct 2020 12:09:07 +0200
-Subject: [PATCH 3/9] wayland: Add G_{BEGIN,END}_DECLS
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
-Signed-off-by: Guido Günther <guido.gunther@puri.sm>
----
- src/phosh-wayland.h | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/src/phosh-wayland.h b/src/phosh-wayland.h
-index f4e600ac..477c5501 100644
---- a/src/phosh-wayland.h
-+++ b/src/phosh-wayland.h
-@@ -21,6 +21,8 @@
- 
- #include <glib-object.h>
- 
-+G_BEGIN_DECLS
-+
- #define PHOSH_TYPE_WAYLAND phosh_wayland_get_type()
- 
- G_DECLARE_FINAL_TYPE (PhoshWayland, phosh_wayland, PHOSH, WAYLAND, GObject)
-@@ -42,3 +44,5 @@ struct zwlr_output_manager_v1        *phosh_wayland_get_zwlr_output_manager_v1 (
- struct zwlr_output_power_manager_v1 *phosh_wayland_get_zwlr_output_power_manager_v1 (PhoshWayland *self);
- struct zxdg_output_manager_v1        *phosh_wayland_get_zxdg_output_manager_v1 (PhoshWayland *self);
- void                                  phosh_wayland_roundtrip (PhoshWayland *self);
-+
-+G_END_DECLS
--- 
-2.26.2
-
-
-From 97fb395d1f8f059afbd0c2edf521dd5b1aa4ce26 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
-Date: Thu, 15 Oct 2020 12:24:37 +0200
-Subject: [PATCH 4/9] wayland: Provide seat capabilities
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
-We don't bother to introduce a separate PhoshWlSeat object
-for that yet.
-
-Signed-off-by: Guido Günther <guido.gunther@puri.sm>
----
- src/meson.build      |  1 +
- src/phosh-enums.c.in |  1 +
- src/phosh-wayland.c  | 63 ++++++++++++++++++++++++++++++++++++++++++++
- src/phosh-wayland.h  | 17 ++++++++++++
- 4 files changed, 82 insertions(+)
-
-diff --git a/src/meson.build b/src/meson.build
-index bfd2bf6d..d5319002 100644
---- a/src/meson.build
-+++ b/src/meson.build
-@@ -19,6 +19,7 @@ phosh_enum_headers = [
-   'monitor/monitor.h',
-   'notifications/notification.h',
-   'notifications/notify-manager.h',
-+  'phosh-wayland.h',
- ] + schema_enum_headers
- 
- phosh_enums = gnome.mkenums('phosh-enums',
-diff --git a/src/phosh-enums.c.in b/src/phosh-enums.c.in
-index 936ca1fb..dde9c7d5 100644
---- a/src/phosh-enums.c.in
-+++ b/src/phosh-enums.c.in
-@@ -7,6 +7,7 @@
- #include "monitor/monitor.h"
- #include "notifications/notification.h"
- #include "notifications/notify-manager.h"
-+#include "phosh-wayland.h"
- #include "wwan/phosh-wwan-backend.h"
- 
- #include "phosh-enums.h"
-diff --git a/src/phosh-wayland.c b/src/phosh-wayland.c
-index dcbab890..274e5803 100644
---- a/src/phosh-wayland.c
-+++ b/src/phosh-wayland.c
-@@ -9,6 +9,7 @@
- #define G_LOG_DOMAIN "phosh-wayland"
- 
- #include "config.h"
-+#include "phosh-enums.h"
- #include "phosh-wayland.h"
- 
- #include <gdk/gdkwayland.h>
-@@ -26,6 +27,7 @@
- enum {
-   PHOSH_WAYLAND_PROP_0,
-   PHOSH_WAYLAND_PROP_WL_OUTPUTS,
-+  PHOSH_WAYLAND_PROP_SEAT_CAPABILITIES,
-   PHOSH_WAYLAND_PROP_LAST_PROP,
- };
- static GParamSpec *props[PHOSH_WAYLAND_PROP_LAST_PROP];
-@@ -46,6 +48,8 @@ typedef struct {
-   struct zxdg_output_manager_v1 *zxdg_output_manager_v1;
-   struct wl_shm *wl_shm;
-   GHashTable *wl_outputs;
-+
-+  PhoshWaylandSeatCapabilities seat_capabilities;
- } PhoshWaylandPrivate;
- 
- 
-@@ -188,6 +192,9 @@ phosh_wayland_get_property (GObject *object,
-   case PHOSH_WAYLAND_PROP_WL_OUTPUTS:
-     g_value_set_boxed (value, priv->wl_outputs);
-     break;
-+  case PHOSH_WAYLAND_PROP_SEAT_CAPABILITIES:
-+    g_value_set_flags (value, priv->seat_capabilities);
-+    break;
-   default:
-     G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-     break;
-@@ -195,6 +202,38 @@ phosh_wayland_get_property (GObject *object,
- }
- 
- 
-+static void
-+seat_handle_capabilities (void *data,
-+                         struct wl_seat *wl_seat,
-+                         uint32_t capabilities)
-+{
-+  PhoshWayland *self = PHOSH_WAYLAND (data);
-+  PhoshWaylandPrivate *priv = phosh_wayland_get_instance_private (self);
-+
-+  if (priv->seat_capabilities != capabilities) {
-+    g_debug ("Seat capabilities: %d", capabilities);
-+    priv->seat_capabilities = capabilities;
-+    g_object_notify_by_pspec (G_OBJECT (self), props[PHOSH_WAYLAND_PROP_SEAT_CAPABILITIES]);
-+  }
-+}
-+
-+
-+static void
-+seat_handle_name (void *data,
-+                  struct wl_seat *wl_seat,
-+                  const char *name)
-+{
-+  /* nothing to do */
-+}
-+
-+
-+static const struct wl_seat_listener seat_listener =
-+{
-+  seat_handle_capabilities,
-+  seat_handle_name,
-+};
-+
-+
- static void
- phosh_wayland_constructed (GObject *object)
- {
-@@ -237,6 +276,8 @@ phosh_wayland_constructed (GObject *object)
-   if (!priv->phosh_private) {
-     g_info ("Could not find phosh private interface, disabling some features");
-   }
-+
-+  wl_seat_add_listener (priv->wl_seat, &seat_listener, self);
- }
- 
- 
-@@ -247,6 +288,7 @@ phosh_wayland_dispose (GObject *object)
-   PhoshWaylandPrivate *priv = phosh_wayland_get_instance_private (self);
- 
-   g_clear_pointer (&priv->wl_outputs, g_hash_table_destroy);
-+
-   G_OBJECT_CLASS (phosh_wayland_parent_class)->dispose (object);
- }
- 
-@@ -267,6 +309,15 @@ phosh_wayland_class_init (PhoshWaylandClass *klass)
-                         "The currently known wayland outputs",
-                         G_TYPE_HASH_TABLE,
-                         G_PARAM_READABLE | G_PARAM_EXPLICIT_NOTIFY | G_PARAM_STATIC_STRINGS);
-+
-+  props[PHOSH_WAYLAND_PROP_SEAT_CAPABILITIES] =
-+    g_param_spec_flags ("seat-capabilities",
-+                        "Seat capabilities",
-+                        "The current seat capabilities",
-+                        PHOSH_TYPE_WAYLAND_SEAT_CAPABILITIES,
-+                        PHOSH_WAYLAND_SEAT_CAPABILITY_NONE,
-+                        G_PARAM_READABLE | G_PARAM_EXPLICIT_NOTIFY | G_PARAM_STATIC_STRINGS);
-+
-   g_object_class_install_properties (object_class, PHOSH_WAYLAND_PROP_LAST_PROP, props);
- }
- 
-@@ -432,3 +483,15 @@ phosh_wayland_roundtrip (PhoshWayland *self)
-   PhoshWaylandPrivate *priv = phosh_wayland_get_instance_private (self);
-   wl_display_roundtrip(priv->display);
- }
-+
-+
-+PhoshWaylandSeatCapabilities
-+phosh_wayland_get_seat_capabilities (PhoshWayland *self)
-+{
-+  PhoshWaylandPrivate *priv;
-+
-+  g_return_val_if_fail (PHOSH_IS_WAYLAND (self), PHOSH_WAYLAND_SEAT_CAPABILITY_NONE);
-+  priv = phosh_wayland_get_instance_private (self);
-+
-+  return priv->seat_capabilities;
-+}
-diff --git a/src/phosh-wayland.h b/src/phosh-wayland.h
-index 477c5501..d13529e4 100644
---- a/src/phosh-wayland.h
-+++ b/src/phosh-wayland.h
-@@ -23,6 +23,22 @@
- 
- G_BEGIN_DECLS
- 
-+/**
-+ * PhoshWaylandSeatCapabilities:
-+ * @PHOSH_WAYLAND_SEAT_CAPABILITY_NONE: no device detected
-+ * @PHOSH_WAYLAND_SEAT_CAPABILITY_POINTER: the seat has pointer devices
-+ * @PHOSH_WAYLAND_SEAT_CAPABILITY_KEYBOARD: the seat has one or more keyboards
-+ * @PHOSH_WAYLAND_SEAT_CAPABILITY_TOUCH: the seat has touch devices
-+ *
-+ * These match wl_seat_capabilities
-+ */
-+typedef enum {
-+  PHOSH_WAYLAND_SEAT_CAPABILITY_NONE     = 0,
-+  PHOSH_WAYLAND_SEAT_CAPABILITY_POINTER  = (1 << 0),
-+  PHOSH_WAYLAND_SEAT_CAPABILITY_KEYBOARD = (1 << 1),
-+  PHOSH_WAYLAND_SEAT_CAPABILITY_TOUCH    = (1 << 2),
-+} PhoshWaylandSeatCapabilities;
-+
- #define PHOSH_TYPE_WAYLAND phosh_wayland_get_type()
- 
- G_DECLARE_FINAL_TYPE (PhoshWayland, phosh_wayland, PHOSH, WAYLAND, GObject)
-@@ -44,5 +60,6 @@ struct zwlr_output_manager_v1        *phosh_wayland_get_zwlr_output_manager_v1 (
- struct zwlr_output_power_manager_v1 *phosh_wayland_get_zwlr_output_power_manager_v1 (PhoshWayland *self);
- struct zxdg_output_manager_v1        *phosh_wayland_get_zxdg_output_manager_v1 (PhoshWayland *self);
- void                                  phosh_wayland_roundtrip (PhoshWayland *self);
-+PhoshWaylandSeatCapabilities          phosh_wayland_get_seat_capabilities (PhoshWayland *self);
- 
- G_END_DECLS
--- 
-2.26.2
-
-
-From ca9d8920c3973577609443627bbd5dc349952c09 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
-Date: Tue, 13 Oct 2020 15:04:51 +0200
-Subject: [PATCH 5/9] dbus: Add org.freedesktop.hostname1 interface
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
-So we can cherry the chassis type
-
-Signed-off-by: Guido Günther <guido.gunther@puri.sm>
----
- src/dbus/meson.build                   | 5 +++++
- src/dbus/org.freedesktop.hostname1.xml | 9 +++++++++
- 2 files changed, 14 insertions(+)
- create mode 100644 src/dbus/org.freedesktop.hostname1.xml
-
-diff --git a/src/dbus/meson.build b/src/dbus/meson.build
-index 561f03eb..2ff7f61e 100644
---- a/src/dbus/meson.build
-+++ b/src/dbus/meson.build
-@@ -6,6 +6,11 @@ generated_dbus_sources += gnome.gdbus_codegen('iio-sensor-proxy-dbus',
- 					      'net.hadess.SensorProxy.xml',
- 					      interface_prefix: 'net.hadess',
- 					      namespace: 'PhoshDBus')
-+# org.freedesktop.hostname1
-+generated_dbus_sources += gnome.gdbus_codegen('hostname1-dbus',
-+					      'org.freedesktop.hostname1.xml',
-+					      interface_prefix: 'org.freedesktop',
-+					      namespace: 'PhoshHostname1DBus')
- # org.freedesktop.UPower.Torch
- generated_dbus_sources += gnome.gdbus_codegen('upower-torch-dbus',
- 					      'org.freedesktop.UPower.Torch.xml',
-diff --git a/src/dbus/org.freedesktop.hostname1.xml b/src/dbus/org.freedesktop.hostname1.xml
-new file mode 100644
-index 00000000..d8e469b0
---- /dev/null
-+++ b/src/dbus/org.freedesktop.hostname1.xml
-@@ -0,0 +1,9 @@
-+<!DOCTYPE node PUBLIC
-+"-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
-+"http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
-+
-+<node>
-+  <interface name="org.freedesktop.hostname1">
-+    <property name="Chassis" type="s" access="read"/>
-+  </interface>
-+</node>
--- 
-2.26.2
-
-
-From 216514179b9f556ba587ebd7d0e7ac6e62e08294 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
-Date: Wed, 14 Oct 2020 12:59:38 +0200
-Subject: [PATCH 6/9] data: Add symbolic phone icons
-
-From
-
-https://gitlab.gnome.org/Teams/Design/icon-development-kit/
-
-as of
-
-0831cbb900e02aaa37bd270a25171c1751394cb8
----
- data/phone-docked-symbolic.svg   | 50 ++++++++++++++++++++++++++++++++
- data/phone-undocked-symbolic.svg | 31 ++++++++++++++++++++
- src/phosh.gresources.xml         |  2 ++
- 3 files changed, 83 insertions(+)
- create mode 100644 data/phone-docked-symbolic.svg
- create mode 100644 data/phone-undocked-symbolic.svg
-
-diff --git a/data/phone-docked-symbolic.svg b/data/phone-docked-symbolic.svg
-new file mode 100644
-index 00000000..c873598e
---- /dev/null
-+++ b/data/phone-docked-symbolic.svg
-@@ -0,0 +1,50 @@
-+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-+<svg
-+   xmlns:dc="http://purl.org/dc/elements/1.1/"
-+   xmlns:cc="http://creativecommons.org/ns#"
-+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-+   xmlns:svg="http://www.w3.org/2000/svg"
-+   xmlns="http://www.w3.org/2000/svg"
-+   id="svg5"
-+   version="1.1"
-+   viewBox="0 0 16 16"
-+   height="16px"
-+   width="16px">
-+  <metadata
-+     id="metadata11">
-+    <rdf:RDF>
-+      <cc:Work
-+         rdf:about="">
-+        <dc:format>image/svg+xml</dc:format>
-+        <dc:type
-+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-+        <dc:title></dc:title>
-+      </cc:Work>
-+    </rdf:RDF>
-+  </metadata>
-+  <defs
-+     id="defs9" />
-+  <g
-+     transform="matrix(-1,0,0,1,24,-280)"
-+     id="g4213"
-+     style="display:inline;enable-background:new">
-+    <title
-+       id="title4205">phonelink</title>
-+    <rect
-+       style="opacity:0.02;fill:none;stroke:none"
-+       id="rect4207"
-+       width="16"
-+       height="16"
-+       x="8"
-+       y="280" />
-+    <path
-+       style="fill:#2e3436;fill-opacity:1;stroke:none"
-+       d="m 104,519 c -1.662,0 -3,1.338 -3,3 v 1 h 2 v -1 c 0,-0.554 0.446,-1 1,-1 h 8 c 0.554,0 1,0.446 1,1 v 6 c 0,0.554 -0.446,1 -1,1 h -3 v 2 h 3 c 1.662,0 3,-1.338 3,-3 v -6 c 0,-1.662 -1.338,-3 -3,-3 z m 5,13.02539 V 534 h 3 c 1,0 1,-1 1,-1 0,0 -0.0522,-0.84521 -4,-0.97461 z"
-+       transform="matrix(-1,0,0,1,124.0004,-238)"
-+       id="path4211" />
-+    <path
-+       style="opacity:1;vector-effect:none;fill:#2e3436;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:20;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;marker-start:none;marker-mid:none;marker-end:none;paint-order:normal"
-+       d="m 21.71915,286 c 0.71002,0 1.28125,0.57123 1.28125,1.28125 v 7.4375 c 0,0.71002 -0.57123,1.28125 -1.28125,1.28125 h -4.4375 c -0.71002,0 -1.28125,-0.57123 -1.28125,-1.28125 v -7.4375 C 16.0004,286.57123 16.57163,286 17.28165,286 h 1.71875 1 z m -0.12891,1 H 21.0004 c 0,0.554 -0.446,1 -1,1 h -1 c -0.554,0 -1,-0.446 -1,-1 h -0.58984 c -0.22771,0 -0.41016,0.18245 -0.41016,0.41016 v 6.16321 c 0,0.22771 0.18245,0.41016 0.41016,0.41016 h 4.17968 c 0.22771,0 0.41016,-0.18245 0.41016,-0.41016 v -6.16321 C 22.0004,287.18245 21.81795,287 21.59024,287 Z"
-+       id="rect4217" />
-+  </g>
-+</svg>
-diff --git a/data/phone-undocked-symbolic.svg b/data/phone-undocked-symbolic.svg
-new file mode 100644
-index 00000000..99f9b1c8
---- /dev/null
-+++ b/data/phone-undocked-symbolic.svg
-@@ -0,0 +1,31 @@
-+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-+<svg
-+   xmlns:dc="http://purl.org/dc/elements/1.1/"
-+   xmlns:cc="http://creativecommons.org/ns#"
-+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-+   xmlns:svg="http://www.w3.org/2000/svg"
-+   xmlns="http://www.w3.org/2000/svg"
-+   width="16px"
-+   height="16px"
-+   viewBox="0 0 16 16"
-+   version="1.1"
-+   id="svg5">
-+  <metadata
-+     id="metadata11">
-+    <rdf:RDF>
-+      <cc:Work
-+         rdf:about="">
-+        <dc:format>image/svg+xml</dc:format>
-+        <dc:type
-+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-+        <dc:title></dc:title>
-+      </cc:Work>
-+    </rdf:RDF>
-+  </metadata>
-+  <defs
-+     id="defs9" />
-+  <path
-+     style="color:#bebebe;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:medium;line-height:normal;font-family:sans-serif;font-variant-ligatures:normal;font-variant-position:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-alternates:normal;font-feature-settings:normal;text-indent:0;text-align:start;text-decoration:none;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:#000000;letter-spacing:normal;word-spacing:normal;text-transform:none;writing-mode:lr-tb;direction:ltr;text-orientation:mixed;dominant-baseline:auto;baseline-shift:baseline;text-anchor:start;white-space:normal;shape-padding:0;clip-rule:nonzero;display:inline;overflow:visible;visibility:visible;isolation:auto;mix-blend-mode:normal;color-interpolation:sRGB;color-interpolation-filters:linearRGB;solid-color:#000000;solid-opacity:1;vector-effect:none;fill:#2e3436;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;color-rendering:auto;image-rendering:auto;shape-rendering:auto;text-rendering:auto;enable-background:accumulate"
-+     d="M 4.19707,0 C 2.99547,0 1.9998,1.00125 1.9998,2.20117 V 13.79883 C 1.9998,14.99875 2.99547,16 4.19707,16 h 7.60742 c 1.20159,0 2.19531,-1.00125 2.19531,-2.20117 V 2.20117 C 13.9998,1.00125 13.00608,0 11.80449,0 Z m 0,2 H 4.9998 v 0.25 c 0,0.4155 0.3345,0.75 0.75,0.75 h 4.5 c 0.4155,0 0.75,-0.3345 0.75,-0.75 V 2 h 0.80469 c 0.12379,0 0.19531,0.0703 0.19531,0.20117 v 9.54297 c 0,0.1309 -0.0715,0.20117 -0.19531,0.20117 H 4.19707 c -0.1238,0 -0.19727,-0.0703 -0.19727,-0.20117 V 2.20117 C 3.9998,2.07027 4.07327,2 4.19707,2 Z M 7.9998,12.83594 a 1,1 0 0 1 1,1 1,1 0 0 1 -1,1 1,1 0 0 1 -1,-1 1,1 0 0 1 1,-1 z"
-+     id="rect4274" />
-+</svg>
-diff --git a/src/phosh.gresources.xml b/src/phosh.gresources.xml
-index f4f03bfe..c6478786 100644
---- a/src/phosh.gresources.xml
-+++ b/src/phosh.gresources.xml
-@@ -30,6 +30,8 @@
-     <file alias="eye-open-negative-filled-symbolic.svg">../data/eye-open-negative-filled-symbolic.svg</file>
-     <file alias="network-cellular-disabled-symbolic.svg">../data/network-cellular-disabled-symbolic.svg</file>
-     <file alias="network-wireless-disabled-symbolic.svg">../data/network-wireless-disabled-symbolic.svg</file>
-+    <file alias="phone-docked-symbolic.svg">../data/phone-docked-symbolic.svg</file>
-+    <file alias="phone-undocked-symbolic.svg">../data/phone-undocked-symbolic.svg</file>
-     <file alias="screen-rotation-landscape-symbolic.svg">../data/screen-rotation-landscape-symbolic.svg</file>
-     <file alias="screen-rotation-portrait-symbolic.svg">../data/screen-rotation-portrait-symbolic.svg</file>
-     <file alias="swipe-arrow-symbolic.svg">../data/swipe-arrow-symbolic.svg</file>
--- 
-2.26.2
-
-
-From 6616ddb1932dff8a74a2e6341de44fec921b33ea Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
-Date: Wed, 14 Oct 2020 16:13:03 +0200
-Subject: [PATCH 7/9] Add mode-manager to handle different device modes
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
-This uses logind's chassis type and informtion about
-connected hardware to dermine the device type and
-what the device acts like (e.g. a phone with monitor
-and keyboard/mouse should be handled like a desktop).
-
-Signed-off-by: Guido Günther <guido.gunther@puri.sm>
----
- docs/phosh-docs.xml  |   1 +
- src/meson.build      |   3 +
- src/mode-manager.c   | 373 +++++++++++++++++++++++++++++++++++++++++++
- src/mode-manager.h   |  62 +++++++
- src/phosh-enums.c.in |   1 +
- src/shell.c          |   5 +
- 6 files changed, 445 insertions(+)
- create mode 100644 src/mode-manager.c
- create mode 100644 src/mode-manager.h
-
-diff --git a/docs/phosh-docs.xml b/docs/phosh-docs.xml
-index cde53a3c..a671e9f2 100644
---- a/docs/phosh-docs.xml
-+++ b/docs/phosh-docs.xml
-@@ -63,6 +63,7 @@
-       <xi:include href="xml/lockscreen.xml"/>
-       <xi:include href="xml/lockshield.xml"/>
-       <xi:include href="xml/media-player.xml"/>
-+      <xi:include href="xml/mode-manager.xml"/>
-       <xi:include href="xml/monitor-manager.xml"/>
-       <xi:include href="xml/monitor.xml"/>
-       <xi:include href="xml/network-auth-prompt.xml"/>
-diff --git a/src/meson.build b/src/meson.build
-index d5319002..a19d9b2d 100644
---- a/src/meson.build
-+++ b/src/meson.build
-@@ -16,6 +16,7 @@ phosh_resources = gnome.compile_resources(
- phosh_enum_headers = [
-   'app-grid-button.h',
-   'home.h',
-+  'mode-manager.h',
-   'monitor/monitor.h',
-   'notifications/notification.h',
-   'notifications/notify-manager.h',
-@@ -65,6 +66,8 @@ libphosh_tool_sources = [
-   'log.c',
-   'media-player.c',
-   'media-player.h',
-+  'mode-manager.c',
-+  'mode-manager.h',
-   'overview.c',
-   'overview.h',
-   'status-icon.c',
-diff --git a/src/mode-manager.c b/src/mode-manager.c
-new file mode 100644
-index 00000000..a73ef39e
---- /dev/null
-+++ b/src/mode-manager.c
-@@ -0,0 +1,373 @@
-+/*
-+ * Copyright (C) 2020 Purism SPC
-+ *
-+ * SPDX-License-Identifier: GPL-3.0-or-later
-+ *
-+ * Author: Guido Günther <agx@sigxcpu.org>
-+ */
-+
-+#define G_LOG_DOMAIN "phosh-mode-manager"
-+
-+#include "config.h"
-+
-+#include "mode-manager.h"
-+#include "shell.h"
-+#include "dbus/hostname1-dbus.h"
-+
-+#define BUS_NAME "org.freedesktop.hostname1"
-+#define OBJECT_PATH "/org/freedesktop/hostname1"
-+
-+#define PHOC_KEY_MAXIMIZE "auto-maximize"
-+#define A11Y_KEY_OSK "screen-keyboard-enabled"
-+#define WM_KEY_LAYOUT "button-layout"
-+
-+/**
-+ * SECTION:mode-manager
-+ * @short_description: Determines the device mode
-+ * @Title: PhoshModeManager
-+ *
-+ * #PhoshModeManager tracks the device mode and attached hardware.
-+ */
-+
-+enum {
-+  PROP_0,
-+  PROP_DEVICE_TYPE,
-+  PROP_HW_FLAGS,
-+  PROP_MIMICRY,
-+
-+  PROP_LAST_PROP
-+};
-+static GParamSpec *props[PROP_LAST_PROP];
-+
-+struct _PhoshModeManager {
-+  GObject                      parent;
-+
-+  PhoshModeDeviceType          device_type;
-+  PhoshModeDeviceType          mimicry;
-+  PhoshModeHwFlags             hw_flags;
-+
-+  PhoshMonitorManager         *monitor_manager;
-+
-+  PhoshHostname1DBusHostname1 *proxy;
-+  gchar                       *chassis;
-+  PhoshWaylandSeatCapabilities wl_caps;
-+};
-+G_DEFINE_TYPE (PhoshModeManager, phosh_mode_manager, G_TYPE_OBJECT);
-+
-+
-+static void
-+phosh_mode_manager_get_property (GObject    *object,
-+                                 guint       property_id,
-+                                 GValue     *value,
-+                                 GParamSpec *pspec)
-+{
-+  PhoshModeManager *self = PHOSH_MODE_MANAGER (object);
-+
-+  switch (property_id) {
-+  case PROP_HW_FLAGS:
-+    g_value_set_flags (value, self->hw_flags);
-+    break;
-+  case PROP_DEVICE_TYPE:
-+    g_value_set_enum (value, self->device_type);
-+    break;
-+  case PROP_MIMICRY:
-+    g_value_set_enum (value, self->mimicry);
-+    break;
-+  default:
-+    G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-+    break;
-+  }
-+}
-+
-+
-+static void
-+update_props (PhoshModeManager *self)
-+{
-+  int n_monitors;
-+  PhoshModeDeviceType device_type, mimicry;
-+  PhoshModeHwFlags hw;
-+
-+  /* Self->Chassis type */
-+  hw = PHOSH_MODE_HW_NONE;
-+  if (g_strcmp0 (self->chassis, "handset") == 0) {
-+    device_type = PHOSH_MODE_DEVICE_TYPE_PHONE;
-+  } else if (g_strcmp0 (self->chassis, "laptop") == 0) {
-+    device_type = PHOSH_MODE_DEVICE_TYPE_LAPTOP;
-+    hw |= PHOSH_MODE_HW_KEYBOARD;
-+  } else if (g_strcmp0 (self->chassis, "desktop") == 0) {
-+    device_type = PHOSH_MODE_DEVICE_TYPE_DESKTOP;
-+    hw |= PHOSH_MODE_HW_KEYBOARD;
-+  } else if (g_strcmp0 (self->chassis, "convertible") == 0) {
-+    device_type = PHOSH_MODE_DEVICE_TYPE_CONVERTIBLE;
-+  } else if (g_strcmp0 (self->chassis, "tablet") == 0) {
-+    device_type = PHOSH_MODE_DEVICE_TYPE_TABLET;
-+  } else {
-+    device_type = PHOSH_MODE_DEVICE_TYPE_UNKNOWN;
-+  }
-+  mimicry = device_type;
-+
-+  /* Additional hardware */
-+  n_monitors = phosh_monitor_manager_get_num_monitors (self->monitor_manager);
-+  if (n_monitors > 1)
-+    hw |= PHOSH_MODE_HW_EXT_DISPLAY;
-+
-+  if (self->wl_caps & PHOSH_WAYLAND_SEAT_CAPABILITY_POINTER)
-+    hw |= PHOSH_MODE_HW_POINTER;
-+
-+  /* Mimicries */
-+  if (device_type == PHOSH_MODE_DEVICE_TYPE_PHONE &&
-+      (hw & PHOSH_MODE_DOCKED_PHONE_MASK) == PHOSH_MODE_DOCKED_PHONE_MASK) {
-+    mimicry = PHOSH_MODE_DEVICE_TYPE_DESKTOP;
-+  }
-+
-+  g_object_freeze_notify (G_OBJECT (self));
-+
-+  if (device_type != self->device_type) {
-+    g_autofree char *name = g_enum_to_string (PHOSH_TYPE_MODE_DEVICE_TYPE, device_type);
-+
-+    self->device_type = device_type;
-+    g_debug ("Device type is %s", name);
-+    g_object_notify_by_pspec (G_OBJECT (self), props[PROP_DEVICE_TYPE]);
-+  }
-+
-+  if (mimicry != self->mimicry) {
-+    g_autofree char *name = g_enum_to_string (PHOSH_TYPE_MODE_DEVICE_TYPE, mimicry);
-+
-+    self->mimicry = mimicry;
-+    g_debug ("Mimicry is %s", name);
-+    g_object_notify_by_pspec (G_OBJECT (self), props[PROP_MIMICRY]);
-+  }
-+
-+  if (hw != self->hw_flags) {
-+    g_autofree char *names = g_flags_to_string (PHOSH_TYPE_MODE_HW_FLAGS, hw);
-+    self->hw_flags = hw;
-+    g_debug ("HW flags %s", names);
-+    g_object_notify_by_pspec (G_OBJECT (self), props[PROP_HW_FLAGS]);
-+  }
-+
-+  g_object_thaw_notify (G_OBJECT (self));
-+}
-+
-+
-+static void
-+on_n_monitors_changed (PhoshModeManager *self, GParamSpec *pspec, PhoshMonitorManager *manager)
-+{
-+  g_return_if_fail (PHOSH_IS_MODE_MANAGER (self));
-+  g_return_if_fail (PHOSH_IS_MONITOR_MANAGER (manager));
-+
-+  update_props (self);
-+}
-+
-+
-+static void
-+on_chassis_changed (PhoshModeManager            *self,
-+                    GParamSpec                  *pspec,
-+                    PhoshHostname1DBusHostname1 *proxy)
-+{
-+  const gchar *chassis;
-+
-+  g_return_if_fail (PHOSH_IS_MODE_MANAGER (self));
-+  g_return_if_fail (PHOSH_HOSTNAME1_DBUS_IS_HOSTNAME1 (proxy));
-+
-+  chassis = phosh_hostname1_dbus_hostname1_get_chassis (self->proxy);
-+
-+  if (!chassis)
-+    return;
-+
-+  g_debug ("Chassis: %s", chassis);
-+  g_free (self->chassis);
-+  self->chassis = g_strdup (chassis);
-+  update_props (self);
-+}
-+
-+
-+static void
-+on_seat_capabilities_changed (PhoshModeManager *self,
-+                              GParamSpec       *pspec,
-+                              PhoshWayland     *wl)
-+{
-+  g_return_if_fail (PHOSH_IS_MODE_MANAGER (self));
-+  g_return_if_fail (PHOSH_IS_WAYLAND (wl));
-+
-+  self->wl_caps = phosh_wayland_get_seat_capabilities (wl);
-+  update_props (self);
-+}
-+
-+
-+static void
-+on_proxy_new_for_bus_finish (GObject          *source_object,
-+                             GAsyncResult     *res,
-+                             PhoshModeManager *self)
-+{
-+  g_autoptr (GError) err = NULL;
-+  PhoshWayland *wl = phosh_wayland_get_default ();
-+
-+  g_return_if_fail (PHOSH_IS_MODE_MANAGER (self));
-+
-+  self->proxy = phosh_hostname1_dbus_hostname1_proxy_new_for_bus_finish (res, &err);
-+  if (!self->proxy) {
-+    g_warning ("Failed to get hostname1 proxy: %s", err->message);
-+    goto out;
-+  }
-+
-+  g_debug ("Hostname1 interface initialized");
-+  g_signal_connect_object (self->proxy,
-+                           "notify::chassis",
-+                           G_CALLBACK (on_chassis_changed),
-+                           self,
-+                           G_CONNECT_SWAPPED);
-+  on_chassis_changed (self, NULL, self->proxy);
-+
-+  g_signal_connect_object (wl,
-+                           "notify::seat-capabilities",
-+                           G_CALLBACK (on_seat_capabilities_changed),
-+                           self,
-+                           G_CONNECT_SWAPPED);
-+  on_seat_capabilities_changed (self, NULL, wl);
-+
-+  g_signal_connect_object (self->monitor_manager,
-+                           "notify::n-monitors",
-+                           G_CALLBACK (on_n_monitors_changed),
-+                           self,
-+                           G_CONNECT_SWAPPED);
-+  /* n_monitors is always updated in update_props () */
-+
-+out:
-+  g_object_unref (self);
-+}
-+
-+
-+static gboolean
-+on_idle (PhoshTorchManager *self)
-+{
-+  phosh_hostname1_dbus_hostname1_proxy_new_for_bus (G_BUS_TYPE_SYSTEM,
-+                                                    G_DBUS_PROXY_FLAGS_NONE,
-+                                                    BUS_NAME,
-+                                                    OBJECT_PATH,
-+                                                    NULL,
-+                                                    (GAsyncReadyCallback) on_proxy_new_for_bus_finish,
-+                                                    g_object_ref (self));
-+
-+  return G_SOURCE_REMOVE;
-+}
-+
-+static void
-+phosh_mode_manager_constructed (GObject *object)
-+{
-+  PhoshModeManager *self = PHOSH_MODE_MANAGER (object);
-+
-+  G_OBJECT_CLASS (phosh_mode_manager_parent_class)->constructed (object);
-+
-+  self->monitor_manager = phosh_shell_get_monitor_manager (phosh_shell_get_default ());
-+
-+  /* Perform DBus setup when idle */
-+  g_idle_add ((GSourceFunc)on_idle, self);
-+}
-+
-+
-+static void
-+phosh_mode_manager_dispose (GObject *object)
-+{
-+  PhoshModeManager *self = PHOSH_MODE_MANAGER (object);
-+
-+  g_clear_object (&self->proxy);
-+
-+  G_OBJECT_CLASS (phosh_mode_manager_parent_class)->dispose (object);
-+}
-+
-+
-+static void
-+phosh_mode_manager_finalize (GObject *object)
-+{
-+  PhoshModeManager *self = PHOSH_MODE_MANAGER (object);
-+
-+  g_clear_pointer (&self->chassis, g_free);
-+
-+  G_OBJECT_CLASS (phosh_mode_manager_parent_class)->finalize (object);
-+}
-+
-+
-+static void
-+phosh_mode_manager_class_init (PhoshModeManagerClass *klass)
-+{
-+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
-+
-+  object_class->constructed = phosh_mode_manager_constructed;
-+  object_class->dispose = phosh_mode_manager_dispose;
-+  object_class->finalize = phosh_mode_manager_finalize;
-+  object_class->get_property = phosh_mode_manager_get_property;
-+
-+  props[PROP_DEVICE_TYPE] =
-+    g_param_spec_enum ("device-type",
-+                       "Device Type",
-+                       "The device type",
-+                       PHOSH_TYPE_MODE_DEVICE_TYPE,
-+                       PHOSH_MODE_DEVICE_TYPE_PHONE,
-+                       G_PARAM_READABLE |
-+                       G_PARAM_EXPLICIT_NOTIFY |
-+                       G_PARAM_STATIC_STRINGS);
-+
-+  props[PROP_HW_FLAGS] =
-+    g_param_spec_flags ("hw-flags",
-+                        "Hardware flags",
-+                        "Flags for available hardware",
-+                        PHOSH_TYPE_MODE_HW_FLAGS,
-+                        PHOSH_MODE_HW_NONE,
-+                        G_PARAM_READABLE |
-+                        G_PARAM_EXPLICIT_NOTIFY |
-+                        G_PARAM_STATIC_STRINGS);
-+
-+  /**
-+   * PhoshMode:device-mimicry:
-+   *
-+   * What this device plus external hardware should be handled
-+   * like. E.g. a phone with keyboard and mouse and 2nd screen looks
-+   * much like a desktop. A touch laptop with removable keyboard can
-+   * look like a tablet.
-+   */
-+  props[PROP_MIMICRY] =
-+    g_param_spec_enum ("mimicry",
-+                       "Device Mimicry",
-+                       "The device mimicry",
-+                       PHOSH_TYPE_MODE_DEVICE_TYPE,
-+                       PHOSH_MODE_DEVICE_TYPE_PHONE,
-+                       G_PARAM_READABLE |
-+                       G_PARAM_EXPLICIT_NOTIFY |
-+                       G_PARAM_STATIC_STRINGS);
-+
-+  g_object_class_install_properties (object_class, PROP_LAST_PROP, props);
-+}
-+
-+
-+static void
-+phosh_mode_manager_init (PhoshModeManager *self)
-+{
-+  self->hw_flags = PHOSH_MODE_HW_NONE;
-+  self->device_type = PHOSH_MODE_DEVICE_TYPE_UNKNOWN;
-+  self->mimicry = PHOSH_MODE_DEVICE_TYPE_UNKNOWN;
-+}
-+
-+
-+PhoshModeManager *
-+phosh_mode_manager_new (void)
-+{
-+  return PHOSH_MODE_MANAGER (g_object_new (PHOSH_TYPE_MODE_MANAGER, NULL));
-+}
-+
-+
-+PhoshModeDeviceType
-+phosh_mode_manager_get_device_type (PhoshModeManager *self)
-+{
-+  g_return_val_if_fail (PHOSH_IS_MODE_MANAGER (self), PHOSH_MODE_DEVICE_TYPE_UNKNOWN);
-+
-+  return self->device_type;
-+}
-+
-+
-+PhoshModeDeviceType
-+phosh_mode_manager_get_mimicry (PhoshModeManager *self)
-+{
-+  g_return_val_if_fail (PHOSH_IS_MODE_MANAGER (self), PHOSH_MODE_DEVICE_TYPE_UNKNOWN);
-+
-+  return self->mimicry;
-+}
-diff --git a/src/mode-manager.h b/src/mode-manager.h
-new file mode 100644
-index 00000000..73f2fb44
---- /dev/null
-+++ b/src/mode-manager.h
-@@ -0,0 +1,62 @@
-+/*
-+ * Copyright (C) 2020 Purism SPC
-+ *
-+ * SPDX-License-Identifier: GPL-3.0-or-later
-+ */
-+
-+#pragma once
-+
-+#include <glib-object.h>
-+
-+
-+G_BEGIN_DECLS
-+
-+/**
-+ * PhoshModeDeviceType:
-+ * @PHOSH_MODE_DEVICE_TYPE_UNKNOWN: unknown device type
-+ * @PHOSH_MODE_DEVICE_TYPE_PHONE: a phone/handset
-+ * @PHOSH_MODE_DEVICE_TYPE_LAPTOP: a laptop
-+ * @PHOSH_MODE_DEVICE_TYPE_DESKTOP: a desktop computer
-+ * @PHOSH_MODE_DEVICE_TYPE_TABLET: a tablet computer
-+ * @PHOSH_MODE_DEVICE_TYPE_CONVERTIBLE: a convertible
-+ *
-+ * A type of device
-+ */
-+typedef enum {
-+  PHOSH_MODE_DEVICE_TYPE_UNKNOWN,
-+  PHOSH_MODE_DEVICE_TYPE_PHONE,
-+  PHOSH_MODE_DEVICE_TYPE_LAPTOP,
-+  PHOSH_MODE_DEVICE_TYPE_DESKTOP,
-+  PHOSH_MODE_DEVICE_TYPE_TABLET,
-+  PHOSH_MODE_DEVICE_TYPE_CONVERTIBLE,
-+} PhoshModeDeviceType;
-+
-+/**
-+ * PhoshModeHwFlags:
-+ * @PHOSH_MODE_HW_NONE: nothing
-+ * @PHOSH_MODE_HW_EXT_DISPLAY: external display
-+ * @PHOSH_MODE_HW_KEYBOARD: keyboard
-+ * @PHOSH_MODE_HW_POINTER: pointing device
-+ *
-+ * Attached external hardware
-+ */
-+typedef enum {
-+  PHOSH_MODE_HW_NONE        = 0,
-+  PHOSH_MODE_HW_EXT_DISPLAY = (1 << 1),
-+  PHOSH_MODE_HW_KEYBOARD    = (1 << 2),
-+  PHOSH_MODE_HW_POINTER     = (1 << 3),
-+} PhoshModeHwFlags;
-+
-+/* TODO: keyboard is hard to detect due to gpio keys, etc */
-+#define PHOSH_MODE_DOCKED_PHONE_MASK (PHOSH_MODE_HW_EXT_DISPLAY \
-+                                      | PHOSH_MODE_HW_POINTER)
-+
-+#define PHOSH_TYPE_MODE_MANAGER (phosh_mode_manager_get_type ())
-+
-+G_DECLARE_FINAL_TYPE (PhoshModeManager, phosh_mode_manager, PHOSH, MODE_MANAGER, GObject)
-+
-+PhoshModeManager *phosh_mode_manager_new (void);
-+PhoshModeDeviceType phosh_mode_manager_get_device_type (PhoshModeManager *self);
-+PhoshModeDeviceType phosh_mode_manager_get_mimicry (PhoshModeManager *self);
-+
-+G_END_DECLS
-diff --git a/src/phosh-enums.c.in b/src/phosh-enums.c.in
-index dde9c7d5..8be51516 100644
---- a/src/phosh-enums.c.in
-+++ b/src/phosh-enums.c.in
-@@ -4,6 +4,7 @@
- 
- #include "app-grid-button.h"
- #include "home.h"
-+#include "mode-manager.h"
- #include "monitor/monitor.h"
- #include "notifications/notification.h"
- #include "notifications/notify-manager.h"
-diff --git a/src/shell.c b/src/shell.c
-index fa728d01..5a0978b8 100644
---- a/src/shell.c
-+++ b/src/shell.c
-@@ -34,6 +34,7 @@
- #include "home.h"
- #include "idle-manager.h"
- #include "lockscreen-manager.h"
-+#include "mode-manager.h"
- #include "monitor-manager.h"
- #include "monitor/monitor.h"
- #include "notifications/notify-manager.h"
-@@ -99,6 +100,7 @@ typedef struct
-   PhoshBtManager *bt_manager;
-   PhoshWWan *wwan;
-   PhoshTorchManager *torch_manager;
-+  PhoshModeManager *mode_manager;
- 
-   /* sensors */
-   PhoshSensorProxyManager *sensor_proxy_manager;
-@@ -330,6 +332,7 @@ phosh_shell_dispose (GObject *object)
-   g_clear_object (&priv->notification_banner);
- 
-   /* dispose managers in opposite order of declaration */
-+  g_clear_object (&priv->mode_manager);
-   g_clear_object (&priv->torch_manager);
-   g_clear_object (&priv->wwan);
-   g_clear_object (&priv->bt_manager);
-@@ -436,6 +439,8 @@ setup_idle_cb (PhoshShell *self)
- {
-   PhoshShellPrivate *priv = phosh_shell_get_instance_private (self);
- 
-+  priv->mode_manager = phosh_mode_manager_new ();
-+
-   panels_create (self);
-   /* Create background after panel since it needs the panel's size */
-   priv->background_manager = phosh_background_manager_new ();
--- 
-2.26.2
-
-
-From 46b9c16fa717b7a9f1e5ef7c7220a3608bbb0274 Mon Sep 17 00:00:00 2001
+From 98d4845d103d2846a9b1be22dacdc544f283094a Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Thu, 8 Oct 2020 14:11:56 +0200
-Subject: [PATCH 8/9] Add 'docked' quick setting and manager
+Subject: [PATCH 2/2] Add 'docked' quick setting and manager
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Docked manager figures out if a device has enough
-hardware around to be treated as desktop/laptop.
-If so it sets the corresponding settings like
-floating windows, etc.
-
-The quick setting allows to override this.
+This allows to toggle floating windows mode, etc.
 
 Signed-off-by: Guido Günther <guido.gunther@puri.sm>
 ---
- docs/phosh-docs.xml     |   2 +
  po/POTFILES.in          |   1 +
- src/docked-info.c       | 203 ++++++++++++++++++++++++++
+ src/docked-info.c       | 204 ++++++++++++++++++++++++++++
  src/docked-info.h       |  20 +++
- src/docked-manager.c    | 315 ++++++++++++++++++++++++++++++++++++++++
- src/docked-manager.h    |  25 ++++
+ src/docked-manager.c    | 286 ++++++++++++++++++++++++++++++++++++++++
+ src/docked-manager.h    |  23 ++++
  src/meson.build         |   4 +
- src/settings.c          |  22 +++
+ src/settings.c          |  19 +++
  src/shell.c             |  20 +++
  src/shell.h             |   2 +
- src/ui/settings-menu.ui |  15 ++
- 11 files changed, 629 insertions(+)
+ src/ui/settings-menu.ui |  15 +++
+ 10 files changed, 594 insertions(+)
  create mode 100644 src/docked-info.c
  create mode 100644 src/docked-info.h
  create mode 100644 src/docked-manager.c
  create mode 100644 src/docked-manager.h
 
-diff --git a/docs/phosh-docs.xml b/docs/phosh-docs.xml
-index a671e9f2..da03fd4d 100644
---- a/docs/phosh-docs.xml
-+++ b/docs/phosh-docs.xml
-@@ -50,6 +50,8 @@
-       <xi:include href="xml/bt-manager.xml"/>
-       <xi:include href="xml/bt-info.xml"/>
-       <xi:include href="xml/connectivity-info.xml"/>
-+      <xi:include href="xml/docked-info.xml"/>
-+      <xi:include href="xml/docked-manager.xml"/>
-       <xi:include href="xml/fader.xml"/>
-       <xi:include href="xml/favorite-list-model.xml"/>
-       <xi:include href="xml/feedback-manager.xml"/>
 diff --git a/po/POTFILES.in b/po/POTFILES.in
 index 275609a4..ac9eb466 100644
 --- a/po/POTFILES.in
@@ -1173,10 +140,10 @@ index 275609a4..ac9eb466 100644
  src/feedbackinfo.c
 diff --git a/src/docked-info.c b/src/docked-info.c
 new file mode 100644
-index 00000000..41e96b9f
+index 00000000..d59736c4
 --- /dev/null
 +++ b/src/docked-info.c
-@@ -0,0 +1,203 @@
+@@ -0,0 +1,204 @@
 +/*
 + * Copyright (C) 2020 Purism SPC
 + *
@@ -1215,7 +182,7 @@ index 00000000..41e96b9f
 +
 +  gboolean            enabled;
 +  gboolean            present;
-+  PhoshDockedManager *manager;
++  PhoshDockedManager *docked;
 +};
 +G_DEFINE_TYPE (PhoshDockedInfo, phosh_docked_info, PHOSH_TYPE_STATUS_ICON);
 +
@@ -1243,15 +210,15 @@ index 00000000..41e96b9f
 +
 +
 +static void
-+on_docked_mode_enabled (PhoshDockedInfo *self, GParamSpec *pspec, PhoshDockedManager *manager)
++on_docked_enabled (PhoshDockedInfo *self, GParamSpec *pspec, PhoshDockedManager *docked)
 +{
 +  gboolean enabled;
 +
 +  g_debug ("Updating docked status");
 +  g_return_if_fail (PHOSH_IS_DOCKED_INFO (self));
-+  g_return_if_fail (PHOSH_IS_DOCKED_MANAGER (manager));
++  g_return_if_fail (PHOSH_IS_DOCKED_MANAGER (docked));
 +
-+  enabled = phosh_docked_manager_get_enabled (manager);
++  enabled = phosh_docked_manager_get_enabled (docked);
 +  if (self->enabled == enabled)
 +    return;
 +
@@ -1264,18 +231,18 @@ index 00000000..41e96b9f
 +
 +
 +static void
-+on_docked_present (PhoshDockedInfo *self, GParamSpec *pspec, PhoshDockedManager *manager)
++on_docked_present (PhoshDockedInfo *self, GParamSpec *pspec, PhoshDockedManager *docked)
 +{
-+  gboolean can_dock;
++  gboolean present;
 +
 +  g_return_if_fail (PHOSH_IS_DOCKED_INFO (self));
-+  g_return_if_fail (PHOSH_IS_DOCKED_MANAGER (manager));
++  g_return_if_fail (PHOSH_IS_DOCKED_MANAGER (docked));
 +
-+  can_dock = phosh_docked_manager_get_can_dock (manager);
-+  if (self->present == can_dock)
++  present = phosh_docked_manager_get_present (docked);
++  if (self->present == present)
 +    return;
 +
-+  self->present = can_dock;
++  self->present = present;
 +  g_object_notify_by_pspec (G_OBJECT (self), props[PROP_PRESENT]);
 +}
 +
@@ -1283,22 +250,23 @@ index 00000000..41e96b9f
 +static gboolean
 +on_idle (PhoshDockedInfo *self)
 +{
-+  g_object_bind_property (self->manager, "icon-name", self, "icon-name",
++  g_object_bind_property (self->docked, "icon-name", self, "icon-name",
 +                          G_BINDING_SYNC_CREATE);
 +
 +  /* We don't use a binding for self->enabled so we can keep
 +     the property r/o */
-+  g_signal_connect_swapped (self->manager,
-+                            "notify::can-dock",
++  g_signal_connect_swapped (self->docked,
++                            "notify::present",
 +                            G_CALLBACK (on_docked_present),
 +                            self);
-+  on_docked_present (self, NULL, self->manager);
++  on_docked_present (self, NULL, self->docked);
 +
-+  g_signal_connect_swapped (self->manager,
++  g_signal_connect_swapped (self->docked,
 +                            "notify::enabled",
-+                            G_CALLBACK (on_docked_mode_enabled),
++                            G_CALLBACK (on_docked_enabled),
 +                            self);
-+  on_docked_mode_enabled (self, NULL, self->manager);
++  on_docked_enabled (self, NULL, self->docked);
++
 +
 +  return FALSE;
 +}
@@ -1313,9 +281,9 @@ index 00000000..41e96b9f
 +  G_OBJECT_CLASS (phosh_docked_info_parent_class)->constructed (object);
 +
 +  shell = phosh_shell_get_default ();
-+  self->manager = g_object_ref (phosh_shell_get_docked_manager (shell));
++  self->docked = g_object_ref (phosh_shell_get_docked_manager (shell));
 +
-+  if (self->manager == NULL) {
++  if (self->docked == NULL) {
 +    g_warning ("Failed to get docked manager");
 +    return;
 +  }
@@ -1329,9 +297,9 @@ index 00000000..41e96b9f
 +{
 +  PhoshDockedInfo *self = PHOSH_DOCKED_INFO (object);
 +
-+  if (self->manager) {
-+    g_signal_handlers_disconnect_by_data (self->manager, self);
-+    g_clear_object (&self->manager);
++  if (self->docked) {
++    g_signal_handlers_disconnect_by_data (self->docked, self);
++    g_clear_object (&self->docked);
 +  }
 +
 +  G_OBJECT_CLASS (phosh_docked_info_parent_class)->dispose (object);
@@ -1408,10 +376,10 @@ index 00000000..bdcbfd0d
 +G_END_DECLS
 diff --git a/src/docked-manager.c b/src/docked-manager.c
 new file mode 100644
-index 00000000..40d7baf2
+index 00000000..c04c66d7
 --- /dev/null
 +++ b/src/docked-manager.c
-@@ -0,0 +1,315 @@
+@@ -0,0 +1,286 @@
 +/*
 + * Copyright (C) 2020 Purism SPC
 + *
@@ -1425,50 +393,47 @@ index 00000000..40d7baf2
 +#include "config.h"
 +
 +#include "docked-manager.h"
-+#include "mode-manager.h"
 +#include "shell.h"
 +
-+#define DOCKED_DISABLED_ICON "phone-undocked-symbolic"
-+#define DOCKED_ENABLED_ICON  "phone-docked-symbolic"
++#define DOCKED_DISABLED_ICON "switch-off-symbolic"
++#define DOCKED_ENABLED_ICON  "switch-on-symbolic"
 +
 +#define PHOC_KEY_MAXIMIZE "auto-maximize"
 +#define A11Y_KEY_OSK "screen-keyboard-enabled"
 +#define WM_KEY_LAYOUT "button-layout"
-+#define GTK_KEY_IS_PHONE "is-phone"
 +
++/* TODO: no need to have that in the shell, could go into g-s-d
++ * so gnome-shell can use the same logic */
 +/**
 + * SECTION:docked-manager
-+ * @short_description: Handles 'docking" the phone to additional hardware
++ * @short_description: Determines if the phone is docked
 + * @Title: PhoshDockedManager
 + *
-+ * #PhoshDockedManager allows to dock the phone to additional hardware
-+ * and performs the necessary configuration changes
-+ * (disable OSK, don't maximize windows by default, ...)
++ * #PhoshDockedManager tracks the docked status and
++ * and toggles appropriate actions (disable OSK, ...)
 + */
 +
 +enum {
 +  PROP_0,
-+  PROP_MODE_MANAGER,
 +  PROP_ICON_NAME,
 +  PROP_ENABLED,
-+  PROP_CAN_DOCK,
++  PROP_PRESENT,
 +  PROP_LAST_PROP
 +};
 +static GParamSpec *props[PROP_LAST_PROP];
 +
 +struct _PhoshDockedManager {
-+  GObject           parent;
++  GObject              parent;
 +
-+  gboolean          enabled;
-+  gboolean          can_dock;
-+  const char       *icon_name;
++  gboolean             enabled;
++  gboolean             present;
++  const char          *icon_name;
 +
-+  PhoshModeManager *mode_manager;
++  PhoshMonitorManager *monitor_manager;
 +
-+  GSettings        *phoc_settings;
-+  GSettings        *wm_settings;
-+  GSettings        *a11y_settings;
-+  GSettings        *gtk_settings;
++  GSettings           *phoc_settings;
++  GSettings           *wm_settings;
++  GSettings           *a11y_settings;
 +};
 +G_DEFINE_TYPE (PhoshDockedManager, phosh_docked_manager, G_TYPE_OBJECT);
 +
@@ -1485,8 +450,8 @@ index 00000000..40d7baf2
 +  case PROP_ICON_NAME:
 +    g_value_set_string (value, self->icon_name);
 +    break;
-+  case PROP_CAN_DOCK:
-+    g_value_set_boolean (value, self->can_dock);
++  case PROP_PRESENT:
++    g_value_set_boolean (value, self->present);
 +    break;
 +  case PROP_ENABLED:
 +    g_value_set_boolean (value, self->enabled);
@@ -1499,54 +464,78 @@ index 00000000..40d7baf2
 +
 +
 +static void
-+phosh_docked_manager_set_property (GObject      *object,
-+                                   guint         property_id,
-+                                   const GValue *value,
-+                                   GParamSpec   *pspec)
++docked_enable (PhoshDockedManager *self, gboolean enable)
 +{
-+  PhoshDockedManager *self = PHOSH_DOCKED_MANAGER (object);
-+
-+  switch (property_id) {
-+  case PROP_MODE_MANAGER:
-+    /* construct only */
-+    self->mode_manager = g_value_dup_object (value);
-+    g_object_notify_by_pspec (G_OBJECT (self), props[PROP_MODE_MANAGER]);
-+    break;
-+  case PROP_ENABLED:
-+    phosh_docked_manager_set_enabled (self, g_value_get_boolean (value));
-+    break;
-+  default:
-+    G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-+    break;
-+  }
++  /* The other settings are updated when this changes */
++  g_debug ("%sabling docked mode", enable ? "En" : "Dis");
++  g_settings_set_boolean (self->phoc_settings, PHOC_KEY_MAXIMIZE, !enable);
 +}
 +
 +
 +static void
-+mode_changed_cb (PhoshDockedManager *self, GParamSpec *pspec, PhoshModeManager *manager)
++on_maximize_changed (PhoshDockedManager *self,
++                     GParamSpec         *pspec,
++                     GSettings          *settings)
 +{
-+  gboolean can_dock = FALSE;
++  g_autofree char *owner = NULL;
++  const char *icon_name;
++  gboolean docked;
++  PhoshShell *shell = phosh_shell_get_default ();
 +
 +  g_return_if_fail (PHOSH_IS_DOCKED_MANAGER (self));
-+  g_return_if_fail (PHOSH_IS_MODE_MANAGER (manager));
-+  g_return_if_fail (self->mode_manager == manager);
 +
-+  /*
-+   * Desktops, laptops and phones with enough external hardware should get floating
-+   * windows, etc
-+   */
-+  if (phosh_mode_manager_get_mimicry (manager) != PHOSH_MODE_DEVICE_TYPE_PHONE)
-+    can_dock = TRUE;
-+
-+  if (can_dock == self->can_dock)
++  docked = !g_settings_get_boolean (self->phoc_settings, PHOC_KEY_MAXIMIZE);
++  if (docked == self->enabled)
 +    return;
 +
-+  g_debug ("Docked mode possible: %d", can_dock);
-+  self->can_dock = can_dock;
-+  g_object_notify_by_pspec (G_OBJECT (self), props[PROP_CAN_DOCK]);
++  self->enabled = docked;
++  g_settings_set_boolean (self->a11y_settings, A11Y_KEY_OSK, !docked);
++  if (docked)
++    g_settings_reset (self->wm_settings, WM_KEY_LAYOUT);
++  else
++    g_settings_set_string (self->wm_settings, WM_KEY_LAYOUT, "appmenu:");
 +
-+  /* Automatically enable/disable docked mode */
-+  phosh_docked_manager_set_enabled (self, can_dock);
++  g_object_freeze_notify (G_OBJECT (self));
++  icon_name = self->enabled ? DOCKED_ENABLED_ICON : DOCKED_DISABLED_ICON;
++  if (icon_name != self->icon_name) {
++    self->icon_name = icon_name;
++    g_object_notify_by_pspec (G_OBJECT (self), props[PROP_ICON_NAME]);
++  }
++
++  if (!docked) {
++    PhoshMonitor *monitor;
++
++    monitor = phosh_shell_get_builtin_monitor (shell);
++    phosh_shell_set_primary_monitor (shell, monitor);
++  }
++
++  g_object_notify_by_pspec (G_OBJECT (self), props[PROP_ENABLED]);
++  g_object_thaw_notify (G_OBJECT (self));
++}
++
++
++static void
++on_n_monitors_changed (PhoshDockedManager *self, GParamSpec *pspec, PhoshMonitorManager *manager)
++{
++  gboolean present;
++  int num;
++
++  g_return_if_fail (PHOSH_IS_DOCKED_MANAGER (self));
++  g_return_if_fail (PHOSH_IS_MONITOR_MANAGER (manager));
++
++  num = phosh_monitor_manager_get_num_monitors (manager);
++  g_debug ("Monitors: %d", num);
++  present = (num > 1);
++  if (present == self->present)
++    return;
++
++  g_debug ("Docked mode possible: %d", present);
++  self->present = present;
++
++  g_object_notify_by_pspec (G_OBJECT (self), props[PROP_PRESENT]);
++
++  /* TODO: Make enabled only follow present when we also have a keyboard  */
++  docked_enable (self, present);
 +}
 +
 +
@@ -1554,28 +543,27 @@ index 00000000..40d7baf2
 +phosh_docked_manager_constructed (GObject *object)
 +{
 +  PhoshDockedManager *self = PHOSH_DOCKED_MANAGER (object);
-+  GSettingsSchemaSource *schema_source = g_settings_schema_source_get_default();
-+  g_autoptr (GSettingsSchema) schema = NULL;
-+
 +
 +  G_OBJECT_CLASS (phosh_docked_manager_parent_class)->constructed (object);
 +
 +  self->phoc_settings = g_settings_new ("sm.puri.phoc");
 +  self->a11y_settings = g_settings_new ("org.gnome.desktop.a11y.applications");
 +  self->wm_settings = g_settings_new ("org.gnome.desktop.wm.preferences");
++  self->monitor_manager = phosh_shell_get_monitor_manager (phosh_shell_get_default ());
 +
-+  /* This is a downstream only schema that is supposed to go away once GTK
-+   * GTK is adaptive (https://source.puri.sm/Librem5/gtk/-/merge_requests/18) */
-+  schema = g_settings_schema_source_lookup (schema_source, "org.gtk.Settings.Purism", TRUE);
-+  if (schema && g_settings_schema_has_key (schema, GTK_KEY_IS_PHONE))
-+    self->gtk_settings = g_settings_new ("org.gtk.Settings.Purism");
++  /* Too simplistic */
++  g_signal_connect_swapped (self->phoc_settings,
++                            "changed::" PHOC_KEY_MAXIMIZE,
++                            G_CALLBACK (on_maximize_changed),
++                            self);
 +
-+  g_object_connect (
-+    self->mode_manager,
-+    "swapped-object-signal::notify::device-type", G_CALLBACK (mode_changed_cb), self,
-+    "swapped-object-signal::notify::mimicry", G_CALLBACK (mode_changed_cb), self,
-+    NULL);
-+  mode_changed_cb (self, NULL, self->mode_manager);
++  /* TODO: ref mm and properly disconnect signals */
++  g_signal_connect_swapped (self->monitor_manager,
++                            "notify::n-monitors",
++                            G_CALLBACK (on_n_monitors_changed),
++                            self);
++  on_n_monitors_changed (self, NULL, self->monitor_manager);
++  on_maximize_changed (self, NULL, self->phoc_settings);
 +}
 +
 +
@@ -1587,8 +575,6 @@ index 00000000..40d7baf2
 +  g_clear_object (&self->phoc_settings);
 +  g_clear_object (&self->a11y_settings);
 +  g_clear_object (&self->wm_settings);
-+  g_clear_object (&self->gtk_settings);
-+  g_clear_object (&self->mode_manager);
 +
 +  G_OBJECT_CLASS (phosh_docked_manager_parent_class)->dispose (object);
 +}
@@ -1602,14 +588,6 @@ index 00000000..40d7baf2
 +  object_class->constructed = phosh_docked_manager_constructed;
 +  object_class->dispose = phosh_docked_manager_dispose;
 +  object_class->get_property = phosh_docked_manager_get_property;
-+  object_class->set_property = phosh_docked_manager_set_property;
-+
-+  props[PROP_MODE_MANAGER] =
-+    g_param_spec_object ("mode-manager",
-+                         "Mode manager",
-+                         "The hw mode object",
-+                         PHOSH_TYPE_MODE_MANAGER,
-+                         G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 +
 +  props[PROP_ICON_NAME] =
 +    g_param_spec_string ("icon-name",
@@ -1621,16 +599,16 @@ index 00000000..40d7baf2
 +  props[PROP_ENABLED] =
 +    g_param_spec_boolean ("enabled",
 +                          "enabled",
-+                          "Whether docked mode is enabled",
++                          "Whether docked is enabled",
 +                          FALSE,
-+                          G_PARAM_READWRITE |
++                          G_PARAM_READABLE |
 +                          G_PARAM_EXPLICIT_NOTIFY |
 +                          G_PARAM_STATIC_STRINGS);
 +
-+  props[PROP_CAN_DOCK] =
-+    g_param_spec_boolean ("can-dock",
-+                          "Can dock",
-+                          "Whether the device can be docked",
++  props[PROP_PRESENT] =
++    g_param_spec_boolean ("present",
++                          "Present",
++                          "Whether a docked led is present",
 +                          FALSE,
 +                          G_PARAM_READABLE |
 +                          G_PARAM_EXPLICIT_NOTIFY |
@@ -1648,11 +626,9 @@ index 00000000..40d7baf2
 +
 +
 +PhoshDockedManager *
-+phosh_docked_manager_new (PhoshModeManager *mode_manager)
++phosh_docked_manager_new (void)
 +{
-+  return PHOSH_DOCKED_MANAGER (g_object_new (PHOSH_TYPE_DOCKED_MANAGER,
-+                                             "mode-manager", mode_manager,
-+                                             NULL));
++  return PHOSH_DOCKED_MANAGER (g_object_new (PHOSH_TYPE_DOCKED_MANAGER, NULL));
 +}
 +
 +
@@ -1675,64 +651,27 @@ index 00000000..40d7baf2
 +
 +
 +gboolean
-+phosh_docked_manager_get_can_dock (PhoshDockedManager *self)
++phosh_docked_manager_get_present (PhoshDockedManager *self)
 +{
 +  g_return_val_if_fail (PHOSH_IS_DOCKED_MANAGER (self), FALSE);
 +
-+  return self->can_dock;
++  return self->present;
 +}
 +
 +
 +void
-+phosh_docked_manager_set_enabled (PhoshDockedManager *self, gboolean enable)
++phosh_docked_manager_toggle (PhoshDockedManager *self)
 +{
-+  const gchar *icon_name;
-+
 +  g_return_if_fail (PHOSH_IS_DOCKED_MANAGER (self));
 +
-+  if (self->enabled == enable)
-+    return;
-+
-+  g_object_freeze_notify (G_OBJECT (self));
-+
-+  self->enabled = enable;
-+  g_object_notify_by_pspec (G_OBJECT (self), props[PROP_ENABLED]);
-+
-+  if (enable)
-+    g_settings_reset (self->wm_settings, WM_KEY_LAYOUT);
-+  else
-+    g_settings_set_string (self->wm_settings, WM_KEY_LAYOUT, "appmenu:");
-+
-+  /* we could bind one boolean property via g_settings_bind but that would spread
-+   * mode setup over several places */
-+  g_settings_set_boolean (self->phoc_settings, PHOC_KEY_MAXIMIZE, !enable);
-+  g_settings_set_boolean (self->a11y_settings, A11Y_KEY_OSK, !enable);
-+  if (self->gtk_settings)
-+    g_settings_set_boolean (self->gtk_settings, GTK_KEY_IS_PHONE, !enable);
-+
-+  /* TODO: Other icons for non phones? */
-+  icon_name = enable ? DOCKED_ENABLED_ICON : DOCKED_DISABLED_ICON;
-+  if (icon_name != self->icon_name) {
-+    self->icon_name = icon_name;
-+    g_object_notify_by_pspec (G_OBJECT (self), props[PROP_ICON_NAME]);
-+  }
-+
-+  g_object_thaw_notify (G_OBJECT (self));
-+
-+  if (!enable) {
-+    PhoshShell *shell = phosh_shell_get_default ();
-+    PhoshMonitor *monitor = phosh_shell_get_builtin_monitor (shell);
-+    if (monitor)
-+      phosh_shell_set_primary_monitor (shell, monitor);
-+  }
-+  g_debug ("Docked mode %sabled", self->enabled ? "en" : "dis");
++  docked_enable (self, !self->enabled);
 +}
 diff --git a/src/docked-manager.h b/src/docked-manager.h
 new file mode 100644
-index 00000000..2e88298c
+index 00000000..b6062b93
 --- /dev/null
 +++ b/src/docked-manager.h
-@@ -0,0 +1,25 @@
+@@ -0,0 +1,23 @@
 +/*
 + * Copyright (C) 2020 Purism SPC
 + *
@@ -1740,8 +679,6 @@ index 00000000..2e88298c
 + */
 +
 +#pragma once
-+
-+#include <mode-manager.h>
 +
 +#include <glib-object.h>
 +
@@ -1751,18 +688,18 @@ index 00000000..2e88298c
 +
 +G_DECLARE_FINAL_TYPE (PhoshDockedManager, phosh_docked_manager, PHOSH, DOCKED_MANAGER, GObject)
 +
-+PhoshDockedManager *phosh_docked_manager_new (PhoshModeManager *mode_manager);
++PhoshDockedManager *phosh_docked_manager_new (void);
 +const char *phosh_docked_manager_get_icon_name (PhoshDockedManager *self);
 +gboolean    phosh_docked_manager_get_enabled (PhoshDockedManager *self);
-+gboolean    phosh_docked_manager_get_can_dock (PhoshDockedManager *self);
-+void        phosh_docked_manager_set_enabled (PhoshDockedManager *self, gboolean enabled);
++gboolean    phosh_docked_manager_get_present (PhoshDockedManager *self);
++void        phosh_docked_manager_toggle (PhoshDockedManager *self);
 +
 +G_END_DECLS
 diff --git a/src/meson.build b/src/meson.build
-index a19d9b2d..023bf429 100644
+index d0039a20..24bdda42 100644
 --- a/src/meson.build
 +++ b/src/meson.build
-@@ -54,6 +54,10 @@ libphosh_tool_sources = [
+@@ -52,6 +52,10 @@ libphosh_tool_sources = [
    'background.h',
    'connectivity-info.c',
    'connectivity-info.h',
@@ -1774,7 +711,7 @@ index a19d9b2d..023bf429 100644
    'favorite-list-model.h',
    'feedback-manager.c',
 diff --git a/src/settings.c b/src/settings.c
-index 1673b358..a1770373 100644
+index 9ba477e6..c519019e 100644
 --- a/src/settings.c
 +++ b/src/settings.c
 @@ -11,6 +11,8 @@
@@ -1782,11 +719,11 @@ index 1673b358..a1770373 100644
  
  #include "bt-info.h"
 +#include "docked-info.h"
-+#include "mode-manager.h"
++#include "docked-manager.h"
  #include "shell.h"
  #include "settings.h"
  #include "quick-setting.h"
-@@ -166,6 +168,24 @@ torch_setting_clicked_cb (PhoshSettings *self)
+@@ -166,6 +168,21 @@ torch_setting_clicked_cb (PhoshSettings *self)
    phosh_torch_manager_toggle (manager);
  }
  
@@ -1796,22 +733,19 @@ index 1673b358..a1770373 100644
 +{
 +  PhoshShell *shell;
 +  PhoshDockedManager *manager;
-+  gboolean enabled;
 +
 +  shell = phosh_shell_get_default ();
 +  g_return_if_fail (PHOSH_IS_SHELL (shell));
 +  manager = phosh_shell_get_docked_manager (shell);
 +  g_return_if_fail (PHOSH_IS_DOCKED_MANAGER (manager));
-+
-+  enabled = phosh_docked_manager_get_enabled (manager);
-+  phosh_docked_manager_set_enabled (manager, !enabled);
++  phosh_docked_manager_toggle (manager);
 +}
 +
 +
  static void
  change_volume (PhoshSettings *self,
                 int            steps)
-@@ -516,6 +536,7 @@ phosh_settings_class_init (PhoshSettingsClass *klass)
+@@ -513,6 +530,7 @@ phosh_settings_class_init (PhoshSettingsClass *klass)
        NULL, G_TYPE_NONE, 0);
  
    g_type_ensure (PHOSH_TYPE_BT_INFO);
@@ -1819,7 +753,7 @@ index 1673b358..a1770373 100644
    g_type_ensure (PHOSH_TYPE_FEEDBACK_INFO);
    g_type_ensure (PHOSH_TYPE_MEDIA_PLAYER);
    g_type_ensure (PHOSH_TYPE_QUICK_SETTING);
-@@ -530,6 +551,7 @@ phosh_settings_class_init (PhoshSettingsClass *klass)
+@@ -527,6 +545,7 @@ phosh_settings_class_init (PhoshSettingsClass *klass)
  
    gtk_widget_class_bind_template_callback (widget_class, battery_setting_clicked_cb);
    gtk_widget_class_bind_template_callback (widget_class, bt_setting_clicked_cb);
@@ -1828,7 +762,7 @@ index 1673b358..a1770373 100644
    gtk_widget_class_bind_template_callback (widget_class, feedback_setting_long_pressed_cb);
    gtk_widget_class_bind_template_callback (widget_class, on_media_player_raised);
 diff --git a/src/shell.c b/src/shell.c
-index 5a0978b8..32647814 100644
+index 2773446a..1d8129d3 100644
 --- a/src/shell.c
 +++ b/src/shell.c
 @@ -29,6 +29,7 @@
@@ -1839,23 +773,23 @@ index 5a0978b8..32647814 100644
  #include "fader.h"
  #include "feedback-manager.h"
  #include "home.h"
-@@ -101,6 +102,7 @@ typedef struct
+@@ -99,6 +100,7 @@ typedef struct
+   PhoshBtManager *bt_manager;
    PhoshWWan *wwan;
    PhoshTorchManager *torch_manager;
-   PhoshModeManager *mode_manager;
 +  PhoshDockedManager *docked_manager;
  
    /* sensors */
    PhoshSensorProxyManager *sensor_proxy_manager;
-@@ -332,6 +334,7 @@ phosh_shell_dispose (GObject *object)
+@@ -330,6 +332,7 @@ phosh_shell_dispose (GObject *object)
    g_clear_object (&priv->notification_banner);
  
    /* dispose managers in opposite order of declaration */
 +  g_clear_object (&priv->docked_manager);
-   g_clear_object (&priv->mode_manager);
    g_clear_object (&priv->torch_manager);
    g_clear_object (&priv->wwan);
-@@ -937,6 +940,23 @@ phosh_shell_get_torch_manager (PhoshShell *self)
+   g_clear_object (&priv->bt_manager);
+@@ -931,6 +934,23 @@ phosh_shell_get_torch_manager (PhoshShell *self)
    return priv->torch_manager;
  }
  
@@ -1869,7 +803,7 @@ index 5a0978b8..32647814 100644
 +  priv = phosh_shell_get_instance_private (self);
 +
 +  if (!priv->docked_manager)
-+    priv->docked_manager = phosh_docked_manager_new (priv->mode_manager);
++    priv->docked_manager = phosh_docked_manager_new ();
 +
 +  g_return_val_if_fail (PHOSH_IS_DOCKED_MANAGER (priv->docked_manager), NULL);
 +  return priv->docked_manager;
@@ -1900,7 +834,7 @@ index 6f85a103..35164aab 100644
  void                 phosh_shell_enable_power_save (PhoshShell *self, gboolean enable);
  gboolean             phosh_shell_started_by_display_manager(PhoshShell *self);
 diff --git a/src/ui/settings-menu.ui b/src/ui/settings-menu.ui
-index e94e8080..7e9df0ef 100644
+index 227d8b26..63e49286 100644
 --- a/src/ui/settings-menu.ui
 +++ b/src/ui/settings-menu.ui
 @@ -134,6 +134,21 @@
@@ -1925,70 +859,6 @@ index e94e8080..7e9df0ef 100644
                </object>
                <packing>
                  <property name="expand">False</property>
--- 
-2.26.2
-
-
-From 51298349f95788d773d75e4f25144da21fb190b0 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
-Date: Wed, 14 Oct 2020 18:27:51 +0200
-Subject: [PATCH 9/9] status-bar: Add docked icon when docked
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
-Show no icon when undocked
-
-Signed-off-by: Guido Günther <guido.gunther@puri.sm>
----
- src/panel.c         |  2 ++
- src/ui/top-panel.ui | 13 +++++++++++++
- 2 files changed, 15 insertions(+)
-
-diff --git a/src/panel.c b/src/panel.c
-index 2ec67361..d4ea9f9b 100644
---- a/src/panel.c
-+++ b/src/panel.c
-@@ -16,6 +16,7 @@
- 
- #include "bt-info.h"
- #include "connectivity-info.h"
-+#include "docked-info.h"
- #include "panel.h"
- #include "shell.h"
- #include "session.h"
-@@ -379,6 +380,7 @@ phosh_panel_class_init (PhoshPanelClass *klass)
- 
-   g_type_ensure (PHOSH_TYPE_BT_INFO);
-   g_type_ensure (PHOSH_TYPE_CONNECTIVITY_INFO);
-+  g_type_ensure (PHOSH_TYPE_DOCKED_INFO);
-   g_type_ensure (PHOSH_TYPE_SETTINGS);
- 
-   gtk_widget_class_set_template_from_resource (widget_class,
-diff --git a/src/ui/top-panel.ui b/src/ui/top-panel.ui
-index adaa072f..f896a65c 100644
---- a/src/ui/top-panel.ui
-+++ b/src/ui/top-panel.ui
-@@ -120,6 +120,19 @@
-                             <property name="position">3</property>
-                           </packing>
-                         </child>
-+                        <child>
-+                          <object class="PhoshDockedInfo" id="docked_info">
-+			    <property name="visible" bind-source="docked_info" bind-property="enabled" bind-flags="sync-create"/>
-+			    <property name="can_focus">False</property>
-+			    <property name="icon-size">GTK_ICON_SIZE_SMALL_TOOLBAR</property>
-+			    <property name="margin_right">8</property>
-+			  </object>
-+                          <packing>
-+                            <property name="expand">False</property>
-+                            <property name="fill">True</property>
-+                            <property name="position">4</property>
-+                          </packing>
-+                        </child>
-                       </object>
-                       <packing>
-                         <property name="expand">False</property>
 -- 
 2.26.2
 
