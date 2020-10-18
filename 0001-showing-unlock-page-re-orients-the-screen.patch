@@ -31,7 +31,7 @@ index e428f6a..3a486df 100644
        priv->idle_timer = g_timeout_add_seconds (LOCKSCREEN_IDLE_SECONDS,
                                                  (GSourceFunc) keypad_check_idle,
                                                  self);
-+      phosh_shell_rotate_display (shell, 0);
++      phosh_shell_set_transform (shell, PHOSH_MONITOR_TRANSFORM_NORMAL);
      }
  
      return;
