@@ -42,8 +42,6 @@ prepare() {
     git config --local submodule.subprojects/gvc.url "$srcdir/libgnome-volume-control"
     git submodule update
 
-berak
-
     local src
     for src in "${source[@]}"; do
       src="${src%%::*}"
