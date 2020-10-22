@@ -1,7 +1,7 @@
-From be1275f23464f0b115871c2a47d40a2a17633cb5 Mon Sep 17 00:00:00 2001
+From 31b89e4e307b372160986480dfa4f7697f825ce4 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Wed, 14 Oct 2020 19:42:44 +0200
-Subject: [PATCH 01/11] panel: Fix typo
+Subject: [PATCH 1/9] panel: Fix typo
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -28,10 +28,10 @@ index faecffc6..9d518236 100644
 2.26.2
 
 
-From 2c75818329b59ea0ef91436a808a39a3b0724965 Mon Sep 17 00:00:00 2001
+From cc4392ae2373301a53752f2b8d56e5010c3da31c Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Thu, 8 Oct 2020 16:55:53 +0200
-Subject: [PATCH 02/11] monitor-manager: Add property for number of monitors
+Subject: [PATCH 2/9] monitor-manager: Add property for number of monitors
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -128,84 +128,10 @@ index 211fda36..c2dcf472 100644
 2.26.2
 
 
-From 0385dc53ce7c349ce9cc26915e6f7c81b2328699 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
-Date: Mon, 19 Oct 2020 12:37:11 +0200
-Subject: [PATCH 03/11] monitor-manager: move DBus setup into idle callback
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
-This makes sure we expose the DBus interface past setting
-up all the monitor related wayland protocol listeners
-
-Signed-off-by: Guido Günther <guido.gunther@puri.sm>
----
- src/monitor-manager.c | 28 +++++++++++++++++++---------
- 1 file changed, 19 insertions(+), 9 deletions(-)
-
-diff --git a/src/monitor-manager.c b/src/monitor-manager.c
-index c2dcf472..ccc2e10e 100644
---- a/src/monitor-manager.c
-+++ b/src/monitor-manager.c
-@@ -1001,16 +1001,10 @@ phosh_monitor_manager_get_property (GObject    *object,
-   }
- }
- 
--static void
--phosh_monitor_manager_constructed (GObject *object)
--{
--  PhoshMonitorManager *self = PHOSH_MONITOR_MANAGER (object);
--  PhoshWayland *wl = phosh_wayland_get_default();
--  GHashTableIter iter;
--  struct wl_output *wl_output;
--  struct zwlr_output_manager_v1 *zwlr_output_manager_v1;
- 
--  G_OBJECT_CLASS (phosh_monitor_manager_parent_class)->constructed (object);
-+static gboolean
-+on_idle (PhoshMonitorManager *self)
-+{
-   self->dbus_name_id = g_bus_own_name (G_BUS_TYPE_SESSION,
-                                        "org.gnome.Mutter.DisplayConfig",
-                                        G_BUS_NAME_OWNER_FLAGS_ALLOW_REPLACEMENT |
-@@ -1020,6 +1014,20 @@ phosh_monitor_manager_constructed (GObject *object)
-                                        on_name_lost,
-                                        g_object_ref (self),
-                                        g_object_unref);
-+  return FALSE;
-+}
-+
-+
-+static void
-+phosh_monitor_manager_constructed (GObject *object)
-+{
-+  PhoshMonitorManager *self = PHOSH_MONITOR_MANAGER (object);
-+  PhoshWayland *wl = phosh_wayland_get_default();
-+  GHashTableIter iter;
-+  struct wl_output *wl_output;
-+  struct zwlr_output_manager_v1 *zwlr_output_manager_v1;
-+
-+  G_OBJECT_CLASS (phosh_monitor_manager_parent_class)->constructed (object);
- 
-   g_signal_connect (self, "notify::power-save-mode",
-                     G_CALLBACK (power_save_mode_changed_cb), NULL);
-@@ -1039,6 +1047,8 @@ phosh_monitor_manager_constructed (GObject *object)
-   zwlr_output_manager_v1_add_listener (zwlr_output_manager_v1,
-                                        &zwlr_output_manager_v1_listener,
-                                        self);
-+
-+  g_idle_add ((GSourceFunc) on_idle, self);
- }
- 
- 
--- 
-2.26.2
-
-
-From 8f128b7a91ec0da99ad89abfa90fc8f75cc80180 Mon Sep 17 00:00:00 2001
+From be6ed58109d60783d6280981571c7576b7fc5e32 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Thu, 15 Oct 2020 12:09:07 +0200
-Subject: [PATCH 04/11] wayland: Add G_{BEGIN,END}_DECLS
+Subject: [PATCH 3/9] wayland: Add G_{BEGIN,END}_DECLS
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -238,10 +164,10 @@ index f4e600ac..477c5501 100644
 2.26.2
 
 
-From 486215310e9ed2f87647731e4c144132472fe9a6 Mon Sep 17 00:00:00 2001
+From 97fb395d1f8f059afbd0c2edf521dd5b1aa4ce26 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Thu, 15 Oct 2020 12:24:37 +0200
-Subject: [PATCH 05/11] wayland: Provide seat capabilities
+Subject: [PATCH 4/9] wayland: Provide seat capabilities
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -253,9 +179,9 @@ Signed-off-by: Guido Günther <guido.gunther@puri.sm>
 ---
  src/meson.build      |  1 +
  src/phosh-enums.c.in |  1 +
- src/phosh-wayland.c  | 58 ++++++++++++++++++++++++++++++++++++++++++++
- src/phosh-wayland.h  | 17 +++++++++++++
- 4 files changed, 77 insertions(+)
+ src/phosh-wayland.c  | 63 ++++++++++++++++++++++++++++++++++++++++++++
+ src/phosh-wayland.h  | 17 ++++++++++++
+ 4 files changed, 82 insertions(+)
 
 diff --git a/src/meson.build b/src/meson.build
 index bfd2bf6d..d5319002 100644
@@ -282,7 +208,7 @@ index 936ca1fb..dde9c7d5 100644
  
  #include "phosh-enums.h"
 diff --git a/src/phosh-wayland.c b/src/phosh-wayland.c
-index ad7bfd92..b19205a2 100644
+index dcbab890..274e5803 100644
 --- a/src/phosh-wayland.c
 +++ b/src/phosh-wayland.c
 @@ -9,6 +9,7 @@
@@ -301,25 +227,26 @@ index ad7bfd92..b19205a2 100644
    PHOSH_WAYLAND_PROP_LAST_PROP,
  };
  static GParamSpec *props[PHOSH_WAYLAND_PROP_LAST_PROP];
-@@ -48,6 +50,7 @@ struct _PhoshWayland {
+@@ -46,6 +48,8 @@ typedef struct {
    struct zxdg_output_manager_v1 *zxdg_output_manager_v1;
    struct wl_shm *wl_shm;
    GHashTable *wl_outputs;
++
 +  PhoshWaylandSeatCapabilities seat_capabilities;
- };
+ } PhoshWaylandPrivate;
  
- G_DEFINE_TYPE (PhoshWayland, phosh_wayland, G_TYPE_OBJECT)
-@@ -181,6 +184,9 @@ phosh_wayland_get_property (GObject *object,
+ 
+@@ -188,6 +192,9 @@ phosh_wayland_get_property (GObject *object,
    case PHOSH_WAYLAND_PROP_WL_OUTPUTS:
-     g_value_set_boxed (value, self->wl_outputs);
+     g_value_set_boxed (value, priv->wl_outputs);
      break;
 +  case PHOSH_WAYLAND_PROP_SEAT_CAPABILITIES:
-+    g_value_set_flags (value, self->seat_capabilities);
++    g_value_set_flags (value, priv->seat_capabilities);
 +    break;
    default:
      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
      break;
-@@ -188,6 +194,37 @@ phosh_wayland_get_property (GObject *object,
+@@ -195,6 +202,38 @@ phosh_wayland_get_property (GObject *object,
  }
  
  
@@ -329,10 +256,11 @@ index ad7bfd92..b19205a2 100644
 +                         uint32_t capabilities)
 +{
 +  PhoshWayland *self = PHOSH_WAYLAND (data);
++  PhoshWaylandPrivate *priv = phosh_wayland_get_instance_private (self);
 +
-+  if (self->seat_capabilities != capabilities) {
++  if (priv->seat_capabilities != capabilities) {
 +    g_debug ("Seat capabilities: %d", capabilities);
-+    self->seat_capabilities = capabilities;
++    priv->seat_capabilities = capabilities;
 +    g_object_notify_by_pspec (G_OBJECT (self), props[PHOSH_WAYLAND_PROP_SEAT_CAPABILITIES]);
 +  }
 +}
@@ -357,24 +285,24 @@ index ad7bfd92..b19205a2 100644
  static void
  phosh_wayland_constructed (GObject *object)
  {
-@@ -229,6 +266,8 @@ phosh_wayland_constructed (GObject *object)
-   if (!self->phosh_private) {
+@@ -237,6 +276,8 @@ phosh_wayland_constructed (GObject *object)
+   if (!priv->phosh_private) {
      g_info ("Could not find phosh private interface, disabling some features");
    }
 +
-+  wl_seat_add_listener (self->wl_seat, &seat_listener, self);
++  wl_seat_add_listener (priv->wl_seat, &seat_listener, self);
  }
  
  
-@@ -238,6 +277,7 @@ phosh_wayland_dispose (GObject *object)
-   PhoshWayland *self = PHOSH_WAYLAND (object);
+@@ -247,6 +288,7 @@ phosh_wayland_dispose (GObject *object)
+   PhoshWaylandPrivate *priv = phosh_wayland_get_instance_private (self);
  
-   g_clear_pointer (&self->wl_outputs, g_hash_table_destroy);
+   g_clear_pointer (&priv->wl_outputs, g_hash_table_destroy);
 +
    G_OBJECT_CLASS (phosh_wayland_parent_class)->dispose (object);
  }
  
-@@ -258,6 +298,15 @@ phosh_wayland_class_init (PhoshWaylandClass *klass)
+@@ -267,6 +309,15 @@ phosh_wayland_class_init (PhoshWaylandClass *klass)
                          "The currently known wayland outputs",
                          G_TYPE_HASH_TABLE,
                          G_PARAM_READABLE | G_PARAM_EXPLICIT_NOTIFY | G_PARAM_STATIC_STRINGS);
@@ -390,18 +318,21 @@ index ad7bfd92..b19205a2 100644
    g_object_class_install_properties (object_class, PHOSH_WAYLAND_PROP_LAST_PROP, props);
  }
  
-@@ -426,3 +475,12 @@ phosh_wayland_roundtrip (PhoshWayland *self)
- 
-   wl_display_roundtrip(self->display);
+@@ -432,3 +483,15 @@ phosh_wayland_roundtrip (PhoshWayland *self)
+   PhoshWaylandPrivate *priv = phosh_wayland_get_instance_private (self);
+   wl_display_roundtrip(priv->display);
  }
 +
 +
 +PhoshWaylandSeatCapabilities
 +phosh_wayland_get_seat_capabilities (PhoshWayland *self)
 +{
-+  g_return_val_if_fail (PHOSH_IS_WAYLAND (self), PHOSH_WAYLAND_SEAT_CAPABILITY_NONE);
++  PhoshWaylandPrivate *priv;
 +
-+  return self->seat_capabilities;
++  g_return_val_if_fail (PHOSH_IS_WAYLAND (self), PHOSH_WAYLAND_SEAT_CAPABILITY_NONE);
++  priv = phosh_wayland_get_instance_private (self);
++
++  return priv->seat_capabilities;
 +}
 diff --git a/src/phosh-wayland.h b/src/phosh-wayland.h
 index 477c5501..d13529e4 100644
@@ -441,10 +372,10 @@ index 477c5501..d13529e4 100644
 2.26.2
 
 
-From 1b6bf4fbcdea399714966e6d7b6f196d7324d79b Mon Sep 17 00:00:00 2001
+From ca9d8920c3973577609443627bbd5dc349952c09 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Tue, 13 Oct 2020 15:04:51 +0200
-Subject: [PATCH 06/11] dbus: Add org.freedesktop.hostname1 interface
+Subject: [PATCH 5/9] dbus: Add org.freedesktop.hostname1 interface
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -493,10 +424,10 @@ index 00000000..d8e469b0
 2.26.2
 
 
-From e485ba891ab140748acf829e19124461ac574d52 Mon Sep 17 00:00:00 2001
+From 216514179b9f556ba587ebd7d0e7ac6e62e08294 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Wed, 14 Oct 2020 12:59:38 +0200
-Subject: [PATCH 07/11] data: Add symbolic phone icons
+Subject: [PATCH 6/9] data: Add symbolic phone icons
 
 From
 
@@ -623,10 +554,10 @@ index f4f03bfe..c6478786 100644
 2.26.2
 
 
-From a796d66e75bca05452d86d0c728016b59c155660 Mon Sep 17 00:00:00 2001
+From 6616ddb1932dff8a74a2e6341de44fec921b33ea Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Wed, 14 Oct 2020 16:13:03 +0200
-Subject: [PATCH 08/11] Add mode-manager to handle different device modes
+Subject: [PATCH 7/9] Add mode-manager to handle different device modes
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -1181,10 +1112,10 @@ index fa728d01..5a0978b8 100644
 2.26.2
 
 
-From 70467a9e8f5dd477a27d7668ef1fc58958827975 Mon Sep 17 00:00:00 2001
+From 46b9c16fa717b7a9f1e5ef7c7220a3608bbb0274 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Thu, 8 Oct 2020 14:11:56 +0200
-Subject: [PATCH 09/11] Add 'docked' quick setting and manager
+Subject: [PATCH 8/9] Add 'docked' quick setting and manager
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -1998,10 +1929,10 @@ index e94e8080..7e9df0ef 100644
 2.26.2
 
 
-From 711e1cbe9f179e41389ecb6276bf96675d81e856 Mon Sep 17 00:00:00 2001
+From 51298349f95788d773d75e4f25144da21fb190b0 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Wed, 14 Oct 2020 18:27:51 +0200
-Subject: [PATCH 10/11] status-bar: Add docked icon when docked
+Subject: [PATCH 9/9] status-bar: Add docked icon when docked
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -2058,103 +1989,6 @@ index adaa072f..f896a65c 100644
                        </object>
                        <packing>
                          <property name="expand">False</property>
--- 
-2.26.2
-
-
-From 097c68ea7d799b750cd54bd915ddb4054d28ce1d Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
-Date: Fri, 16 Oct 2020 10:51:52 +0200
-Subject: [PATCH 11/11] osk-button: Show/hide depending on a11y setting
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
-This makes sure we don't show the button even though
-squeekboard would not unfold.
-
-Closes: #363
-
-Signed-off-by: Guido Günther <guido.gunther@puri.sm>
----
- src/mode-manager.c   |  3 +++
- src/mode-manager.h   |  1 +
- src/osk/osk-button.c | 15 +++++++++++++++
- src/ui/home.ui       |  2 +-
- 4 files changed, 20 insertions(+), 1 deletion(-)
-
-diff --git a/src/mode-manager.c b/src/mode-manager.c
-index a73ef39e..7b9b30bc 100644
---- a/src/mode-manager.c
-+++ b/src/mode-manager.c
-@@ -118,6 +118,9 @@ update_props (PhoshModeManager *self)
-   if (device_type == PHOSH_MODE_DEVICE_TYPE_PHONE &&
-       (hw & PHOSH_MODE_DOCKED_PHONE_MASK) == PHOSH_MODE_DOCKED_PHONE_MASK) {
-     mimicry = PHOSH_MODE_DEVICE_TYPE_DESKTOP;
-+  } else if (device_type == PHOSH_MODE_DEVICE_TYPE_TABLET &&
-+      (hw & PHOSH_MODE_DOCKED_TABLET_MASK) == PHOSH_MODE_DOCKED_TABLET_MASK) {
-+    mimicry = PHOSH_MODE_DEVICE_TYPE_DESKTOP;
-   }
- 
-   g_object_freeze_notify (G_OBJECT (self));
-diff --git a/src/mode-manager.h b/src/mode-manager.h
-index 73f2fb44..8500add6 100644
---- a/src/mode-manager.h
-+++ b/src/mode-manager.h
-@@ -50,6 +50,7 @@ typedef enum {
- /* TODO: keyboard is hard to detect due to gpio keys, etc */
- #define PHOSH_MODE_DOCKED_PHONE_MASK (PHOSH_MODE_HW_EXT_DISPLAY \
-                                       | PHOSH_MODE_HW_POINTER)
-+#define PHOSH_MODE_DOCKED_TABLET_MASK (PHOSH_MODE_HW_POINTER)
- 
- #define PHOSH_TYPE_MODE_MANAGER (phosh_mode_manager_get_type ())
- 
-diff --git a/src/osk/osk-button.c b/src/osk/osk-button.c
-index 81c87142..0e411723 100644
---- a/src/osk/osk-button.c
-+++ b/src/osk/osk-button.c
-@@ -81,6 +81,19 @@ on_osk_visibility_changed (PhoshOskButton *self, GParamSpec *pspec, PhoshOskMana
- }
- 
- 
-+static gboolean
-+on_idle (PhoshOskButton *self)
-+{
-+  g_autoptr (GSettings) settings = NULL;
-+
-+  settings = g_settings_new ("org.gnome.desktop.a11y.applications");
-+  g_settings_bind (settings, "screen-keyboard-enabled",
-+                   self, "visible", G_SETTINGS_BIND_GET);
-+
-+  return FALSE;
-+}
-+
-+
- static void
- phosh_osk_button_constructed (GObject *object)
- {
-@@ -116,6 +129,8 @@ phosh_osk_button_constructed (GObject *object)
- 
-   on_osk_availability_changed (self, NULL, self->osk);
-   on_osk_visibility_changed (self, NULL, self->osk);
-+
-+  g_idle_add ((GSourceFunc) on_idle, self);
- }
- 
- 
-diff --git a/src/ui/home.ui b/src/ui/home.ui
-index 9f733a32..a30205b9 100644
---- a/src/ui/home.ui
-+++ b/src/ui/home.ui
-@@ -41,7 +41,7 @@
-             </child>
-             <child>
-               <object class="PhoshOskButton" id="btn_osk">
--		<property name="visible">True</property>
-+		<property name="visible">False</property>
- 		<property name="can_focus">True</property>
- 		<property name="halign">end</property>
- 		<property name="valign">center</property>
 -- 
 2.26.2
 

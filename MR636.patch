@@ -1,7 +1,7 @@
-From 8df19db84bfd6e92f2e53442d7d3342096d355b9 Mon Sep 17 00:00:00 2001
+From 5d61489d27c5ee5ab52627a596517e6ad09fa3d9 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Fri, 16 Oct 2020 10:51:52 +0200
-Subject: [PATCH] osk-button: Show/hide depending on a11y setting
+Subject: [PATCH 1/6] osk-button: Show/hide depending on a11y setting
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -63,6 +63,422 @@ index 9f733a32..a30205b9 100644
  		<property name="can_focus">True</property>
  		<property name="halign">end</property>
  		<property name="valign">center</property>
+-- 
+2.26.2
+
+
+From d7cb2495a381f2399991d3e19f96e6e7c959a4ca Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
+Date: Tue, 20 Oct 2020 11:03:21 +0200
+Subject: [PATCH 2/6] osk-manager: Simplify on_osk_show
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Guido Günther <guido.gunther@puri.sm>
+---
+ src/osk-manager.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/src/osk-manager.c b/src/osk-manager.c
+index 86796b5f..576593da 100644
+--- a/src/osk-manager.c
++++ b/src/osk-manager.c
+@@ -52,16 +52,14 @@ on_osk_show (GObject             *source_object,
+              GAsyncResult        *res,
+              gpointer             user_data)
+ {
+-  GVariant *variant;
+-  GError *err = NULL;
++  g_autoptr (GVariant) variant = NULL;
++  g_autoptr (GError) err = NULL;
+ 
+   variant = g_dbus_proxy_call_finish (G_DBUS_PROXY (source_object), res, &err);
+   if (!variant) {
+     g_warning ("Unable to toggle OSK: %s", err->message);
+-    g_clear_error (&err);
+     return;
+   }
+-  g_variant_unref (variant);
+ }
+ 
+ 
+-- 
+2.26.2
+
+
+From 4aa8a1fb255d98e3b6250da9d2ca15c18829e000 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
+Date: Mon, 19 Oct 2020 09:49:48 +0200
+Subject: [PATCH 3/6] osk-manager: Fix lockscreen_manager typo
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Guido Günther <guido.gunther@puri.sm>
+---
+ src/osk-manager.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/src/osk-manager.c b/src/osk-manager.c
+index 576593da..a45c4a23 100644
+--- a/src/osk-manager.c
++++ b/src/osk-manager.c
+@@ -40,7 +40,7 @@ struct _PhoshOskManager
+   /* Currently the only impl. We can use an interface once we support
+    * different OSK types */
+   PhoshOsk0SmPuriOSK0 *proxy;
+-  PhoshLockscreenManager *lockscreen_manger;
++  PhoshLockscreenManager *lockscreen_manager;
+   gboolean visible;
+   gboolean available;
+ };
+@@ -202,9 +202,9 @@ phosh_osk_manager_constructed (GObject *object)
+                     NULL);
+ 
+   shell = phosh_shell_get_default();
+-  self->lockscreen_manger = g_object_ref(phosh_shell_get_lockscreen_manager(shell));
++  self->lockscreen_manager = g_object_ref(phosh_shell_get_lockscreen_manager(shell));
+ 
+-  g_signal_connect_swapped (self->lockscreen_manger,
++  g_signal_connect_swapped (self->lockscreen_manager,
+                             "notify::locked",
+                             G_CALLBACK (on_lockscreen_manager_locked),
+                             self);
+@@ -219,7 +219,7 @@ phosh_osk_manager_dispose (GObject *object)
+   PhoshOskManager *self = PHOSH_OSK_MANAGER (object);
+ 
+   g_clear_object (&self->proxy);
+-  g_clear_object (&self->lockscreen_manger);
++  g_clear_object (&self->lockscreen_manager);
+   G_OBJECT_CLASS (phosh_osk_manager_parent_class)->dispose (object);
+ }
+ 
+-- 
+2.26.2
+
+
+From 8df01ef45b8399f44931921f60990c25d0025c08 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
+Date: Mon, 19 Oct 2020 10:56:52 +0200
+Subject: [PATCH 4/6] osk-manager: Use g_autoptr
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Guido Günther <guido.gunther@puri.sm>
+---
+ src/osk-manager.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/src/osk-manager.c b/src/osk-manager.c
+index a45c4a23..1a6fbfad 100644
+--- a/src/osk-manager.c
++++ b/src/osk-manager.c
+@@ -72,7 +72,7 @@ dbus_props_changed_cb (PhoshOsk0SmPuriOSK0 *proxy,
+   PhoshOskManager *self = PHOSH_OSK_MANAGER (data);
+   char *property;
+   GVariantIter i;
+-  GVariant *value;
++  g_autoptr (GVariant) value = NULL;
+ 
+   g_variant_iter_init (&i, changed_properties);
+   while (g_variant_iter_next (&i, "{&sv}", &property, &value)) {
+@@ -80,7 +80,6 @@ dbus_props_changed_cb (PhoshOsk0SmPuriOSK0 *proxy,
+     if (strcmp (property, "Visible") == 0) {
+       phosh_osk_manager_set_visible (self, g_variant_get_boolean (value));
+     }
+-    g_variant_unref (value);
+   }
+ }
+ 
+-- 
+2.26.2
+
+
+From 555aae82fc80a2d31d7b7160d02a11a021a9ab18 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
+Date: Mon, 19 Oct 2020 10:57:17 +0200
+Subject: [PATCH 5/6] osk-manager: Only hide the keyboard when we lock the
+ screen
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+So far we hid it on every state change.
+
+Signed-off-by: Guido Günther <guido.gunther@puri.sm>
+---
+ src/osk-manager.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/src/osk-manager.c b/src/osk-manager.c
+index 1a6fbfad..d99e80ef 100644
+--- a/src/osk-manager.c
++++ b/src/osk-manager.c
+@@ -111,10 +111,13 @@ on_availability_changed (PhoshOskManager *self, GParamSpec *pspec, gpointer unus
+ 
+ 
+ static void
+-on_lockscreen_manager_locked (PhoshOskManager *self, GParamSpec *pspec, gpointer unused)
++on_lockscreen_manager_locked_changed (PhoshOskManager *self, GParamSpec *pspec, gpointer unused)
+ {
+   g_return_if_fail (PHOSH_IS_OSK_MANAGER (self));
+-  phosh_osk_manager_set_visible (self, FALSE);
++
++  /* Hide OSK on lock screen lock */
++  if (phosh_lockscreen_manager_get_locked (self->lockscreen_manager))
++      phosh_osk_manager_set_visible (self, FALSE);
+ }
+ 
+ 
+@@ -205,7 +208,7 @@ phosh_osk_manager_constructed (GObject *object)
+ 
+   g_signal_connect_swapped (self->lockscreen_manager,
+                             "notify::locked",
+-                            G_CALLBACK (on_lockscreen_manager_locked),
++                            G_CALLBACK (on_lockscreen_manager_locked_changed),
+                             self);
+ 
+   phosh_osk_manager_set_visible (self, phosh_osk0_sm_puri_osk0_get_visible (self->proxy));
+-- 
+2.26.2
+
+
+From 9528dfe2cd5bb1347aae1940270b1416e31aefe8 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
+Date: Mon, 19 Oct 2020 10:57:41 +0200
+Subject: [PATCH 6/6] osk-manager: Handle visibility property directly
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+This makes the visibility property r/o and makes sure
+it gets updated when the corresponding DBus property actually changes
+(after the async call or when we're told it changed from the OSK).
+
+This makes sure they stay in sync. This is also simpler since we don't
+need to bother with variant parsing, etc.
+
+Signed-off-by: Guido Günther <guido.gunther@puri.sm>
+---
+ src/osk-manager.c | 119 +++++++++++++++++++++-------------------------
+ 1 file changed, 53 insertions(+), 66 deletions(-)
+
+diff --git a/src/osk-manager.c b/src/osk-manager.c
+index d99e80ef..4775e0f7 100644
+--- a/src/osk-manager.c
++++ b/src/osk-manager.c
+@@ -48,39 +48,39 @@ G_DEFINE_TYPE (PhoshOskManager, phosh_osk_manager, G_TYPE_OBJECT)
+ 
+ 
+ static void
+-on_osk_show (GObject             *source_object,
+-             GAsyncResult        *res,
+-             gpointer             user_data)
++on_osk0_set_visible_done (PhoshOsk0SmPuriOSK0 *proxy,
++                          GAsyncResult        *res,
++                          PhoshOskManager     *self)
+ {
+   g_autoptr (GVariant) variant = NULL;
+   g_autoptr (GError) err = NULL;
++  gboolean visible;
+ 
+-  variant = g_dbus_proxy_call_finish (G_DBUS_PROXY (source_object), res, &err);
+-  if (!variant) {
++  if (!phosh_osk0_sm_puri_osk0_call_set_visible_finish (proxy, res, &err))
+     g_warning ("Unable to toggle OSK: %s", err->message);
+-    return;
++
++  visible = phosh_osk0_sm_puri_osk0_get_visible (proxy);
++  if (visible != self->visible) {
++    self->visible = visible;
++    g_object_notify_by_pspec (G_OBJECT (self), props[PHOSH_OSK_MANAGER_PROP_VISIBLE]);
+   }
++
++  g_object_unref (self);
+ }
+ 
+ 
+ static void
+-dbus_props_changed_cb (PhoshOsk0SmPuriOSK0 *proxy,
+-                       GVariant *changed_properties,
+-                       GStrv invaliated,
+-                       gpointer *data)
++set_visible_real (PhoshOskManager *self, gboolean visible)
+ {
+-  PhoshOskManager *self = PHOSH_OSK_MANAGER (data);
+-  char *property;
+-  GVariantIter i;
+-  g_autoptr (GVariant) value = NULL;
+-
+-  g_variant_iter_init (&i, changed_properties);
+-  while (g_variant_iter_next (&i, "{&sv}", &property, &value)) {
+-    g_debug ("OSK property '%s' changed", property);
+-    if (strcmp (property, "Visible") == 0) {
+-      phosh_osk_manager_set_visible (self, g_variant_get_boolean (value));
+-    }
+-  }
++  g_return_if_fail (G_IS_DBUS_PROXY (self->proxy));
++
++  g_debug ("Setting osk to %svisible", visible ? "" : "not ");
++  phosh_osk0_sm_puri_osk0_call_set_visible (
++    self->proxy,
++    visible,
++    NULL,
++    (GAsyncReadyCallback) on_osk0_set_visible_done,
++    g_object_ref (self));
+ }
+ 
+ 
+@@ -105,38 +105,41 @@ on_availability_changed (PhoshOskManager *self, GParamSpec *pspec, gpointer unus
+   g_return_if_fail (PHOSH_IS_OSK_MANAGER (self));
+ 
+   /* When there's no OSK we always want the manager to be unpressed */
+-  if (!self->available)
+-    phosh_osk_manager_set_visible (self, FALSE);
++  if (!self->available || phosh_lockscreen_manager_get_locked (self->lockscreen_manager))
++    set_visible_real (self, FALSE);
+ }
+ 
+ 
+ static void
+-on_lockscreen_manager_locked_changed (PhoshOskManager *self, GParamSpec *pspec, gpointer unused)
++on_visible_changed (PhoshOskManager *self, GParamSpec *pspec, PhoshOsk0SmPuriOSK0 *proxy)
+ {
++  gboolean visible;
++
+   g_return_if_fail (PHOSH_IS_OSK_MANAGER (self));
++  g_return_if_fail (G_IS_DBUS_PROXY (proxy));
+ 
+-  /* Hide OSK on lock screen lock */
+-  if (phosh_lockscreen_manager_get_locked (self->lockscreen_manager))
+-      phosh_osk_manager_set_visible (self, FALSE);
++  visible = phosh_osk0_sm_puri_osk0_get_visible (proxy);
++  /* Make sure the OSK stays hidden on the lockscreen... */
++  if (visible && phosh_lockscreen_manager_get_locked (self->lockscreen_manager)) {
++    set_visible_real (self, FALSE);
++    return;
++  }
++  /* ...otherwise just sync the properties */
++  if (visible != self->visible) {
++    self->visible = visible;
++    g_object_notify_by_pspec (G_OBJECT (self), props[PHOSH_OSK_MANAGER_PROP_VISIBLE]);
++  }
+ }
+ 
+ 
+ static void
+-phosh_osk_manager_set_property (GObject *object,
+-                          guint property_id,
+-                          const GValue *value,
+-                          GParamSpec *pspec)
++on_lockscreen_manager_locked_changed (PhoshOskManager *self, GParamSpec *pspec, gpointer unused)
+ {
+-  PhoshOskManager *self = PHOSH_OSK_MANAGER (object);
++  g_return_if_fail (PHOSH_IS_OSK_MANAGER (self));
+ 
+-  switch (property_id) {
+-  case PHOSH_OSK_MANAGER_PROP_VISIBLE:
+-    phosh_osk_manager_set_visible (self, g_value_get_boolean (value));
+-    break;
+-  default:
+-    G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+-    break;
+-  }
++  /* Hide OSK on lock screen lock */
++  if (phosh_lockscreen_manager_get_locked (self->lockscreen_manager))
++      set_visible_real (self, FALSE);
+ }
+ 
+ 
+@@ -167,7 +170,7 @@ phosh_osk_manager_constructed (GObject *object)
+ {
+   PhoshOskManager *self = PHOSH_OSK_MANAGER (object);
+   PhoshShell *shell;
+-  GError *err = NULL;
++  g_autoptr (GError) err = NULL;
+ 
+   G_OBJECT_CLASS (phosh_osk_manager_parent_class)->constructed (object);
+ 
+@@ -181,16 +184,9 @@ phosh_osk_manager_constructed (GObject *object)
+ 
+   if (self->proxy == NULL) {
+     g_warning ("Failed to register with osk: %s", err->message);
+-    g_clear_error (&err);
+     g_return_if_fail (self->proxy);
+   }
+ 
+-  g_signal_connect (
+-    self->proxy,
+-    "g-properties-changed",
+-    G_CALLBACK (dbus_props_changed_cb),
+-    self);
+-
+   g_signal_connect_swapped (
+     self->proxy,
+     "notify::g-name-owner",
+@@ -202,16 +198,19 @@ phosh_osk_manager_constructed (GObject *object)
+                     "notify::available",
+                     G_CALLBACK (on_availability_changed),
+                     NULL);
++  /* Don't use a binding to keep visibility prop r/o */
++  g_signal_connect_swapped (self->proxy,
++                            "notify::visible",
++                            G_CALLBACK (on_visible_changed),
++                            self);
++  on_visible_changed (self, NULL, self->proxy);
+ 
+   shell = phosh_shell_get_default();
+   self->lockscreen_manager = g_object_ref(phosh_shell_get_lockscreen_manager(shell));
+-
+   g_signal_connect_swapped (self->lockscreen_manager,
+                             "notify::locked",
+                             G_CALLBACK (on_lockscreen_manager_locked_changed),
+                             self);
+-
+-  phosh_osk_manager_set_visible (self, phosh_osk0_sm_puri_osk0_get_visible (self->proxy));
+ }
+ 
+ 
+@@ -234,7 +233,6 @@ phosh_osk_manager_class_init (PhoshOskManagerClass *klass)
+   object_class->constructed = phosh_osk_manager_constructed;
+   object_class->dispose = phosh_osk_manager_dispose;
+ 
+-  object_class->set_property = phosh_osk_manager_set_property;
+   object_class->get_property = phosh_osk_manager_get_property;
+ 
+   props[PHOSH_OSK_MANAGER_PROP_AVAILABLE] =
+@@ -248,7 +246,7 @@ phosh_osk_manager_class_init (PhoshOskManagerClass *klass)
+                           "visible",
+                           "Whether the OSK is currently visible",
+                           FALSE,
+-                          G_PARAM_READWRITE | G_PARAM_EXPLICIT_NOTIFY | G_PARAM_STATIC_STRINGS);
++                          G_PARAM_READABLE | G_PARAM_EXPLICIT_NOTIFY | G_PARAM_STATIC_STRINGS);
+   g_object_class_install_properties (object_class, PHOSH_OSK_MANAGER_PROP_LAST_PROP, props);
+ }
+ 
+@@ -289,19 +287,8 @@ phosh_osk_manager_set_visible (PhoshOskManager *self, gboolean visible)
+ {
+   g_return_if_fail (PHOSH_IS_OSK_MANAGER (self));
+ 
+-  g_debug ("Setting osk to %svisible", visible ? "" : "not ");
+   if (self->visible == visible)
+     return;
+ 
+-  if (self->proxy) {
+-    phosh_osk0_sm_puri_osk0_call_set_visible (
+-      self->proxy,
+-      visible,
+-      NULL,
+-      (GAsyncReadyCallback) on_osk_show,
+-      NULL);
+-  }
+-  self->visible = visible;
+-
+-  g_object_notify_by_pspec (G_OBJECT (self), props[PHOSH_OSK_MANAGER_PROP_VISIBLE]);
++  set_visible_real (self, visible);
+ }
 -- 
 2.26.2
 

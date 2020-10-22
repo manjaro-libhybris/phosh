@@ -1,0 +1,1084 @@
+From 7b9d2cf63fdd231a5cb2924f76013b3907e0303c Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
+Date: Wed, 21 Oct 2020 10:20:10 +0200
+Subject: [PATCH 1/8] overview: Focus current activity
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+This allows to keyboard navigate on the home screen
+
+Signed-off-by: Guido Günther <guido.gunther@puri.sm>
+---
+ src/overview.c | 27 +++++++++++++++++++++++++--
+ 1 file changed, 25 insertions(+), 2 deletions(-)
+
+diff --git a/src/overview.c b/src/overview.c
+index bb13a078..6b71b545 100644
+--- a/src/overview.c
++++ b/src/overview.c
+@@ -52,6 +52,7 @@ typedef struct
+   /* Running activities */
+   GtkWidget *carousel_running_activities;
+   GtkWidget *app_grid;
++  GtkWidget *activity;
+ } PhoshOverviewPrivate;
+ 
+ 
+@@ -157,8 +158,10 @@ on_toplevel_activated_changed (PhoshToplevel *toplevel, GParamSpec *pspec, Phosh
+   priv = phosh_overview_get_instance_private (overview);
+ 
+   activity = find_activity_by_toplevel (overview, toplevel);
+-  if (phosh_toplevel_is_activated (toplevel))
++  if (phosh_toplevel_is_activated (toplevel)) {
++    priv->activity = GTK_WIDGET (activity);
+     hdy_carousel_scroll_to (HDY_CAROUSEL (priv->carousel_running_activities), GTK_WIDGET (activity));
++  }
+ }
+ 
+ 
+@@ -194,6 +197,20 @@ on_activity_size_allocated (PhoshActivity *activity, GtkAllocation *alloc, Phosh
+ }
+ 
+ 
++static void
++on_activity_has_focus_changed (PhoshOverview *self, GParamSpec *pspec, PhoshActivity *activity)
++{
++  PhoshOverviewPrivate *priv;
++
++  g_return_if_fail (PHOSH_IS_ACTIVITY (activity));
++  g_return_if_fail (PHOSH_IS_OVERVIEW (self));
++  priv = phosh_overview_get_instance_private (self);
++
++  if (gtk_widget_has_focus (GTK_WIDGET (activity)))
++    hdy_carousel_scroll_to (HDY_CAROUSEL (priv->carousel_running_activities), GTK_WIDGET (activity));
++}
++
++
+ static void
+ add_activity (PhoshOverview *self, PhoshToplevel *toplevel)
+ {
+@@ -229,11 +246,14 @@ add_activity (PhoshOverview *self, PhoshToplevel *toplevel)
+   g_object_bind_property (toplevel, "maximized", activity, "maximized", G_BINDING_DEFAULT);
+ 
+   g_signal_connect (activity, "size-allocate", G_CALLBACK (on_activity_size_allocated), toplevel);
++  g_signal_connect_swapped (activity, "notify::has-focus", G_CALLBACK (on_activity_has_focus_changed), self);
+ 
+   phosh_connect_button_feedback (GTK_BUTTON (activity));
+ 
+-  if (phosh_toplevel_is_activated (toplevel))
++  if (phosh_toplevel_is_activated (toplevel)) {
+     hdy_carousel_scroll_to (HDY_CAROUSEL (priv->carousel_running_activities), activity);
++    priv->activity = GTK_WIDGET (activity);
++  }
+ }
+ 
+ 
+@@ -422,6 +442,9 @@ phosh_overview_reset (PhoshOverview *self)
+   g_return_if_fail(PHOSH_IS_OVERVIEW (self));
+   priv = phosh_overview_get_instance_private (self);
+   phosh_app_grid_reset (PHOSH_APP_GRID (priv->app_grid));
++
++  if (priv->activity)
++    gtk_widget_grab_focus (GTK_WIDGET (priv->activity));
+ }
+ 
+ 
+-- 
+2.26.2
+
+
+From 358cbf0744242e73684a359a3f03aee7945928a4 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
+Date: Wed, 21 Oct 2020 11:50:02 +0200
+Subject: [PATCH 2/8] Switch keyboard-events to GAction
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+This allows to register global keyboard events from different
+parts of the shell easily and moves it's handling out of
+the overcrowded settings.
+
+Signed-off-by: Guido Günther <guido.gunther@puri.sm>
+---
+ src/keyboard-events.c | 120 ++++++++++++++++++++----------------------
+ src/keyboard-events.h |   6 +--
+ src/settings.c        |  87 +++++++-----------------------
+ src/shell.c           |  24 +++++++++
+ src/shell.h           |   4 ++
+ 5 files changed, 108 insertions(+), 133 deletions(-)
+
+diff --git a/src/keyboard-events.c b/src/keyboard-events.c
+index 186901dd..b3020e35 100644
+--- a/src/keyboard-events.c
++++ b/src/keyboard-events.c
+@@ -19,41 +19,34 @@
+  * @Title: PhoshKeyboardEvents
+  */
+ 
+-
+-enum {
+-  SIGNAL_ACCELERATOR_ACTIVATED,
+-  SIGNAL_ACCELERATOR_GRABBED,
+-  N_SIGNALS,
+-};
+-static guint signals[N_SIGNALS] = { 0 };
+-
+ struct _PhoshKeyboardEvents {
+-  GObject parent;
++  GSimpleActionGroup                   parent;
+ 
+   struct phosh_private_keyboard_event *kbevent;
+-
++  GHashTable                          *accelerators;
+ };
+ 
+ static void initable_iface_init (GInitableIface *iface);
+ 
+-G_DEFINE_TYPE_WITH_CODE (PhoshKeyboardEvents, phosh_keyboard_events, G_TYPE_OBJECT,
++G_DEFINE_TYPE_WITH_CODE (PhoshKeyboardEvents, phosh_keyboard_events, G_TYPE_SIMPLE_ACTION_GROUP,
+                          G_IMPLEMENT_INTERFACE(G_TYPE_INITABLE, initable_iface_init));
+ 
+-
+ static void
+ handle_accelerator_activated_event (void *data,
+                                     struct phosh_private_keyboard_event *kbevent,
+                                     uint32_t action_id,
+                                     uint32_t timestamp)
+ {
++  const gchar *action;
+   PhoshKeyboardEvents *self = PHOSH_KEYBOARD_EVENTS (data);
+-  g_debug ("incoming action! %d", action_id);
+ 
+-  g_signal_emit (self,
+-                 signals[SIGNAL_ACCELERATOR_ACTIVATED],
+-                 0,
+-                 action_id,
+-                 timestamp);
++  action = g_hash_table_lookup (self->accelerators, GINT_TO_POINTER (action_id));
++  g_return_if_fail (action);
++
++  g_debug ("Accelerator %d activated: %s", action_id, action);
++
++  g_return_if_fail (g_action_group_has_action (G_ACTION_GROUP (self), action));
++  g_action_group_activate_action (G_ACTION_GROUP (self), action, NULL);
+ }
+ 
+ 
+@@ -85,11 +78,8 @@ handle_grab_success_event (void *data,
+                            uint32_t action_id)
+ {
+   PhoshKeyboardEvents *self = PHOSH_KEYBOARD_EVENTS (data);
+-  g_signal_emit (self,
+-                 signals[SIGNAL_ACCELERATOR_GRABBED],
+-                 0,
+-                 accelerator,
+-                 action_id);
++
++  g_hash_table_insert (self->accelerators, GINT_TO_POINTER (action_id), g_strdup (accelerator));
+ }
+ 
+ static const struct phosh_private_keyboard_event_listener keyboard_event_listener = {
+@@ -99,6 +89,25 @@ static const struct phosh_private_keyboard_event_listener keyboard_event_listene
+ };
+ 
+ 
++static void
++on_action_added (PhoshKeyboardEvents *self,
++                 gchar               *action_name,
++                 GActionGroup        *action_group)
++{
++  g_debug ("Grabbing accelerator %s", action_name);
++  phosh_private_keyboard_event_grab_accelerator_request (self->kbevent, action_name);
++}
++
++
++static void
++on_action_removed (PhoshKeyboardEvents *self,
++                   gchar               *action_name,
++                   GActionGroup        *action_group)
++{
++  g_debug ("Should ungrab accelerator %s", action_name);
++}
++
++
+ static gboolean
+ initable_init (GInitable    *initable,
+                GCancellable *cancelable,
+@@ -137,6 +146,16 @@ initable_init (GInitable    *initable,
+ 
+   phosh_private_keyboard_event_add_listener (self->kbevent, &keyboard_event_listener, self);
+ 
++  g_signal_connect (self,
++                    "action-added",
++                    G_CALLBACK (on_action_added),
++                    NULL);
++
++  g_signal_connect (self,
++                    "action-removed",
++                    G_CALLBACK (on_action_removed),
++                    NULL);
++
+   return TRUE;
+ }
+ 
+@@ -152,65 +171,42 @@ static void
+ phosh_keyboard_events_dispose (GObject *object)
+ {
+   PhoshKeyboardEvents *self = PHOSH_KEYBOARD_EVENTS (object);
+-  g_clear_pointer(&self->kbevent, phosh_private_keyboard_event_destroy);
++
++  g_clear_pointer (&self->kbevent, phosh_private_keyboard_event_destroy);
+ 
+   G_OBJECT_CLASS (phosh_keyboard_events_parent_class)->dispose (object);
+ }
+ 
+ 
+ static void
+-phosh_keyboard_events_class_init (PhoshKeyboardEventsClass *klass)
++phosh_keyboard_events_finalize (GObject *object)
+ {
+-  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+-
+-  object_class->dispose = phosh_keyboard_events_dispose;
++  PhoshKeyboardEvents *self = PHOSH_KEYBOARD_EVENTS (object);
+ 
+-  /**
+-   * PhoshKeyboardEvents::keypress:
+-   * @kbevent: The #PhoshKeyboardEvents emitting the signal.
+-   * @action_id: The id of the forwarded action
+-   * @timestamp: The timestamp when the key has been pressed
+-   *
+-   * Emitted whenever a subscribed accelerator/action has been received
+-   */
+-  signals[SIGNAL_ACCELERATOR_ACTIVATED] = g_signal_new (
+-    "accelerator-activated",
+-    G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_LAST, 0, NULL, NULL,
+-    NULL, G_TYPE_NONE, 2, G_TYPE_UINT, G_TYPE_UINT);
+-
+-  /**
+-   * PhoshKeyboardEvents::accelerator-grabbed:
+-   * @kbevent: The #PhoshKeyboardEvents emitting the signal.
+-   * @accelerator: The accelerator which has been grabbed
+-   * @action_id: The assigned id of the accelerator
+-   *
+-   * Emitted whenever an accelerator subscription has been successfull
+-   */
+-
+-  signals[SIGNAL_ACCELERATOR_GRABBED] = g_signal_new (
+-    "accelerator-grabbed",
+-    G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_LAST, 0, NULL, NULL,
+-    NULL, G_TYPE_NONE, 2, G_TYPE_STRING, G_TYPE_UINT);
++  g_clear_pointer (&self->accelerators, g_hash_table_unref);
+ 
++  G_OBJECT_CLASS (phosh_keyboard_events_parent_class)->finalize (object);
+ }
+ 
+ 
+-void
+-phosh_keyboard_events_register_keys (PhoshKeyboardEvents *self,
+-                                     char               **accelerators,
+-                                     size_t               len)
++
++static void
++phosh_keyboard_events_class_init (PhoshKeyboardEventsClass *klass)
+ {
+-  g_return_if_fail (self->kbevent);
++  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+ 
+-  for (size_t i = 0; i < len; ++i) {
+-    phosh_private_keyboard_event_grab_accelerator_request (self->kbevent, accelerators[i]);
+-  }
++  object_class->dispose = phosh_keyboard_events_dispose;
++  object_class->finalize = phosh_keyboard_events_finalize;
+ }
+ 
+ 
+ static void
+ phosh_keyboard_events_init (PhoshKeyboardEvents *self)
+ {
++  self->accelerators = g_hash_table_new_full (g_direct_hash,
++                                              g_direct_equal,
++                                              NULL,
++                                              g_free);
+ }
+ 
+ 
+diff --git a/src/keyboard-events.h b/src/keyboard-events.h
+index 40ef2251..06b15288 100644
+--- a/src/keyboard-events.h
++++ b/src/keyboard-events.h
+@@ -17,9 +17,7 @@ G_DECLARE_FINAL_TYPE (PhoshKeyboardEvents,
+                       phosh_keyboard_events,
+                       PHOSH,
+                       KEYBOARD_EVENTS,
+-                      GObject)
++                      GSimpleActionGroup)
+ 
+ PhoshKeyboardEvents  *phosh_keyboard_events_new           (void);
+-void                  phosh_keyboard_events_register_keys (PhoshKeyboardEvents *self,
+-                                                           char               **keys,
+-                                                           size_t               len);
++
+diff --git a/src/settings.c b/src/settings.c
+index 1673b358..8a5e0ecc 100644
+--- a/src/settings.c
++++ b/src/settings.c
+@@ -70,15 +70,18 @@ typedef struct _PhoshSettings
+   GtkWidget *list_notifications;
+   GtkWidget *sw_notifications;
+   LfbEvent  *notify_event;
+-
+-  /* KeyboardEvents */
+-  PhoshKeyboardEvents *keyboard_events;
+-  GHashTable *accelerator_callbacks;
+ } PhoshSettings;
+ 
+ 
+ G_DEFINE_TYPE (PhoshSettings, phosh_settings, GTK_TYPE_BIN)
+ 
++static void raise_volume (GSimpleAction *action, GVariant *param, gpointer self);
++static void lower_volume (GSimpleAction *action, GVariant *param, gpointer self);
++
++const GActionEntry action_entries[] = {
++  { "XF86AudioLowerVolume", lower_volume, },
++  { "XF86AudioRaiseVolume", raise_volume, },
++};
+ 
+ static void
+ brightness_value_changed_cb (GtkScale *scale_brightness, gpointer *unused)
+@@ -186,46 +189,22 @@ change_volume (PhoshSettings *self,
+ }
+ 
+ static void
+-lower_volume (PhoshSettings *self)
+-{
+-  change_volume (self, -1);
+-}
+-
+-static void
+-raise_volume (PhoshSettings *self)
++lower_volume (GSimpleAction *action, GVariant *param, gpointer self)
+ {
+-  change_volume (self, 1);
+-}
++  g_return_if_fail (PHOSH_IS_SETTINGS (self));
+ 
+-static void
+-accelerator_grabbed_cb (PhoshSettings *self,
+-                        const char    *accelerator,
+-                        uint32_t       action_id)
+-{
+-  guint64 action = action_id;
+-  if (g_strcmp0 (accelerator, "XF86AudioLowerVolume") == 0) {
+-    g_hash_table_insert (self->accelerator_callbacks, (gpointer) action, (gpointer) lower_volume);
+-  } else if (g_strcmp0 (accelerator, "XF86AudioRaiseVolume") == 0) {
+-     g_hash_table_insert (self->accelerator_callbacks, (gpointer) action, (gpointer) raise_volume);
+-  }
++  change_volume (PHOSH_SETTINGS (self), -1);
+ }
+ 
+ static void
+-accelerator_activated_cb (PhoshSettings *self,
+-                          uint32_t       action_id,
+-                          uint32_t       timestamp)
++raise_volume (GSimpleAction *action, GVariant *param, gpointer self)
+ {
+-  void (*callback)(PhoshSettings *);
+-  guint64 action = action_id;
+   g_return_if_fail (PHOSH_IS_SETTINGS (self));
+-  callback = g_hash_table_lookup (self->accelerator_callbacks, (gpointer) action);
+-  if (callback == NULL) {
+-    g_warning ("No callback for action %d", action_id);
+-    return;
+-  }
+-  callback (self);
++
++  change_volume (PHOSH_SETTINGS (self), 1);
+ }
+ 
++
+ static void
+ update_output_vol_bar (PhoshSettings *self)
+ {
+@@ -460,6 +439,11 @@ phosh_settings_constructed (GObject *object)
+   on_notifcation_items_changed (self, -1, -1, -1,
+                                 G_LIST_MODEL (phosh_notify_manager_get_list (manager)));
+ 
++  phosh_shell_add_global_keyboard_action_entries (phosh_shell_get_default (),
++                                                  action_entries,
++                                                  G_N_ELEMENTS (action_entries),
++                                                  self);
++
+   G_OBJECT_CLASS (phosh_settings_parent_class)->constructed (object);
+ }
+ 
+@@ -476,12 +460,6 @@ phosh_settings_dispose (GObject *object)
+     g_clear_object (&self->notify_event);
+   }
+ 
+-  if (self->accelerator_callbacks != NULL) {
+-    g_hash_table_remove_all (self->accelerator_callbacks);
+-    g_hash_table_unref (self->accelerator_callbacks);
+-    self->accelerator_callbacks = NULL;
+-  }
+-
+   G_OBJECT_CLASS (phosh_settings_parent_class)->dispose (object);
+ }
+ 
+@@ -543,37 +521,12 @@ phosh_settings_class_init (PhoshSettingsClass *klass)
+ static void
+ phosh_settings_init (PhoshSettings *self)
+ {
+-  char *subscribe_accelerators[] = {
+-    "XF86AudioLowerVolume",
+-    "XF86AudioRaiseVolume",
+-    "XF86AudioMute",
+-  };
+-
+   self->notify_event = lfb_event_new ("message-missed-notification");
+ 
+   gtk_widget_init_template (GTK_WIDGET (self));
+-
+-  self->keyboard_events = phosh_keyboard_events_new ();
+-
+-  if (!self->keyboard_events)
+-    return;
+-
+-  self->accelerator_callbacks = g_hash_table_new (g_direct_hash, g_direct_equal);
+-
+-  phosh_keyboard_events_register_keys (self->keyboard_events,
+-                                       subscribe_accelerators,
+-                                       G_N_ELEMENTS (subscribe_accelerators));
+-  g_signal_connect_swapped (self->keyboard_events,
+-                            "accelerator-activated",
+-                            G_CALLBACK (accelerator_activated_cb),
+-                            self);
+-  g_signal_connect_swapped (self->keyboard_events,
+-                            "accelerator-grabbed",
+-                            G_CALLBACK (accelerator_grabbed_cb),
+-                            self);
+-
+ }
+ 
++
+ GtkWidget *
+ phosh_settings_new (void)
+ {
+diff --git a/src/shell.c b/src/shell.c
+index fa728d01..9cc659c6 100644
+--- a/src/shell.c
++++ b/src/shell.c
+@@ -33,6 +33,7 @@
+ #include "feedback-manager.h"
+ #include "home.h"
+ #include "idle-manager.h"
++#include "keyboard-events.h"
+ #include "lockscreen-manager.h"
+ #include "monitor-manager.h"
+ #include "monitor/monitor.h"
+@@ -99,6 +100,7 @@ typedef struct
+   PhoshBtManager *bt_manager;
+   PhoshWWan *wwan;
+   PhoshTorchManager *torch_manager;
++  PhoshKeyboardEvents *keyboard_events;
+ 
+   /* sensors */
+   PhoshSensorProxyManager *sensor_proxy_manager;
+@@ -329,6 +331,7 @@ phosh_shell_dispose (GObject *object)
+ 
+   g_clear_object (&priv->notification_banner);
+ 
++  g_clear_object (&priv->keyboard_events);
+   /* dispose managers in opposite order of declaration */
+   g_clear_object (&priv->torch_manager);
+   g_clear_object (&priv->wwan);
+@@ -617,6 +620,8 @@ phosh_shell_constructed (GObject *object)
+       self);
+   }
+ 
++  priv->keyboard_events = phosh_keyboard_events_new ();
++
+   g_idle_add ((GSourceFunc) setup_idle_cb, self);
+ }
+ 
+@@ -1077,3 +1082,22 @@ phosh_shell_is_startup_finished(PhoshShell *self)
+ 
+   return priv->startup_finished;
+ }
++
++
++void
++phosh_shell_add_global_keyboard_action_entries (PhoshShell *self,
++                                                const GActionEntry *entries,
++                                                gint n_entries,
++                                                gpointer user_data)
++{
++  PhoshShellPrivate *priv;
++
++  g_return_if_fail (PHOSH_IS_SHELL (self));
++  priv = phosh_shell_get_instance_private (self);
++  g_return_if_fail (priv->keyboard_events);
++
++  g_action_map_add_action_entries (G_ACTION_MAP (priv->keyboard_events),
++                                   entries,
++                                   n_entries,
++                                   user_data);
++}
+diff --git a/src/shell.h b/src/shell.h
+index 6f85a103..eed1722b 100644
+--- a/src/shell.h
++++ b/src/shell.h
+@@ -58,5 +58,9 @@ void                 phosh_shell_fade_out (PhoshShell *self, guint timeout);
+ void                 phosh_shell_enable_power_save (PhoshShell *self, gboolean enable);
+ gboolean             phosh_shell_started_by_display_manager(PhoshShell *self);
+ gboolean             phosh_shell_is_startup_finished (PhoshShell *self);
++void                 phosh_shell_add_global_keyboard_action_entries (PhoshShell *self,
++                                                                     const GActionEntry *actions,
++                                                                     gint n_entries,
++                                                                     gpointer user_data);
+ 
+ G_END_DECLS
+-- 
+2.26.2
+
+
+From 3cc0f32c81b1ee88ff7840eed4cf66fba0374ac7 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
+Date: Wed, 21 Oct 2020 18:56:05 +0200
+Subject: [PATCH 3/8] keyboard-events: Ungrab accelerator when GAction is
+ removed
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Guido Günther <guido.gunther@puri.sm>
+---
+ src/keyboard-events.c | 39 ++++++++++++++++++++++++++++++++++++++-
+ src/shell.c           | 20 ++++++++++++++++++++
+ src/shell.h           |  3 +++
+ 3 files changed, 61 insertions(+), 1 deletion(-)
+
+diff --git a/src/keyboard-events.c b/src/keyboard-events.c
+index b3020e35..2aa7d8f0 100644
+--- a/src/keyboard-events.c
++++ b/src/keyboard-events.c
+@@ -82,10 +82,36 @@ handle_grab_success_event (void *data,
+   g_hash_table_insert (self->accelerators, GINT_TO_POINTER (action_id), g_strdup (accelerator));
+ }
+ 
++
++static void
++handle_ungrab_success_event (void *data,
++                             struct phosh_private_keyboard_event *kbevent,
++                             uint32_t action_id)
++{
++  PhoshKeyboardEvents *self = PHOSH_KEYBOARD_EVENTS (data);
++
++  g_return_if_fail (PHOSH_IS_KEYBOARD_EVENTS (data));
++  g_debug ("Ungrab of %d successful", action_id);
++  g_hash_table_remove (self->accelerators, GINT_TO_POINTER (action_id));
++}
++
++
++static void
++handle_ungrab_failed_event (void *data,
++                            struct phosh_private_keyboard_event *kbevent,
++                            uint32_t action_id,
++                            uint32_t error)
++{
++  g_warning ("Ungrab of %d failed: %d\n", action_id, error);
++}
++
++
+ static const struct phosh_private_keyboard_event_listener keyboard_event_listener = {
+   .accelerator_activated_event = handle_accelerator_activated_event,
+   .grab_failed_event = handle_grab_failed_event,
+   .grab_success_event = handle_grab_success_event,
++  .ungrab_failed_event = handle_ungrab_failed_event,
++  .ungrab_success_event = handle_ungrab_success_event,
+ };
+ 
+ 
+@@ -104,7 +130,18 @@ on_action_removed (PhoshKeyboardEvents *self,
+                    gchar               *action_name,
+                    GActionGroup        *action_group)
+ {
+-  g_debug ("Should ungrab accelerator %s", action_name);
++  GHashTableIter iter;
++  gpointer key, value;
++
++  g_debug ("Ungrabbing accelerator %s", action_name);
++
++  g_hash_table_iter_init (&iter, self->accelerators);
++  while (g_hash_table_iter_next (&iter, &key, &value)) {
++    if (!g_strcmp0 (action_name, value)) {
++      phosh_private_keyboard_event_ungrab_accelerator_request (self->kbevent,
++                                                               GPOINTER_TO_INT (key));
++    }
++  }
+ }
+ 
+ 
+diff --git a/src/shell.c b/src/shell.c
+index 9cc659c6..ea695223 100644
+--- a/src/shell.c
++++ b/src/shell.c
+@@ -1101,3 +1101,23 @@ phosh_shell_add_global_keyboard_action_entries (PhoshShell *self,
+                                    n_entries,
+                                    user_data);
+ }
++
++
++void
++phosh_shell_remove_global_keyboard_action_entries (PhoshShell *self,
++                                                   const GActionEntry *entries,
++                                                   gint n_entries)
++
++{
++  PhoshShellPrivate *priv;
++
++  g_return_if_fail (PHOSH_IS_SHELL (self));
++  priv = phosh_shell_get_instance_private (self);
++  g_return_if_fail (priv->keyboard_events);
++
++  for (int i = 0; i < n_entries; i++) {
++    g_action_map_remove_action (G_ACTION_MAP (priv->keyboard_events),
++                                entries[i].name);
++  }
++}
++
+diff --git a/src/shell.h b/src/shell.h
+index eed1722b..9c486e1f 100644
+--- a/src/shell.h
++++ b/src/shell.h
+@@ -62,5 +62,8 @@ void                 phosh_shell_add_global_keyboard_action_entries (PhoshShell
+                                                                      const GActionEntry *actions,
+                                                                      gint n_entries,
+                                                                      gpointer user_data);
++void                 phosh_shell_remove_global_keyboard_action_entries (PhoshShell *self,
++                                                                        const GActionEntry *actions,
++                                                                        gint n_entries);
+ 
+ G_END_DECLS
+-- 
+2.26.2
+
+
+From 52ad3db0f49d87a893a291c00bb30793cb821b14 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
+Date: Thu, 22 Oct 2020 10:43:45 +0200
+Subject: [PATCH 4/8] overview: Move public functions past `_new`
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+As per coding style
+
+Signed-off-by: Guido Günther <guido.gunther@puri.sm>
+---
+ src/overview.c | 14 +++++++-------
+ src/overview.h |  5 +++--
+ 2 files changed, 10 insertions(+), 9 deletions(-)
+
+diff --git a/src/overview.c b/src/overview.c
+index 6b71b545..f323630f 100644
+--- a/src/overview.c
++++ b/src/overview.c
+@@ -435,6 +435,13 @@ phosh_overview_init (PhoshOverview *self)
+ }
+ 
+ 
++GtkWidget *
++phosh_overview_new (void)
++{
++  return g_object_new (PHOSH_TYPE_OVERVIEW, NULL);
++}
++
++
+ void
+ phosh_overview_reset (PhoshOverview *self)
+ {
+@@ -446,10 +453,3 @@ phosh_overview_reset (PhoshOverview *self)
+   if (priv->activity)
+     gtk_widget_grab_focus (GTK_WIDGET (priv->activity));
+ }
+-
+-
+-GtkWidget *
+-phosh_overview_new (void)
+-{
+-  return g_object_new (PHOSH_TYPE_OVERVIEW, NULL);
+-}
+diff --git a/src/overview.h b/src/overview.h
+index 90d14f43..af032e01 100644
+--- a/src/overview.h
++++ b/src/overview.h
+@@ -12,5 +12,6 @@
+ 
+ G_DECLARE_FINAL_TYPE (PhoshOverview, phosh_overview, PHOSH, OVERVIEW, GtkBox)
+ 
+-void phosh_overview_reset (PhoshOverview *self);
+-GtkWidget * phosh_overview_new (void);
++
++GtkWidget *phosh_overview_new (void);
++void       phosh_overview_reset (PhoshOverview *self);
+-- 
+2.26.2
+
+
+From 7c02e1b4976d61f6055a3ccb029e132303fc8c85 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
+Date: Thu, 22 Oct 2020 10:44:40 +0200
+Subject: [PATCH 5/8] app-grid: Move public functions past `_new`
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+As per conding style.
+
+Signed-off-by: Guido Günther <guido.gunther@puri.sm>
+---
+ src/app-grid.c | 14 +++++++-------
+ src/app-grid.h |  2 +-
+ 2 files changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/src/app-grid.c b/src/app-grid.c
+index 86b29986..ca7aac54 100644
+--- a/src/app-grid.c
++++ b/src/app-grid.c
+@@ -400,6 +400,13 @@ phosh_app_grid_class_init (PhoshAppGridClass *klass)
+ }
+ 
+ 
++GtkWidget *
++phosh_app_grid_new (void)
++{
++  return g_object_new (PHOSH_TYPE_APP_GRID, NULL);
++}
++
++
+ void
+ phosh_app_grid_reset (PhoshAppGrid *self)
+ {
+@@ -416,10 +423,3 @@ phosh_app_grid_reset (PhoshAppGrid *self)
+   gtk_entry_set_text (GTK_ENTRY (priv->search), "");
+   g_clear_pointer (&priv->search_string, g_free);
+ }
+-
+-
+-GtkWidget *
+-phosh_app_grid_new (void)
+-{
+-  return g_object_new (PHOSH_TYPE_APP_GRID, NULL);
+-}
+diff --git a/src/app-grid.h b/src/app-grid.h
+index ba506036..9ebd1d06 100644
+--- a/src/app-grid.h
++++ b/src/app-grid.h
+@@ -21,7 +21,7 @@ struct _PhoshAppGridClass
+   GtkBoxClass parent_class;
+ };
+ 
+-void phosh_app_grid_reset (PhoshAppGrid *self);
+ GtkWidget *phosh_app_grid_new (void);
++void       phosh_app_grid_reset (PhoshAppGrid *self);
+ 
+ G_END_DECLS
+-- 
+2.26.2
+
+
+From dde328bdf818a4802e050725d99ba7e1e5e66e57 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
+Date: Thu, 22 Oct 2020 10:56:02 +0200
+Subject: [PATCH 6/8] overview: Add helper to focus app search
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Guido Günther <guido.gunther@puri.sm>
+---
+ src/app-grid.c | 11 +++++++++++
+ src/app-grid.h |  1 +
+ src/overview.c | 10 ++++++++++
+ src/overview.h |  1 +
+ 4 files changed, 23 insertions(+)
+
+diff --git a/src/app-grid.c b/src/app-grid.c
+index ca7aac54..f0285b67 100644
+--- a/src/app-grid.c
++++ b/src/app-grid.c
+@@ -423,3 +423,14 @@ phosh_app_grid_reset (PhoshAppGrid *self)
+   gtk_entry_set_text (GTK_ENTRY (priv->search), "");
+   g_clear_pointer (&priv->search_string, g_free);
+ }
++
++
++void
++phosh_app_grid_focus_search (PhoshAppGrid *self)
++{
++  PhoshAppGridPrivate *priv;
++
++  g_return_if_fail (PHOSH_IS_APP_GRID (self));
++  priv = phosh_app_grid_get_instance_private (self);
++  gtk_widget_grab_focus (priv->search);
++}
+diff --git a/src/app-grid.h b/src/app-grid.h
+index 9ebd1d06..e54931d5 100644
+--- a/src/app-grid.h
++++ b/src/app-grid.h
+@@ -23,5 +23,6 @@ struct _PhoshAppGridClass
+ 
+ GtkWidget *phosh_app_grid_new (void);
+ void       phosh_app_grid_reset (PhoshAppGrid *self);
++void       phosh_app_grid_focus_search (PhoshAppGrid *self);
+ 
+ G_END_DECLS
+diff --git a/src/overview.c b/src/overview.c
+index f323630f..36ba17d6 100644
+--- a/src/overview.c
++++ b/src/overview.c
+@@ -453,3 +453,13 @@ phosh_overview_reset (PhoshOverview *self)
+   if (priv->activity)
+     gtk_widget_grab_focus (GTK_WIDGET (priv->activity));
+ }
++
++void
++phosh_overview_focus_app_search (PhoshOverview *self)
++{
++  PhoshOverviewPrivate *priv;
++
++  g_return_if_fail(PHOSH_IS_OVERVIEW (self));
++  priv = phosh_overview_get_instance_private (self);
++  phosh_app_grid_focus_search (PHOSH_APP_GRID (priv->app_grid));
++}
+diff --git a/src/overview.h b/src/overview.h
+index af032e01..c4b4f154 100644
+--- a/src/overview.h
++++ b/src/overview.h
+@@ -15,3 +15,4 @@ G_DECLARE_FINAL_TYPE (PhoshOverview, phosh_overview, PHOSH, OVERVIEW, GtkBox)
+ 
+ GtkWidget *phosh_overview_new (void);
+ void       phosh_overview_reset (PhoshOverview *self);
++void       phosh_overview_focus_app_search (PhoshOverview *self);
+-- 
+2.26.2
+
+
+From 3838cb4cc207a82b45f82775954605424e51fc35 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
+Date: Thu, 22 Oct 2020 11:07:15 +0200
+Subject: [PATCH 7/8] settings: Ungrab keyboard events
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Closes: #398
+
+Signed-off-by: Guido Günther <guido.gunther@puri.sm>
+---
+ src/settings.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/src/settings.c b/src/settings.c
+index 8a5e0ecc..7269f985 100644
+--- a/src/settings.c
++++ b/src/settings.c
+@@ -460,6 +460,10 @@ phosh_settings_dispose (GObject *object)
+     g_clear_object (&self->notify_event);
+   }
+ 
++  phosh_shell_remove_global_keyboard_action_entries (phosh_shell_get_default (),
++                                                     action_entries,
++                                                     G_N_ELEMENTS (action_entries));
++
+   G_OBJECT_CLASS (phosh_settings_parent_class)->dispose (object);
+ }
+ 
+-- 
+2.26.2
+
+
+From 78786fae0c9b50abf11efe75a2cb9d2ce739927d Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
+Date: Wed, 21 Oct 2020 14:06:12 +0200
+Subject: [PATCH 8/8] home: Bind key to show overview
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+We use org.gnome.shell.keybindings `toggle-overview` and
+`toggle-application-view` to focus the application switcher
+and app search respectively.
+
+Signed-off-by: Guido Günther <guido.gunther@puri.sm>
+---
+ src/home.c | 109 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 109 insertions(+)
+
+diff --git a/src/home.c b/src/home.c
+index 1d9237ce..417be36e 100644
+--- a/src/home.c
++++ b/src/home.c
+@@ -18,6 +18,10 @@
+ 
+ #include <handy.h>
+ 
++#define KEYBINDINGS_SCHEMA_ID "org.gnome.shell.keybindings"
++#define KEYBINDING_KEY_TOGGLE_OVERVIEW "toggle-overview"
++#define KEYBINDING_KEY_TOGGLE_APPLICATION_VIEW "toggle-application-view"
++
+ /**
+  * SECTION:home
+  * @short_description: The home surface contains the overview and
+@@ -59,6 +63,10 @@ struct _PhoshHome
+   } animation;
+ 
+   PhoshHomeState state;
++
++  /* Keybinding */
++  GArray         *actions;
++  GSettings      *settings;
+ };
+ G_DEFINE_TYPE(PhoshHome, phosh_home, PHOSH_TYPE_LAYER_SURFACE);
+ 
+@@ -177,6 +185,77 @@ key_press_event_cb (PhoshHome *self, GdkEventKey *event, gpointer data)
+ }
+ 
+ 
++static void
++toggle_overview_action (GSimpleAction *action, GVariant *param, gpointer data)
++{
++  PhoshHome *self = PHOSH_HOME (data);
++  PhoshHomeState state;
++
++  g_return_if_fail (PHOSH_IS_HOME (self));
++
++  state = self->state == PHOSH_HOME_STATE_UNFOLDED ?
++    PHOSH_HOME_STATE_FOLDED : PHOSH_HOME_STATE_UNFOLDED;
++  phosh_home_set_state (self, state);
++}
++
++
++static void
++toggle_application_view_action (GSimpleAction *action, GVariant *param, gpointer data)
++{
++  PhoshHome *self = PHOSH_HOME (data);
++  PhoshHomeState state;
++
++  g_return_if_fail (PHOSH_IS_HOME (self));
++
++  state = self->state == PHOSH_HOME_STATE_UNFOLDED ?
++    PHOSH_HOME_STATE_FOLDED : PHOSH_HOME_STATE_UNFOLDED;
++  phosh_home_set_state (self, state);
++  phosh_overview_focus_app_search (PHOSH_OVERVIEW (self->overview));
++}
++
++
++static void
++add_keybindings (PhoshHome *self)
++{
++  g_auto (GStrv) bindings = NULL;
++  g_autoptr (GSettings) settings = g_settings_new (KEYBINDINGS_SCHEMA_ID);
++
++  bindings = g_settings_get_strv (settings, KEYBINDING_KEY_TOGGLE_OVERVIEW);
++  for (int i = 0; i < g_strv_length (bindings); i++) {
++    GActionEntry entry = { bindings[i],
++                           toggle_overview_action, };
++    g_array_append_val (self->actions, entry);
++  }
++
++  bindings = g_settings_get_strv (settings, KEYBINDING_KEY_TOGGLE_APPLICATION_VIEW);
++  for (int i = 0; i < g_strv_length (bindings); i++) {
++    GActionEntry entry = { bindings[i],
++                           toggle_application_view_action, };
++    g_array_append_val (self->actions, entry);
++  }
++
++  phosh_shell_add_global_keyboard_action_entries (phosh_shell_get_default (),
++                                                  (GActionEntry*)self->actions->data,
++                                                  self->actions->len,
++                                                  self);
++}
++
++
++static void
++on_keybindings_changed (PhoshHome  *self,
++                        gchar     *key,
++                        GSettings *settings)
++{
++  /* For now just redo all keybindings */
++  g_debug ("Updating keybindings");
++  phosh_shell_remove_global_keyboard_action_entries (phosh_shell_get_default (),
++                                                     (GActionEntry*)self->actions->data,
++                                                     self->actions->len);
++  g_array_set_size (self->actions, 0);
++  add_keybindings (self);
++}
++
++
+ static void
+ phosh_home_constructed (GObject *object)
+ {
+@@ -218,12 +297,39 @@ phosh_home_constructed (GObject *object)
+                     G_CALLBACK (key_press_event_cb),
+                     NULL);
+ 
++  g_object_connect (self->settings,
++                    "swapped-signal::changed::" KEYBINDING_KEY_TOGGLE_OVERVIEW,
++                    on_keybindings_changed, self,
++                    "swapped-signal::changed::" KEYBINDING_KEY_TOGGLE_APPLICATION_VIEW,
++                    on_keybindings_changed, self,
++                    NULL);
++  add_keybindings (self);
++
+   phosh_connect_button_feedback (GTK_BUTTON (self->btn_home));
+ 
++
+   G_OBJECT_CLASS (phosh_home_parent_class)->constructed (object);
+ }
+ 
+ 
++static void
++phosh_home_dispose (GObject *object)
++{
++  PhoshHome *self = PHOSH_HOME (object);
++
++  g_clear_object (&self->settings);
++
++  if (self->actions) {
++    phosh_shell_remove_global_keyboard_action_entries (phosh_shell_get_default (),
++                                                       (GActionEntry*)self->actions->data,
++                                                       self->actions->len);
++    g_clear_pointer (&self->actions, g_array_unref);
++  }
++
++  G_OBJECT_CLASS (phosh_home_parent_class)->dispose (object);
++}
++
++
+ static void
+ phosh_home_class_init (PhoshHomeClass *klass)
+ {
+@@ -231,6 +337,7 @@ phosh_home_class_init (PhoshHomeClass *klass)
+   GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
+ 
+   object_class->constructed = phosh_home_constructed;
++  object_class->dispose = phosh_home_dispose;
+ 
+   object_class->set_property = phosh_home_set_property;
+   object_class->get_property = phosh_home_get_property;
+@@ -269,6 +376,8 @@ phosh_home_init (PhoshHome *self)
+ {
+   self->state = PHOSH_HOME_STATE_FOLDED;
+   self->animation.progress = 1.0;
++  self->actions = g_array_new (FALSE, TRUE, sizeof (GActionEntry));
++  self->settings = g_settings_new (KEYBINDINGS_SCHEMA_ID);
+ 
+   gtk_widget_init_template (GTK_WIDGET (self));
+ }
+-- 
+2.26.2
+
