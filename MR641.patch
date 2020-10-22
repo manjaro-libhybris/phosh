@@ -478,14 +478,14 @@ index fa728d01..9cc659c6 100644
  #include "lockscreen-manager.h"
  #include "monitor-manager.h"
  #include "monitor/monitor.h"
-@@ -99,6 +100,7 @@ typedef struct
+@@ -101,6 +102,7 @@ typedef struct
    PhoshBtManager *bt_manager;
    PhoshWWan *wwan;
    PhoshTorchManager *torch_manager;
 +  PhoshKeyboardEvents *keyboard_events;
+   PhoshModeManager *mode_manager;
+   PhoshDockedManager *docked_manager;
  
-   /* sensors */
-   PhoshSensorProxyManager *sensor_proxy_manager;
 @@ -329,6 +331,7 @@ phosh_shell_dispose (GObject *object)
  
    g_clear_object (&priv->notification_banner);
