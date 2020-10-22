@@ -16,7 +16,7 @@ source=("git+https://source.puri.sm/Librem5/phosh.git#commit=${_commit}"
          0001-system-prompt-allow-blank-passwords.patch
          0001-showing-unlock-page-re-orients-the-screen.patch
          MR631.patch
-         MR641.patch
+         MR640.patch
          flashlight-torch.patch
 	 "pam_phosh"
 	 "sm.puri.OSK0.desktop"
@@ -26,7 +26,7 @@ sha256sums=('SKIP'
             '0c5a2dbd0512ab8eca6e667f04ba03ec1b0d2896237b10d239aca63cfc19919e'
             '674eb4f0b02c1eed1ab6af911a0890766d997d95edcd74bab0d36b9b64700cf2'
             'dc701cc5300b1d858ce83295c2e7946bda0922e30cadb020f04ace535a47de84'
-            '7a35e23870c0ff75e2213d4eae8ed55ba772c5ac5427edc2d6d5bf620ae4a303'
+            '8e8839ae0caf48f34c4efdac89df57e70934f90405183d5e3691d20ffdbc5136'
             '18f35bccc6def6b99b2e4786fe566dbd62f9675e1ec9d51d820531d901a83eb6'
             'b7793f80c533e84ad8adfe8bb46c69f107575e724aa9b53b41f370baa37e4fd5'
             'f0faa73bb7793b7628b6a4ea8ab0059e13f5d46435efee2f4b8d8ac256311372'
