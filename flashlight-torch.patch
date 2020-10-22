@@ -129,7 +129,7 @@ diff -Npur phosh.orig/src/meson.build phosh/src/meson.build
 diff -Npur phosh.orig/src/settings.c phosh/src/settings.c
 --- phosh.orig/src/settings.c	2020-10-18 18:06:42.690688000 +0200
 +++ phosh/src/settings.c	2020-10-18 18:07:23.400688118 +0200
-@@ -23,10 +23,12 @@
+@@ -21,10 +21,12 @@
  #include "rotateinfo.h"
  #include "feedbackinfo.h"
  #include "feedback-manager.h"
@@ -142,17 +142,17 @@ diff -Npur phosh.orig/src/settings.c phosh/src/settings.c
  
  #include <pulse/pulseaudio.h>
  #include "gvc-mixer-control.h"
-@@ -72,6 +74,9 @@ typedef struct _PhoshSettings
-   GtkWidget *list_notifications;
-   GtkWidget *sw_notifications;
-   LfbEvent  *notify_event;
+@@ -74,6 +76,9 @@ typedef struct _PhoshSettings
+   /* KeyboardEvents */
+   PhoshKeyboardEvents *keyboard_events;
+   GHashTable *accelerator_callbacks;
 +  
 +  /* Flashlight */
-+  GtkWidget *flashlightinfo;    
++  GtkWidget *flashlightinfo;  
  } PhoshSettings;
  
  
-@@ -123,6 +128,26 @@ feedback_setting_clicked_cb (PhoshSettin
+@@ -118,6 +123,26 @@ feedback_setting_clicked_cb (PhoshSettin
  }
  
  static void
@@ -179,7 +179,7 @@ diff -Npur phosh.orig/src/settings.c phosh/src/settings.c
  wifi_setting_clicked_cb (PhoshSettings *self)
  {
    phosh_quick_setting_open_settings_panel ("wifi");
-@@ -499,7 +524,6 @@ phosh_settings_finalize (GObject *object
+@@ -497,7 +522,6 @@ phosh_settings_finalize (GObject *object
  }
  
  
@@ -187,15 +187,15 @@ diff -Npur phosh.orig/src/settings.c phosh/src/settings.c
  static void
  phosh_settings_class_init (PhoshSettingsClass *klass)
  {
-@@ -520,6 +544,7 @@ phosh_settings_class_init (PhoshSettings
+@@ -517,6 +541,7 @@ phosh_settings_class_init (PhoshSettings
+ 
    g_type_ensure (PHOSH_TYPE_BT_INFO);
-   g_type_ensure (PHOSH_TYPE_DOCKED_INFO);
    g_type_ensure (PHOSH_TYPE_FEEDBACK_INFO);
 +  g_type_ensure (PHOSH_TYPE_FLASHLIGHT_INFO);  
    g_type_ensure (PHOSH_TYPE_MEDIA_PLAYER);
    g_type_ensure (PHOSH_TYPE_QUICK_SETTING);
    g_type_ensure (PHOSH_TYPE_ROTATE_INFO);
-@@ -530,6 +555,7 @@ phosh_settings_class_init (PhoshSettings
+@@ -527,6 +552,7 @@ phosh_settings_class_init (PhoshSettings
    gtk_widget_class_bind_template_child (widget_class, PhoshSettings, quick_settings);
    gtk_widget_class_bind_template_child (widget_class, PhoshSettings, scale_brightness);
    gtk_widget_class_bind_template_child (widget_class, PhoshSettings, sw_notifications);
@@ -203,7 +203,7 @@ diff -Npur phosh.orig/src/settings.c phosh/src/settings.c
  
    gtk_widget_class_bind_template_callback (widget_class, battery_setting_clicked_cb);
    gtk_widget_class_bind_template_callback (widget_class, bt_setting_clicked_cb);
-@@ -538,6 +564,7 @@ phosh_settings_class_init (PhoshSettings
+@@ -534,6 +560,7 @@ phosh_settings_class_init (PhoshSettings
    gtk_widget_class_bind_template_callback (widget_class, feedback_setting_long_pressed_cb);
    gtk_widget_class_bind_template_callback (widget_class, on_media_player_raised);
    gtk_widget_class_bind_template_callback (widget_class, rotation_setting_clicked_cb);
