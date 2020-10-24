@@ -1,4 +1,4 @@
-From be1275f23464f0b115871c2a47d40a2a17633cb5 Mon Sep 17 00:00:00 2001
+From 04be15ef72fafadc64246252baf5a0f98a1c8960 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Wed, 14 Oct 2020 19:42:44 +0200
 Subject: [PATCH 01/11] panel: Fix typo
@@ -28,7 +28,7 @@ index faecffc6..9d518236 100644
 2.26.2
 
 
-From 2c75818329b59ea0ef91436a808a39a3b0724965 Mon Sep 17 00:00:00 2001
+From d57881fe34b07cf72d967c908f6d9158cf4c7648 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Thu, 8 Oct 2020 16:55:53 +0200
 Subject: [PATCH 02/11] monitor-manager: Add property for number of monitors
@@ -128,7 +128,7 @@ index 211fda36..c2dcf472 100644
 2.26.2
 
 
-From 0385dc53ce7c349ce9cc26915e6f7c81b2328699 Mon Sep 17 00:00:00 2001
+From 03caa44f1843a035b507bf8edffc847dd722d41a Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Mon, 19 Oct 2020 12:37:11 +0200
 Subject: [PATCH 03/11] monitor-manager: move DBus setup into idle callback
@@ -202,7 +202,7 @@ index c2dcf472..ccc2e10e 100644
 2.26.2
 
 
-From 8f128b7a91ec0da99ad89abfa90fc8f75cc80180 Mon Sep 17 00:00:00 2001
+From c9ce23143d58f36ce52599c3293f8f9e40cdc735 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Thu, 15 Oct 2020 12:09:07 +0200
 Subject: [PATCH 04/11] wayland: Add G_{BEGIN,END}_DECLS
@@ -238,7 +238,7 @@ index f4e600ac..477c5501 100644
 2.26.2
 
 
-From 486215310e9ed2f87647731e4c144132472fe9a6 Mon Sep 17 00:00:00 2001
+From 5be66719af05e09f4ebb19d493c7803ee542a4c2 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Thu, 15 Oct 2020 12:24:37 +0200
 Subject: [PATCH 05/11] wayland: Provide seat capabilities
@@ -441,7 +441,7 @@ index 477c5501..d13529e4 100644
 2.26.2
 
 
-From 1b6bf4fbcdea399714966e6d7b6f196d7324d79b Mon Sep 17 00:00:00 2001
+From 9e9118447b2ef319141a69d61d2f0a0e84168d21 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Tue, 13 Oct 2020 15:04:51 +0200
 Subject: [PATCH 06/11] dbus: Add org.freedesktop.hostname1 interface
@@ -493,7 +493,7 @@ index 00000000..d8e469b0
 2.26.2
 
 
-From e485ba891ab140748acf829e19124461ac574d52 Mon Sep 17 00:00:00 2001
+From e50e1dbcffc73212342970c406cb883938e16706 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Wed, 14 Oct 2020 12:59:38 +0200
 Subject: [PATCH 07/11] data: Add symbolic phone icons
@@ -623,7 +623,7 @@ index f4f03bfe..c6478786 100644
 2.26.2
 
 
-From a796d66e75bca05452d86d0c728016b59c155660 Mon Sep 17 00:00:00 2001
+From ad65b39be2dd5778b397f959f3408eba1af5176d Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Wed, 14 Oct 2020 16:13:03 +0200
 Subject: [PATCH 08/11] Add mode-manager to handle different device modes
@@ -1141,34 +1141,34 @@ index dde9c7d5..8be51516 100644
  #include "notifications/notification.h"
  #include "notifications/notify-manager.h"
 diff --git a/src/shell.c b/src/shell.c
-index fa728d01..5a0978b8 100644
+index ea695223..ad87b28b 100644
 --- a/src/shell.c
 +++ b/src/shell.c
-@@ -34,6 +34,7 @@
- #include "home.h"
+@@ -35,6 +35,7 @@
  #include "idle-manager.h"
+ #include "keyboard-events.h"
  #include "lockscreen-manager.h"
 +#include "mode-manager.h"
  #include "monitor-manager.h"
  #include "monitor/monitor.h"
  #include "notifications/notify-manager.h"
-@@ -99,6 +100,7 @@ typedef struct
+@@ -100,6 +101,7 @@ typedef struct
    PhoshBtManager *bt_manager;
    PhoshWWan *wwan;
    PhoshTorchManager *torch_manager;
 +  PhoshModeManager *mode_manager;
+   PhoshKeyboardEvents *keyboard_events;
  
    /* sensors */
-   PhoshSensorProxyManager *sensor_proxy_manager;
-@@ -330,6 +332,7 @@ phosh_shell_dispose (GObject *object)
-   g_clear_object (&priv->notification_banner);
+@@ -333,6 +335,7 @@ phosh_shell_dispose (GObject *object)
  
+   g_clear_object (&priv->keyboard_events);
    /* dispose managers in opposite order of declaration */
 +  g_clear_object (&priv->mode_manager);
    g_clear_object (&priv->torch_manager);
    g_clear_object (&priv->wwan);
    g_clear_object (&priv->bt_manager);
-@@ -436,6 +439,8 @@ setup_idle_cb (PhoshShell *self)
+@@ -439,6 +442,8 @@ setup_idle_cb (PhoshShell *self)
  {
    PhoshShellPrivate *priv = phosh_shell_get_instance_private (self);
  
@@ -1181,7 +1181,7 @@ index fa728d01..5a0978b8 100644
 2.26.2
 
 
-From 70467a9e8f5dd477a27d7668ef1fc58958827975 Mon Sep 17 00:00:00 2001
+From 5599ed4fefde65e6efb42addeb92a6fef58d6b41 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Thu, 8 Oct 2020 14:11:56 +0200
 Subject: [PATCH 09/11] Add 'docked' quick setting and manager
@@ -1843,7 +1843,7 @@ index a19d9b2d..023bf429 100644
    'favorite-list-model.h',
    'feedback-manager.c',
 diff --git a/src/settings.c b/src/settings.c
-index 1673b358..a1770373 100644
+index 7269f985..2b93a8bb 100644
 --- a/src/settings.c
 +++ b/src/settings.c
 @@ -11,6 +11,8 @@
@@ -1855,7 +1855,7 @@ index 1673b358..a1770373 100644
  #include "shell.h"
  #include "settings.h"
  #include "quick-setting.h"
-@@ -166,6 +168,24 @@ torch_setting_clicked_cb (PhoshSettings *self)
+@@ -169,6 +171,24 @@ torch_setting_clicked_cb (PhoshSettings *self)
    phosh_torch_manager_toggle (manager);
  }
  
@@ -1880,7 +1880,7 @@ index 1673b358..a1770373 100644
  static void
  change_volume (PhoshSettings *self,
                 int            steps)
-@@ -516,6 +536,7 @@ phosh_settings_class_init (PhoshSettingsClass *klass)
+@@ -498,6 +518,7 @@ phosh_settings_class_init (PhoshSettingsClass *klass)
        NULL, G_TYPE_NONE, 0);
  
    g_type_ensure (PHOSH_TYPE_BT_INFO);
@@ -1888,7 +1888,7 @@ index 1673b358..a1770373 100644
    g_type_ensure (PHOSH_TYPE_FEEDBACK_INFO);
    g_type_ensure (PHOSH_TYPE_MEDIA_PLAYER);
    g_type_ensure (PHOSH_TYPE_QUICK_SETTING);
-@@ -530,6 +551,7 @@ phosh_settings_class_init (PhoshSettingsClass *klass)
+@@ -512,6 +533,7 @@ phosh_settings_class_init (PhoshSettingsClass *klass)
  
    gtk_widget_class_bind_template_callback (widget_class, battery_setting_clicked_cb);
    gtk_widget_class_bind_template_callback (widget_class, bt_setting_clicked_cb);
@@ -1897,7 +1897,7 @@ index 1673b358..a1770373 100644
    gtk_widget_class_bind_template_callback (widget_class, feedback_setting_long_pressed_cb);
    gtk_widget_class_bind_template_callback (widget_class, on_media_player_raised);
 diff --git a/src/shell.c b/src/shell.c
-index 5a0978b8..32647814 100644
+index ad87b28b..b535e836 100644
 --- a/src/shell.c
 +++ b/src/shell.c
 @@ -29,6 +29,7 @@
@@ -1908,23 +1908,23 @@ index 5a0978b8..32647814 100644
  #include "fader.h"
  #include "feedback-manager.h"
  #include "home.h"
-@@ -101,6 +102,7 @@ typedef struct
+@@ -102,6 +103,7 @@ typedef struct
    PhoshWWan *wwan;
    PhoshTorchManager *torch_manager;
    PhoshModeManager *mode_manager;
 +  PhoshDockedManager *docked_manager;
+   PhoshKeyboardEvents *keyboard_events;
  
    /* sensors */
-   PhoshSensorProxyManager *sensor_proxy_manager;
-@@ -332,6 +334,7 @@ phosh_shell_dispose (GObject *object)
-   g_clear_object (&priv->notification_banner);
+@@ -335,6 +337,7 @@ phosh_shell_dispose (GObject *object)
  
+   g_clear_object (&priv->keyboard_events);
    /* dispose managers in opposite order of declaration */
 +  g_clear_object (&priv->docked_manager);
    g_clear_object (&priv->mode_manager);
    g_clear_object (&priv->torch_manager);
    g_clear_object (&priv->wwan);
-@@ -937,6 +940,23 @@ phosh_shell_get_torch_manager (PhoshShell *self)
+@@ -942,6 +945,23 @@ phosh_shell_get_torch_manager (PhoshShell *self)
    return priv->torch_manager;
  }
  
@@ -1949,7 +1949,7 @@ index 5a0978b8..32647814 100644
   * Returns the usable area in pixels usable by a client on the phone
   * display
 diff --git a/src/shell.h b/src/shell.h
-index 6f85a103..35164aab 100644
+index 9c486e1f..65680a57 100644
 --- a/src/shell.h
 +++ b/src/shell.h
 @@ -9,6 +9,7 @@
@@ -1998,7 +1998,7 @@ index e94e8080..7e9df0ef 100644
 2.26.2
 
 
-From 711e1cbe9f179e41389ecb6276bf96675d81e856 Mon Sep 17 00:00:00 2001
+From 1e6787fbfa14a3b01707a1b7883f9f21ba823a2b Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Wed, 14 Oct 2020 18:27:51 +0200
 Subject: [PATCH 10/11] status-bar: Add docked icon when docked
@@ -2062,7 +2062,7 @@ index adaa072f..f896a65c 100644
 2.26.2
 
 
-From 097c68ea7d799b750cd54bd915ddb4054d28ce1d Mon Sep 17 00:00:00 2001
+From 9d131aa21371a8230137a704271ce436e5f0de75 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Fri, 16 Oct 2020 10:51:52 +0200
 Subject: [PATCH 11/11] osk-button: Show/hide depending on a11y setting
@@ -2077,11 +2077,9 @@ Closes: #363
 
 Signed-off-by: Guido Günther <guido.gunther@puri.sm>
 ---
- src/mode-manager.c   |  3 +++
- src/mode-manager.h   |  1 +
- src/osk/osk-button.c | 15 +++++++++++++++
- src/ui/home.ui       |  2 +-
- 4 files changed, 20 insertions(+), 1 deletion(-)
+ src/mode-manager.c | 3 +++
+ src/mode-manager.h | 1 +
+ 2 files changed, 4 insertions(+)
 
 diff --git a/src/mode-manager.c b/src/mode-manager.c
 index a73ef39e..7b9b30bc 100644
@@ -2109,52 +2107,6 @@ index 73f2fb44..8500add6 100644
  
  #define PHOSH_TYPE_MODE_MANAGER (phosh_mode_manager_get_type ())
  
-diff --git a/src/osk/osk-button.c b/src/osk/osk-button.c
-index 81c87142..0e411723 100644
---- a/src/osk/osk-button.c
-+++ b/src/osk/osk-button.c
-@@ -81,6 +81,19 @@ on_osk_visibility_changed (PhoshOskButton *self, GParamSpec *pspec, PhoshOskMana
- }
- 
- 
-+static gboolean
-+on_idle (PhoshOskButton *self)
-+{
-+  g_autoptr (GSettings) settings = NULL;
-+
-+  settings = g_settings_new ("org.gnome.desktop.a11y.applications");
-+  g_settings_bind (settings, "screen-keyboard-enabled",
-+                   self, "visible", G_SETTINGS_BIND_GET);
-+
-+  return FALSE;
-+}
-+
-+
- static void
- phosh_osk_button_constructed (GObject *object)
- {
-@@ -116,6 +129,8 @@ phosh_osk_button_constructed (GObject *object)
- 
-   on_osk_availability_changed (self, NULL, self->osk);
-   on_osk_visibility_changed (self, NULL, self->osk);
-+
-+  g_idle_add ((GSourceFunc) on_idle, self);
- }
- 
- 
-diff --git a/src/ui/home.ui b/src/ui/home.ui
-index 9f733a32..a30205b9 100644
---- a/src/ui/home.ui
-+++ b/src/ui/home.ui
-@@ -41,7 +41,7 @@
-             </child>
-             <child>
-               <object class="PhoshOskButton" id="btn_osk">
--		<property name="visible">True</property>
-+		<property name="visible">False</property>
- 		<property name="can_focus">True</property>
- 		<property name="halign">end</property>
- 		<property name="valign">center</property>
 -- 
 2.26.2
 
