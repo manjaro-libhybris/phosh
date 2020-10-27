@@ -3,8 +3,8 @@
 
 pkgname=phosh
 pkgver=0.4.5+13+gd0be671
-_commit=d0be67133f36b09324de86637abaaf0d69189e4c
-pkgrel=3
+_commit=07747592329ab77e31faee6eac4a1034317654e4
+pkgrel=1
 pkgdesc="A pure Wayland shell prototype for GNOME on mobile devices"
 url="https://source.puri.sm/Librem5/phosh"
 license=("GPL3")
@@ -14,10 +14,6 @@ makedepends=('meson' 'git')
 source=("git+https://source.puri.sm/Librem5/phosh.git#commit=${_commit}"
         "git+https://gitlab.gnome.org/GNOME/libgnome-volume-control.git"
          0001-system-prompt-allow-blank-passwords.patch
-         0001-showing-unlock-page-re-orients-the-screen.patch
-         MR631.patch
-         #MR640.patch
-         #MR641.patch
          flashlight-torch.patch
 	 "pam_phosh"
 	 "sm.puri.OSK0.desktop"
@@ -25,9 +21,7 @@ source=("git+https://source.puri.sm/Librem5/phosh.git#commit=${_commit}"
 sha256sums=('SKIP'
             'SKIP'
             '0c5a2dbd0512ab8eca6e667f04ba03ec1b0d2896237b10d239aca63cfc19919e'
-            '674eb4f0b02c1eed1ab6af911a0890766d997d95edcd74bab0d36b9b64700cf2'
-            'dc701cc5300b1d858ce83295c2e7946bda0922e30cadb020f04ace535a47de84'
-            '18f35bccc6def6b99b2e4786fe566dbd62f9675e1ec9d51d820531d901a83eb6'
+            '8b4ae3f08fc581aa8017d7b40ece6dd642697f2d683b408a1fceb7b2f2a81884'
             'b7793f80c533e84ad8adfe8bb46c69f107575e724aa9b53b41f370baa37e4fd5'
             'f0faa73bb7793b7628b6a4ea8ab0059e13f5d46435efee2f4b8d8ac256311372'
             'ed6fac614d6799e3a1e0cdcff6ccf8d446c3b53c607dc3e93f1262d6b05843cc')
