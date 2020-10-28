@@ -17,7 +17,6 @@ source=("git+https://source.puri.sm/Librem5/phosh.git#commit=${_commit}"
          0002-shell-honor-configured-rotation.patch
          0003-shell-add-an-accessor-for-the-mode-manager.patch
          0004-lockscreen-manager-undo-transform-only-for-phones.patch
-         flashlight-torch.patch
 	 "pam_phosh"
 	 "sm.puri.OSK0.desktop"
          "phosh.service")
