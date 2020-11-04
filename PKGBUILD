@@ -3,7 +3,7 @@
 
 pkgname=phosh
 pkgver=0.5.0
-_commit=8c03ae61bdefc5befc58e7db450c86ffbe9551d5
+_commit=b5531cb4eeaf0f7cf32ea87ddcbcce8f037a5805
 pkgrel=2
 pkgdesc="A pure Wayland shell prototype for GNOME on mobile devices"
 url="https://source.puri.sm/Librem5/phosh"
@@ -11,7 +11,7 @@ license=("GPL3")
 arch=('i686' 'x86_64' 'armv6h' 'armv7h' 'aarch64')
 depends=('gtk3' 'libhandy' 'gnome-desktop' 'gnome-session'
          'upower-mobile' 'libpulse' 'gcr' 'feedbackd' 'libnm'
-         'phoc>=0.4.4' 'gnome-shell')
+         'phoc>=0.4.4') # 'gnome-shell')
 makedepends=('meson' 'git')
 source=("git+https://source.puri.sm/Librem5/phosh.git#commit=${_commit}"
         "git+https://gitlab.gnome.org/GNOME/libgnome-volume-control.git"
@@ -40,6 +40,7 @@ pkgver() {
 # Note: revert f70af466ff57763bc94548e3086a3caa50c8eacc if you don't want gnome-shell as dependency
 
 _reverts=(
+  f70af466ff57763bc94548e3086a3caa50c8eacc
 )
 
 prepare() {
