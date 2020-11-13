@@ -32,7 +32,7 @@
 +      * on the primary display to make the keypad usable on such devices
 +      */
 +      if (phosh_mode_manager_get_device_type(mode_manager) == PHOSH_MODE_DEVICE_TYPE_PHONE) {
-+        phosh_shell_set_transform (shell, PHOSH_MONITOR_TRANSFORM_NORMAL);
++        phosh_shell_set_transform (shell, 0);
 +      }                                          
      }
  
