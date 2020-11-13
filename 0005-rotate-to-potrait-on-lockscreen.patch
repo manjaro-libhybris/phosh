@@ -9,31 +9,23 @@
  #define HANDY_USE_UNSTABLE_API
  #include <handy.h>
  
-@@ -402,6 +404,8 @@ carousel_position_notified_cb (PhoshLock
+@@ -402,6 +404,7 @@ carousel_position_notified_cb (PhoshLock
                                 GParamSpec      *pspec,
                                 HdyCarousel     *carousel)
  {
-+  PhoshModeManager *mode_manager; 
 +  PhoshShell *shell = phosh_shell_get_default ();
    PhoshLockscreenPrivate *priv = phosh_lockscreen_get_instance_private (self);
    double position;
  
-@@ -414,10 +417,18 @@ carousel_position_notified_cb (PhoshLock
+@@ -414,10 +417,11 @@ carousel_position_notified_cb (PhoshLock
  
    if (position >= 1) {
      if (!priv->idle_timer) {
-+      mode_manager = phosh_shell_get_mode_manager(shell);
        priv->last_input = g_get_monotonic_time ();
        priv->idle_timer = g_timeout_add_seconds (LOCKSCREEN_IDLE_SECONDS,
                                                  (GSourceFunc) keypad_check_idle,
                                                  self);
-+      /*
-+      * The lockscreen won't likely fit on phones, so we have to undo any transform
-+      * on the primary display to make the keypad usable on such devices
-+      */
-+      if (phosh_mode_manager_get_device_type(mode_manager) == PHOSH_MODE_DEVICE_TYPE_PHONE) {
-+        phosh_shell_set_transform (shell, 0);
-+      }                                          
++      phosh_shell_set_transform (shell, 0);                                        
      }
  
      return;
