@@ -17,15 +17,11 @@
    PhoshLockscreenPrivate *priv = phosh_lockscreen_get_instance_private (self);
    double position;
  
-@@ -414,10 +417,11 @@ carousel_position_notified_cb (PhoshLock
- 
-   if (position >= 1) {
-     if (!priv->idle_timer) {
-       priv->last_input = g_get_monotonic_time ();
+@@ -418,6 +421,7 @@ carousel_position_notified_cb (PhoshLock
        priv->idle_timer = g_timeout_add_seconds (LOCKSCREEN_IDLE_SECONDS,
                                                  (GSourceFunc) keypad_check_idle,
                                                  self);
-+      phosh_shell_set_transform (shell, 0);                                        
++      phosh_shell_set_transform (shell, 0);
      }
  
      return;
