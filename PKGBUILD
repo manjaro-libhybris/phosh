@@ -16,7 +16,6 @@ makedepends=('meson' 'git')
 source=("git+https://source.puri.sm/Librem5/phosh.git#commit=${_commit}"
         "git+https://gitlab.gnome.org/GNOME/libgnome-volume-control.git"
          0001-system-prompt-allow-blank-passwords.patch
-         0002-shell-honor-configured-rotation.patch
          MR642.patch
          MR672.patch
          MR673.patch
@@ -27,7 +26,6 @@ source=("git+https://source.puri.sm/Librem5/phosh.git#commit=${_commit}"
 sha256sums=('SKIP'
             'SKIP'
             '0c5a2dbd0512ab8eca6e667f04ba03ec1b0d2896237b10d239aca63cfc19919e'
-            '3a0189e044d0f976095c22c788317675e9cad457395ac234127b9c50669cec16'
             '316a0416c8acee6a50234e0189094257e5868c177888fb6a4270543159171993'
             '3844d87b560305bd39189786d53fb72c2a9266e46f9c0a330da4ade36cd3ad64'
             'f7a7dd6c42276f1a09e96457d79e11c8e0af41b1230cd6811bf41357488b0b79'
