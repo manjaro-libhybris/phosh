@@ -18,7 +18,6 @@ source=("git+https://source.puri.sm/Librem5/phosh.git#commit=${_commit}"
          0001-system-prompt-allow-blank-passwords.patch
          MR642.patch
          MR672.patch
-         MR673.patch
          MR675.patch
 	 "pam_phosh"
 	 "sm.puri.OSK0.desktop"
@@ -28,7 +27,6 @@ sha256sums=('SKIP'
             '0c5a2dbd0512ab8eca6e667f04ba03ec1b0d2896237b10d239aca63cfc19919e'
             '316a0416c8acee6a50234e0189094257e5868c177888fb6a4270543159171993'
             '3844d87b560305bd39189786d53fb72c2a9266e46f9c0a330da4ade36cd3ad64'
-            'f7a7dd6c42276f1a09e96457d79e11c8e0af41b1230cd6811bf41357488b0b79'
             '7a29f7034b16c061266332c8b21153fcd72de7fbf88007798de8c8f317f24ff6'
             'b7793f80c533e84ad8adfe8bb46c69f107575e724aa9b53b41f370baa37e4fd5'
             'f0faa73bb7793b7628b6a4ea8ab0059e13f5d46435efee2f4b8d8ac256311372'
