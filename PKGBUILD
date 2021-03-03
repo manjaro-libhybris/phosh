@@ -2,14 +2,14 @@
 # Contributor: Philip Goto <philip.goto@gmail.com>
 
 pkgname=phosh
-pkgver=0.8.1
-_commit=12983abe17c1819232062436d2ca8a7ec84eee6c
+pkgver=0.9.0
+_commit=b90c5c6a562d40847ef118e636dd3115f81b009c
 pkgrel=1
 pkgdesc="A pure Wayland shell prototype for GNOME on mobile devices"
 url="https://source.puri.sm/Librem5/phosh"
 license=("GPL3")
 arch=('i686' 'x86_64' 'armv6h' 'armv7h' 'aarch64')
-depends=('gtk3' 'libhandy' 'gnome-desktop' 'gnome-session'
+depends=('gtk3' 'libhandy>=1.1.90' 'gnome-desktop' 'gnome-session'
          'upower-mobile' 'libpulse' 'gcr' 'feedbackd' 'libnm'
          'phoc>=0.4.4' 'gnome-shell')
 makedepends=('meson' 'git')
