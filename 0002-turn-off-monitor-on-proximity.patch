@@ -1,6 +1,6 @@
 --- a/src/proximity.c	2021-03-04 10:51:32.765179000 +0100
 +++ b/src/proximity.c	2021-03-04 12:01:32.618475761 +0100
-@@ -148,24 +148,22 @@ on_proximity_near_changed (PhoshProximit
+@@ -148,24 +148,24 @@ on_proximity_near_changed (PhoshProximit
                             PhoshSensorProxyManager *sensor)
  {
    gboolean near;
@@ -23,25 +23,20 @@
 -      gtk_widget_show (GTK_WIDGET (self->fader));
 -    }
 +      ps_mode = PHOSH_MONITOR_POWER_SAVE_MODE_OFF;
++      g_object_set (monitor, "proximity", TRUE, NULL);
    } else {
 -      g_clear_pointer (&self->fader, phosh_cp_widget_destroy);
 +      ps_mode = PHOSH_MONITOR_POWER_SAVE_MODE_ON;
++      g_object_set (monitor, "proximity", FALSE, NULL);
    }
 +
-+  g_object_set (monitor, "proximity", TRUE, NULL);
 +  phosh_monitor_set_power_save_mode (monitor, ps_mode);
  }
  
  static void
 --- a/src/shell.c	2021-03-04 15:50:24.291677177 +0100
 +++ b/src/shell.c	2021-03-04 15:50:54.228343514 +0100
-@@ -529,12 +535,15 @@ static void
- on_builtin_monitor_power_mode_changed (PhoshShell *self, GParamSpec *pspec, PhoshMonitor *monitor)
- {
-   PhoshMonitorPowerSaveMode mode;
-+  gboolean proximity; 
-+  proximity = FALSE;  
- 
+@@ -539,8 +539,9 @@ on_builtin_monitor_power_mode_changed (P
    g_return_if_fail (PHOSH_IS_SHELL (self));
    g_return_if_fail (PHOSH_IS_MONITOR (monitor));
  
