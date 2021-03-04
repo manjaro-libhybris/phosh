@@ -2,14 +2,15 @@ diff --git a/src/shell.c b/src/shell.c
 index 324b261..4a66866 100644
 --- a/src/shell.c
 +++ b/src/shell.c
-@@ -535,15 +535,17 @@ static void
+@@ -535,15 +535,18 @@ static void
  on_builtin_monitor_power_mode_changed (PhoshShell *self, GParamSpec *pspec, PhoshMonitor *monitor)
  {
    PhoshMonitorPowerSaveMode mode;
++  PhoshSensorProxyManager *sensor_proxy_manager;
 +  gboolean near;
 +
 +  near = phosh_dbus_sensor_proxy_get_proximity_near (
-+    PHOSH_DBUS_SENSOR_PROXY (self->sensor_proxy_manager));
++    PHOSH_DBUS_SENSOR_PROXY (sensor_proxy_manager));
  
    g_return_if_fail (PHOSH_IS_SHELL (self));
    g_return_if_fail (PHOSH_IS_MONITOR (monitor));
