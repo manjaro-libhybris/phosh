@@ -13,7 +13,7 @@
 +  
 +  PhoshShell *shell = phosh_shell_get_default ();
 +  PhoshWayland *wl = phosh_wayland_get_default ();
-+  PhoshMonitor *monitor = phosh_shell_get_builtin_monitor (shell);
++  PhoshWayland *wlr_output_power = phosh_wayland_get_zwlr_output_power_manager_v1(wl));
 +  
    if (near) {
 -    PhoshShell *shell = phosh_shell_get_default ();
@@ -31,7 +31,7 @@
 +      wl_mode = ZWLR_OUTPUT_POWER_V1_MODE_ON;
    }
 +
-+  zwlr_output_power_v1_set_mode (self->phosh_wayland_get_zwlr_output_power_manager_v1 (wl), wl_mode);
++  zwlr_output_power_v1_set_mode (self->wlr_output_power, wl_mode);
  }
  
  static void
