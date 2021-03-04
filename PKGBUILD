@@ -3,8 +3,8 @@
 
 pkgname=phosh
 pkgver=0.9.0
-_commit=b90c5c6a562d40847ef118e636dd3115f81b009c
-pkgrel=2
+_commit=a913752052477f18f8f9b11d44eb3ce59af2f4d9
+pkgrel=1
 pkgdesc="A pure Wayland shell prototype for GNOME on mobile devices"
 url="https://source.puri.sm/Librem5/phosh"
 license=("GPL3")
@@ -13,7 +13,8 @@ depends=('gtk3' 'libhandy>=1.1.90' 'gnome-desktop' 'gnome-session'
          'upower-mobile' 'libpulse' 'gcr' 'feedbackd' 'libnm'
          'phoc>=0.4.4' 'gnome-shell')
 makedepends=('meson' 'git')
-source=("git+https://source.puri.sm/Librem5/phosh.git#commit=${_commit}"
+source=(#"git+https://source.puri.sm/Librem5/phosh.git#commit=${_commit}"
+        "git+https://source.puri.sm/philm/phosh.git#commit=${_commit}"
         "git+https://gitlab.gnome.org/GNOME/libgnome-volume-control.git"
          0001-system-prompt-allow-blank-passwords.patch
          0002-turn-off-monitor-on-proximity.patch
@@ -25,7 +26,7 @@ source=("git+https://source.puri.sm/Librem5/phosh.git#commit=${_commit}"
 sha256sums=('SKIP'
             'SKIP'
             '0c5a2dbd0512ab8eca6e667f04ba03ec1b0d2896237b10d239aca63cfc19919e'
-            '1dec5f23cca68d4fbc16518a4ac94bb2d85c73ecda2862a767ebea76f16035fc'
+            'f854e5fcef88bef97f5d776d10496ce7239c474a01fa142ef338b1bf73ec6e3b'
             '4266cf51e66f9c0bc3f42d517f1422ef11af385983ade3328bd8316114e5ad8a'
             '76607a3c283546a072965a444bfc1d5f99d74576b27627fa5ecfd670d5da21ad'
             'b7793f80c533e84ad8adfe8bb46c69f107575e724aa9b53b41f370baa37e4fd5'

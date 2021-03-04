@@ -1,11 +1,12 @@
 --- a/src/proximity.c	2021-03-04 10:51:32.765179000 +0100
 +++ b/src/proximity.c	2021-03-04 12:01:32.618475761 +0100
-@@ -148,24 +148,23 @@ on_proximity_near_changed (PhoshProximit
+@@ -148,24 +148,24 @@ on_proximity_near_changed (PhoshProximit
                             PhoshSensorProxyManager *sensor)
  {
    gboolean near;
-+  int mode, ps_mode;
-+  PhoshMonitor *monitor = phosh_shell_get_builtin_monitor (phosh_shell_get_default ());
++  int ps_mode;
++  PhoshShell *shell = phosh_shell_get_default ();
++  PhoshMonitor *monitor = phosh_shell_get_builtin_monitor (shell);
  
    near = phosh_dbus_sensor_proxy_get_proximity_near (
      PHOSH_DBUS_SENSOR_PROXY (self->sensor_proxy_manager));
