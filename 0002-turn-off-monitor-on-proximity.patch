@@ -5,8 +5,8 @@
  
    g_debug ("Proximity near changed: %d", near);
 +  
-+  shell = phosh_shell_get_default ();
-+  monitor = phosh_shell_get_builtin_monitor (shell);
++  *shell = phosh_shell_get_default ();
++  *monitor = phosh_shell_get_builtin_monitor (self->shell);
 +  
    if (near) {
 -    PhoshShell *shell = phosh_shell_get_default ();
@@ -18,10 +18,10 @@
 -                                     monitor->wl_output);
 -      gtk_widget_show (GTK_WIDGET (self->fader));
 -    }
-+      ps_mode = PHOSH_MONITOR_POWER_SAVE_MODE_OFF;
++      *ps_mode = PHOSH_MONITOR_POWER_SAVE_MODE_OFF;
    } else {
 -      g_clear_pointer (&self->fader, phosh_cp_widget_destroy);
-+      ps_mode = PHOSH_MONITOR_POWER_SAVE_MODE_ON;
++      *ps_mode = PHOSH_MONITOR_POWER_SAVE_MODE_ON;
    }
 +
 +  phosh_monitor_set_power_save_mode (monitor, ps_mode);
