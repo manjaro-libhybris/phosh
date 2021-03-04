@@ -4,7 +4,7 @@
                             PhoshSensorProxyManager *sensor)
  {
    gboolean near;
-+  int mode, ps_mode;
++  int ps_mode;
 +  PhoshMonitor *monitor = phosh_shell_get_builtin_monitor (phosh_shell_get_default ());
  
    near = phosh_dbus_sensor_proxy_get_proximity_near (
