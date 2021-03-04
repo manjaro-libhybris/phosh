@@ -28,7 +28,7 @@
    }
 +
 +  PhoshMonitor *monitor = phosh_shell_get_builtin_monitor (phosh_shell_get_default ());
-+  g_object_set(monitor, "proximity", TRUE, NULL);
++  g_object_set (monitor, "proximity", TRUE, NULL);
 +  phosh_monitor_set_power_save_mode (monitor, ps_mode);
  }
  
