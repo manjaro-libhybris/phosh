@@ -1,18 +1,17 @@
 --- a/src/proximity.c	2021-03-04 10:51:32.765179000 +0100
 +++ b/src/proximity.c	2021-03-04 12:01:32.618475761 +0100
-@@ -148,24 +148,23 @@ on_proximity_near_changed (PhoshProximit
+@@ -148,24 +148,22 @@ on_proximity_near_changed (PhoshProximit
                             PhoshSensorProxyManager *sensor)
  {
    gboolean near;
-+  enum zwlr_output_power_v1_mode wl_mode;
  
    near = phosh_dbus_sensor_proxy_get_proximity_near (
      PHOSH_DBUS_SENSOR_PROXY (self->sensor_proxy_manager));
  
    g_debug ("Proximity near changed: %d", near);
 +   
-+  self->wl = phosh_wayland_get_default ();
-+  self->wlr_output_power = phosh_wayland_get_zwlr_output_power_manager_v1 (self->wl);
++  self->shell = phosh_shell_get_default ();
++  self->monitor = phosh_shell_get_builtin_monitor (self->shell);
 +  
    if (near) {
 -    PhoshShell *shell = phosh_shell_get_default ();
@@ -24,13 +23,13 @@
 -                                     monitor->wl_output);
 -      gtk_widget_show (GTK_WIDGET (self->fader));
 -    }
-+      wl_mode = ZWLR_OUTPUT_POWER_V1_MODE_OFF;
++      self->ps_mode = PHOSH_MONITOR_POWER_SAVE_MODE_OFF;
    } else {
 -      g_clear_pointer (&self->fader, phosh_cp_widget_destroy);
-+      wl_mode = ZWLR_OUTPUT_POWER_V1_MODE_ON;
++      self->ps_mode = PHOSH_MONITOR_POWER_SAVE_MODE_ON;
    }
 +
-+  zwlr_output_power_v1_set_mode (&self->wlr_output_power, wl_mode);
++  phosh_monitor_set_power_save_mode (self->monitor, self->ps_mode);
  }
  
  static void
