@@ -1,6 +1,6 @@
 --- a/src/proximity.c	2021-03-04 10:51:32.765179000 +0100
 +++ b/src/proximity.c	2021-03-04 12:01:32.618475761 +0100
-@@ -148,24 +148,23 @@ on_proximity_near_changed (PhoshProximit
+@@ -148,24 +148,22 @@ on_proximity_near_changed (PhoshProximit
                             PhoshSensorProxyManager *sensor)
  {
    gboolean near;
@@ -11,8 +11,7 @@
  
    g_debug ("Proximity near changed: %d", near);
 +  
-+  PhoshWayland *wl = phosh_wayland_get_default ();
-+  PhoshWayland *wlr_output_power = phosh_wayland_get_zwlr_output_power_manager_v1 (wl);
++  PhoshWayland *wlr_output_power = phosh_wayland_get_zwlr_output_power_manager_v1 ();
 +  
    if (near) {
 -    PhoshShell *shell = phosh_shell_get_default ();
@@ -30,7 +29,7 @@
 +      wl_mode = ZWLR_OUTPUT_POWER_V1_MODE_ON;
    }
 +
-+  zwlr_output_power_v1_set_mode (self->wlr_output_power, wl_mode);
++  zwlr_output_power_v1_set_mode (wlr_output_power, wl_mode);
  }
  
  static void
