@@ -41,7 +41,7 @@
    g_object_get (monitor, "power-mode", &mode, NULL);
 -  if (mode == PHOSH_MONITOR_POWER_SAVE_MODE_OFF)
 +  gboolean proximity = FALSE;
-+  g_object_get(monitor, "proximity", &proximity, NULL);
++  g_object_get (monitor, "proximity", &proximity, NULL);
 +  if (!proximity && mode == PHOSH_MONITOR_POWER_SAVE_MODE_OFF)
      phosh_shell_lock (self);
  
