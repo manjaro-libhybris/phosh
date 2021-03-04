@@ -4,7 +4,7 @@
                             PhoshSensorProxyManager *sensor)
  {
    gboolean near;
-+  int mode, ps_mode;
++  int ps_mode;
  
    near = phosh_dbus_sensor_proxy_get_proximity_near (
      PHOSH_DBUS_SENSOR_PROXY (self->sensor_proxy_manager));
@@ -35,12 +35,13 @@
  static void
 --- a/src/shell.c	2021-03-04 15:50:24.291677177 +0100
 +++ b/src/shell.c	2021-03-04 15:50:54.228343514 +0100
-@@ -534,7 +534,9 @@ on_builtin_monitor_power_mode_changed (P
+@@ -534,7 +534,10 @@ on_builtin_monitor_power_mode_changed (P
    g_return_if_fail (PHOSH_IS_MONITOR (monitor));
  
    g_object_get (monitor, "power-mode", &mode, NULL);
 -  if (mode == PHOSH_MONITOR_POWER_SAVE_MODE_OFF)
-+  gboolean proximity = FALSE;
++  gboolean proximity; 
++  proximity = FALSE;
 +  g_object_get (monitor, "proximity", &proximity, NULL);
 +  if (!proximity && mode == PHOSH_MONITOR_POWER_SAVE_MODE_OFF)
      phosh_shell_lock (self);
