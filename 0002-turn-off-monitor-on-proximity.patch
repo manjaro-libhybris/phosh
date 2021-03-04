@@ -4,7 +4,7 @@
                             PhoshSensorProxyManager *sensor)
  {
    gboolean near;
-+  gstring ps_mode;
++  int mode, ps_mode;
  
    near = phosh_dbus_sensor_proxy_get_proximity_near (
      PHOSH_DBUS_SENSOR_PROXY (self->sensor_proxy_manager));
@@ -21,10 +21,10 @@
 -                                     monitor->wl_output);
 -      gtk_widget_show (GTK_WIDGET (self->fader));
 -    }
-+      ps_mode = PHOSH_MONITOR_POWER_SAVE_MODE_OFF;
++      ps_mode = PHOSH_MONITOR_POWER_SAVE_MODE_ON;
    } else {
 -      g_clear_pointer (&self->fader, phosh_cp_widget_destroy);
-+      ps_mode = PHOSH_MONITOR_POWER_SAVE_MODE_ON;
++      ps_mode = PHOSH_MONITOR_POWER_SAVE_MODE_OFF;
    }
 +
 +  phosh_monitor_set_power_save_mode (phosh_shell_get_builtin_monitor (phosh_shell_get_default ()), ps_mode);
