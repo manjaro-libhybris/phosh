@@ -18,15 +18,16 @@ source=("git+https://source.puri.sm/Librem5/phosh.git#commit=${_commit}"
          0001-system-prompt-allow-blank-passwords.patch
          0002-turn-off-monitor-on-proximity.patch
          MR434.patch
-         #MR434-fix-rotation-on-a-PP.patch
+         MR434-fix-rotation-on-a-PP.patch
 	 "pam_phosh"
 	 "sm.puri.OSK0.desktop"
          "phosh.service")
 sha256sums=('SKIP'
             'SKIP'
             '0c5a2dbd0512ab8eca6e667f04ba03ec1b0d2896237b10d239aca63cfc19919e'
-            '8e2a6d98901b4a5e3c01dde4e60295e0e31f69c09c60bcf92fe6c8afdd780a2d'
+            '5b3e3f6aa1b3bb592956ee82f4743b58b599f70e79ae6fd43b8c2b6d1e9df506'
             '4266cf51e66f9c0bc3f42d517f1422ef11af385983ade3328bd8316114e5ad8a'
+            '76607a3c283546a072965a444bfc1d5f99d74576b27627fa5ecfd670d5da21ad'
             'b7793f80c533e84ad8adfe8bb46c69f107575e724aa9b53b41f370baa37e4fd5'
             'f0faa73bb7793b7628b6a4ea8ab0059e13f5d46435efee2f4b8d8ac256311372'
             'ed6fac614d6799e3a1e0cdcff6ccf8d446c3b53c607dc3e93f1262d6b05843cc')
