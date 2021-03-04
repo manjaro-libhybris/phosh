@@ -4,7 +4,7 @@
                             PhoshSensorProxyManager *sensor)
  {
    gboolean near;
-+  string ps_mode;
++  gstring ps_mode;
  
    near = phosh_dbus_sensor_proxy_get_proximity_near (
      PHOSH_DBUS_SENSOR_PROXY (self->sensor_proxy_manager));
