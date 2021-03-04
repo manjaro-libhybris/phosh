@@ -28,7 +28,7 @@
 +      ps_mode = PHOSH_MONITOR_POWER_SAVE_MODE_ON;
    }
 +
-+  g_object_set(monitor, "proximity", TRUE, NULL);
++  g_object_set (monitor, "proximity", TRUE, NULL);
 +  phosh_monitor_set_power_save_mode (monitor, ps_mode);
  }
  
