@@ -19,7 +19,7 @@ index 0beca69..70a654f 100644
 +wait ( int seconds )
 +{
 +  clock_t endwait;
-+  endwait = clock () + seconds * CLK_TCK ;
++  endwait = clock () + seconds * CLOCKS_PER_SEC ;
 +  while (clock() < endwait) {}
 +}
  
