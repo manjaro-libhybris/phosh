@@ -1,5 +1,5 @@
 diff --git a/src/proximity.c b/src/proximity.c
-index 0beca69..8ca9e90 100644
+index 0beca69..aa844e6 100644
 --- a/src/proximity.c
 +++ b/src/proximity.c
 @@ -14,6 +14,7 @@
@@ -22,13 +22,14 @@ index 0beca69..8ca9e90 100644
  
    g_debug ("Proximity near changed: %d", near);
    if (near) {
+-      ps_mode = PHOSH_MONITOR_POWER_SAVE_MODE_OFF;
 +      if (!self->fader) {
-+      self->fader = phosh_fader_new (phosh_wayland_get_zwlr_layer_shell_v1 (wl),
-+                                     monitor->wl_output);
-+      gtk_widget_show (GTK_WIDGET (self->fader));
++        self->fader = phosh_fader_new (phosh_wayland_get_zwlr_layer_shell_v1 (wl),
++                                       monitor->wl_output);
++        gtk_widget_show (GTK_WIDGET (self->fader));
++      }
 +      sleep(5);
-       ps_mode = PHOSH_MONITOR_POWER_SAVE_MODE_OFF;
-+    }      
++      ps_mode = PHOSH_MONITOR_POWER_SAVE_MODE_OFF;    
    } else {
 +      g_clear_pointer (&self->fader, phosh_cp_widget_destroy);
        ps_mode = PHOSH_MONITOR_POWER_SAVE_MODE_ON;
