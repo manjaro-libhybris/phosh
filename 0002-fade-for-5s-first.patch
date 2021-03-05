@@ -1,5 +1,5 @@
 diff --git a/src/proximity.c b/src/proximity.c
-index 0beca69..5e923a2 100644
+index 0beca69..8ca9e90 100644
 --- a/src/proximity.c
 +++ b/src/proximity.c
 @@ -14,6 +14,7 @@
@@ -18,7 +18,7 @@ index 0beca69..5e923a2 100644
    PhoshMonitor *monitor = phosh_shell_get_builtin_monitor (shell);  
    
    near = phosh_dbus_sensor_proxy_get_proximity_near (
-@@ -157,8 +159,14 @@ on_proximity_near_changed (PhoshProximity          *self,
+@@ -157,8 +159,15 @@ on_proximity_near_changed (PhoshProximity          *self,
  
    g_debug ("Proximity near changed: %d", near);
    if (near) {
@@ -28,6 +28,7 @@ index 0beca69..5e923a2 100644
 +      gtk_widget_show (GTK_WIDGET (self->fader));
 +      sleep(5);
        ps_mode = PHOSH_MONITOR_POWER_SAVE_MODE_OFF;
++    }      
    } else {
 +      g_clear_pointer (&self->fader, phosh_cp_widget_destroy);
        ps_mode = PHOSH_MONITOR_POWER_SAVE_MODE_ON;
