@@ -2,9 +2,9 @@
 # Contributor: Philip Goto <philip.goto@gmail.com>
 
 pkgname=phosh
-pkgver=0.9.0+12+ga913752
+pkgver=0.9.0+13+gfa16c37
 _commit=fa16c3706b383d85098d6fdfe914c4ff84787ef5
-pkgrel=2
+pkgrel=1
 pkgdesc="A pure Wayland shell prototype for GNOME on mobile devices"
 url="https://source.puri.sm/Librem5/phosh"
 license=("GPL3")
