@@ -17,7 +17,6 @@ source=(#"git+https://source.puri.sm/Librem5/phosh.git#commit=${_commit}"
         "git+https://source.puri.sm/philm/phosh.git#commit=${_commit}"
         "git+https://gitlab.gnome.org/GNOME/libgnome-volume-control.git"
          0001-system-prompt-allow-blank-passwords.patch
-         0002-fade-for-5s-first.patch
          MR434.patch
          MR434-fix-rotation-on-a-PP.patch
 	 "pam_phosh"
@@ -26,12 +25,11 @@ source=(#"git+https://source.puri.sm/Librem5/phosh.git#commit=${_commit}"
 sha256sums=('SKIP'
             'SKIP'
             '0c5a2dbd0512ab8eca6e667f04ba03ec1b0d2896237b10d239aca63cfc19919e'
-            'a8907be09ca42a69d5099617bcd71807923a024bb8d3a8bf223e8250fdb34155'
             '4266cf51e66f9c0bc3f42d517f1422ef11af385983ade3328bd8316114e5ad8a'
             '76607a3c283546a072965a444bfc1d5f99d74576b27627fa5ecfd670d5da21ad'
             'b7793f80c533e84ad8adfe8bb46c69f107575e724aa9b53b41f370baa37e4fd5'
             'f0faa73bb7793b7628b6a4ea8ab0059e13f5d46435efee2f4b8d8ac256311372'
-            'ed6fac614d6799e3a1e0cdcff6ccf8d446c3b53c607dc3e93f1262d6b05843cc')
+            '4506a91ccbfdc5c71edd2776024bc667a7f21959b4fd2e4cfae7f82097938a28')
 
 pkgver() {
   cd $pkgname

@@ -25,12 +25,15 @@ Before=graphical.target
 ConditionPathExists=/dev/tty0
 
 [Service]
+Environment=XDG_CURRENT_DESKTOP=GNOME
+Environment=XDG_SESSION_DESKTOP=phosh
+Environment=XDG_SESSION_TYPE=wayland
 ExecStart=/usr/bin/phosh
 TimeoutStartSec=30
 User=1000
 PAMName=login
 WorkingDirectory=~
-Restart=on-failure
+Restart=always
 RestartSec=5s
 
 # A virtual terminal is needed.
