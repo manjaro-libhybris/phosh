@@ -59,7 +59,7 @@ index 0beca69..67af8e4 100644
 +                                     monitor->wl_output);
 +      gtk_widget_show (GTK_WIDGET (self->fader));
 +      self->near_timeoutid = NEAR_POWER_TIMEOUT;
-+      if (near_timeoutid > 0) {
++      if (self->near_timeoutid > 0) {
 +        g_timeout_add_seconds (NEAR_POWER_TIMEOUT,
 +                              (GSourceFunc)on_near_timeout,
 +                              self);
