@@ -32,8 +32,8 @@ index 0beca69..bc2ab23 100644
 +  if (!self->near_continue) {
 +      g_debug ("Turn off screens");
 +      self->near_timeoutid = 0;
++      self->ps_mode = PHOSH_MONITOR_POWER_SAVE_MODE_OFF;
 +  }
-+  self->ps_mode = PHOSH_MONITOR_POWER_SAVE_MODE_OFF;
 +  self->near_continue = FALSE;
 +  return ret;
 +}
