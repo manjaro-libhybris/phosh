@@ -1,5 +1,5 @@
 diff --git a/src/proximity.c b/src/proximity.c
-index 0beca69..bc2ab23 100644
+index 0beca69..98bbc69 100644
 --- a/src/proximity.c
 +++ b/src/proximity.c
 @@ -7,6 +7,7 @@
@@ -32,8 +32,8 @@ index 0beca69..bc2ab23 100644
 +  if (!self->near_continue) {
 +      g_debug ("Turn off screens");
 +      self->near_timeoutid = 0;
-+      self->ps_mode = PHOSH_MONITOR_POWER_SAVE_MODE_OFF;
 +  }
++  self->ps_mode = PHOSH_MONITOR_POWER_SAVE_MODE_OFF;
 +  self->near_continue = FALSE;
 +  return ret;
 +}
@@ -62,13 +62,13 @@ index 0beca69..bc2ab23 100644
 +      self->fader = phosh_fader_new (phosh_wayland_get_zwlr_layer_shell_v1 (wl),
 +                                     monitor->wl_output);
 +      gtk_widget_show (GTK_WIDGET (self->fader));
++      if (!self->near_timeoutid) {
++        self->near_timeoutid = g_timeout_add_seconds (NEAR_POWER_TIMEOUT,
++                                                     (GSourceFunc)on_near_timeout,
++                                                     self);
++        g_source_set_name_by_id (self->near_timeoutid, "[phosh] near-timeout");
++      }  
 +    }
-+    if (!self->near_timeoutid) {
-+      self->near_timeoutid = g_timeout_add_seconds (NEAR_POWER_TIMEOUT,
-+                                                   (GSourceFunc)on_near_timeout,
-+                                                   self);
-+      g_source_set_name_by_id (self->near_timeoutid, "[phosh] near-timeout");
-+    }  
    } else {
 -      ps_mode = PHOSH_MONITOR_POWER_SAVE_MODE_ON;
 +      g_clear_pointer (&self->fader, phosh_cp_widget_destroy);
