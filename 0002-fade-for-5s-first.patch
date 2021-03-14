@@ -1,5 +1,5 @@
 diff --git a/src/proximity.c b/src/proximity.c
-index 0beca69..345d04f 100644
+index 0beca69..bc2ab23 100644
 --- a/src/proximity.c
 +++ b/src/proximity.c
 @@ -7,6 +7,7 @@
@@ -40,7 +40,7 @@ index 0beca69..345d04f 100644
  
  static void
  on_proximity_near_changed (PhoshProximity          *self,
-@@ -148,20 +165,33 @@ on_proximity_near_changed (PhoshProximity          *self,
+@@ -148,20 +165,32 @@ on_proximity_near_changed (PhoshProximity          *self,
                             PhoshSensorProxyManager *sensor)
  {
    gboolean near;
@@ -62,8 +62,6 @@ index 0beca69..345d04f 100644
 +      self->fader = phosh_fader_new (phosh_wayland_get_zwlr_layer_shell_v1 (wl),
 +                                     monitor->wl_output);
 +      gtk_widget_show (GTK_WIDGET (self->fader));
-+    } else {
-+      g_clear_pointer (&self->fader, phosh_cp_widget_destroy);
 +    }
 +    if (!self->near_timeoutid) {
 +      self->near_timeoutid = g_timeout_add_seconds (NEAR_POWER_TIMEOUT,
@@ -73,6 +71,7 @@ index 0beca69..345d04f 100644
 +    }  
    } else {
 -      ps_mode = PHOSH_MONITOR_POWER_SAVE_MODE_ON;
++      g_clear_pointer (&self->fader, phosh_cp_widget_destroy);
 +      self->ps_mode = PHOSH_MONITOR_POWER_SAVE_MODE_ON;
    }
 -  phosh_monitor_set_power_save_mode (monitor, ps_mode);
