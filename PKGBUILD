@@ -26,7 +26,7 @@ source=(#"git+https://source.puri.sm/Librem5/phosh.git#commit=${_commit}"
 sha256sums=('SKIP'
             'SKIP'
             '0c5a2dbd0512ab8eca6e667f04ba03ec1b0d2896237b10d239aca63cfc19919e'
-            '931ce8f93032e2ae6d8d7fbbccd0e1a94786205bbfbcc53d3f258742f3d6950b'
+            '76d5928d9b4bed43457d703a1d516436abb3cdcc6a20d2e594edcd85c43d742b'
             '4266cf51e66f9c0bc3f42d517f1422ef11af385983ade3328bd8316114e5ad8a'
             '76607a3c283546a072965a444bfc1d5f99d74576b27627fa5ecfd670d5da21ad'
             'b7793f80c533e84ad8adfe8bb46c69f107575e724aa9b53b41f370baa37e4fd5'
