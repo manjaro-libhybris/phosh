@@ -1,5 +1,5 @@
 diff --git a/src/proximity.c b/src/proximity.c
-index 0beca69..e00ffa3 100644
+index 0beca69..67af8e4 100644
 --- a/src/proximity.c
 +++ b/src/proximity.c
 @@ -7,6 +7,7 @@
@@ -19,21 +19,25 @@ index 0beca69..e00ffa3 100644
    PhoshSensorProxyManager *sensor_proxy_manager;
    PhoshLockscreenManager *lockscreen_manager;
    PhoshFader *fader;
-@@ -141,6 +144,13 @@ on_lockscreen_manager_locked (PhoshProximity *self, GParamSpec *pspec,
+@@ -141,6 +144,17 @@ on_lockscreen_manager_locked (PhoshProximity *self, GParamSpec *pspec,
    phosh_proximity_claim_proximity (self, !locked);
  }
  
 +static gboolean
 +on_near_timeout (PhoshProximity *self)
 +{
++  PhoshShell *shell = phosh_shell_get_default ();
++  PhoshMonitor *monitor = phosh_shell_get_builtin_monitor (shell);
 +  self->ps_mode = PHOSH_MONITOR_POWER_SAVE_MODE_OFF;
 +  self->near_timeoutid = 0;
++
++  phosh_monitor_set_power_save_mode (monitor, self->ps_mode);
 +  return FALSE;
 +}
  
  static void
  on_proximity_near_changed (PhoshProximity          *self,
-@@ -148,20 +158,31 @@ on_proximity_near_changed (PhoshProximity          *self,
+@@ -148,20 +162,31 @@ on_proximity_near_changed (PhoshProximity          *self,
                             PhoshSensorProxyManager *sensor)
  {
    gboolean near;
@@ -55,7 +59,7 @@ index 0beca69..e00ffa3 100644
 +                                     monitor->wl_output);
 +      gtk_widget_show (GTK_WIDGET (self->fader));
 +      self->near_timeoutid = NEAR_POWER_TIMEOUT;
-+      if (self->near_timeoutid > 0) {
++      if (near_timeoutid > 0) {
 +        g_timeout_add_seconds (NEAR_POWER_TIMEOUT,
 +                              (GSourceFunc)on_near_timeout,
 +                              self);
@@ -65,9 +69,9 @@ index 0beca69..e00ffa3 100644
 -      ps_mode = PHOSH_MONITOR_POWER_SAVE_MODE_ON;
 +      g_clear_pointer (&self->fader, phosh_cp_widget_destroy);
 +      self->ps_mode = PHOSH_MONITOR_POWER_SAVE_MODE_ON;
++      phosh_monitor_set_power_save_mode (monitor, self->ps_mode);
    }
 -  phosh_monitor_set_power_save_mode (monitor, ps_mode);
-+  phosh_monitor_set_power_save_mode (monitor, self->ps_mode);
  }
  
  static void
