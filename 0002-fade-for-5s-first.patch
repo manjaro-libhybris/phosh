@@ -1,5 +1,5 @@
 diff --git a/src/proximity.c b/src/proximity.c
-index 0beca69..e6815dd 100644
+index 0beca69..2d629a6 100644
 --- a/src/proximity.c
 +++ b/src/proximity.c
 @@ -7,6 +7,7 @@
@@ -14,31 +14,25 @@ index 0beca69..e6815dd 100644
    GObject parent;
  
    gboolean claimed;
-+  gboolean near_continue;
 +  gint near_timeoutid;
++  int ps_mode;
    PhoshSensorProxyManager *sensor_proxy_manager;
    PhoshLockscreenManager *lockscreen_manager;
    PhoshFader *fader;
-@@ -141,6 +144,18 @@ on_lockscreen_manager_locked (PhoshProximity *self, GParamSpec *pspec,
+@@ -141,6 +144,12 @@ on_lockscreen_manager_locked (PhoshProximity *self, GParamSpec *pspec,
    phosh_proximity_claim_proximity (self, !locked);
  }
  
 +static gboolean
 +on_near_timeout (PhoshProximity *self)
 +{
-+  gboolean ret;
-+  ret = self->near_continue ? G_SOURCE_CONTINUE : G_SOURCE_REMOVE;
-+  if (!self->near_continue) {
-+      g_debug ("Turn off screens");
-+      self->near_timeoutid = 0;
-+  }
-+  self->near_continue = FALSE;
-+  return ret;
++  ps_mode = PHOSH_MONITOR_POWER_SAVE_MODE_OFF;
++  return FALSE;
 +}
  
  static void
  on_proximity_near_changed (PhoshProximity          *self,
-@@ -148,20 +163,32 @@ on_proximity_near_changed (PhoshProximity          *self,
+@@ -148,17 +157,28 @@ on_proximity_near_changed (PhoshProximity          *self,
                             PhoshSensorProxyManager *sensor)
  {
    gboolean near;
@@ -59,21 +53,15 @@ index 0beca69..e6815dd 100644
 +      self->fader = phosh_fader_new (phosh_wayland_get_zwlr_layer_shell_v1 (wl),
 +                                     monitor->wl_output);
 +      gtk_widget_show (GTK_WIDGET (self->fader));
-+      if (!self->near_timeoutid) {
-+        self->near_continue = TRUE;
-+        self->near_timeoutid = g_timeout_add_seconds (NEAR_POWER_TIMEOUT,
-+                                                     (GSourceFunc)on_near_timeout,
-+                                                     self);
-+        g_source_set_name_by_id (self->near_timeoutid, "[phosh] near-timeout");
-+        phosh_monitor_set_power_save_mode (monitor, PHOSH_MONITOR_POWER_SAVE_MODE_OFF);
++      near_timeoutid = NEAR_POWER_TIMEOUT;
++      if (near_timeoutid > 0) {
++        g_timeout_add_seconds (NEAR_POWER_TIMEOUT,
++                              (GSourceFunc)on_near_timeout,
++                              self);
 +      }  
 +    }
    } else {
--      ps_mode = PHOSH_MONITOR_POWER_SAVE_MODE_ON;
 +      g_clear_pointer (&self->fader, phosh_cp_widget_destroy);
-+      phosh_monitor_set_power_save_mode (monitor, PHOSH_MONITOR_POWER_SAVE_MODE_ON);
+       ps_mode = PHOSH_MONITOR_POWER_SAVE_MODE_ON;
    }
--  phosh_monitor_set_power_save_mode (monitor, ps_mode);
- }
- 
- static void
+   phosh_monitor_set_power_save_mode (monitor, ps_mode);
