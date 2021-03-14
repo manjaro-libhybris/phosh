@@ -1,5 +1,5 @@
 diff --git a/src/proximity.c b/src/proximity.c
-index 0beca69..e9b432c 100644
+index 0beca69..e6815dd 100644
 --- a/src/proximity.c
 +++ b/src/proximity.c
 @@ -7,6 +7,7 @@
@@ -53,7 +53,6 @@ index 0beca69..e9b432c 100644
      PHOSH_DBUS_SENSOR_PROXY (self->sensor_proxy_manager));
  
    g_debug ("Proximity near changed: %d", near);
-+  self->near_continue = TRUE;
    if (near) {
 -      ps_mode = PHOSH_MONITOR_POWER_SAVE_MODE_OFF;
 +    if (!self->fader) {
@@ -61,6 +60,7 @@ index 0beca69..e9b432c 100644
 +                                     monitor->wl_output);
 +      gtk_widget_show (GTK_WIDGET (self->fader));
 +      if (!self->near_timeoutid) {
++        self->near_continue = TRUE;
 +        self->near_timeoutid = g_timeout_add_seconds (NEAR_POWER_TIMEOUT,
 +                                                     (GSourceFunc)on_near_timeout,
 +                                                     self);
