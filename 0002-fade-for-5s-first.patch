@@ -1,32 +1,81 @@
 diff --git a/src/proximity.c b/src/proximity.c
-index 0beca69..8e93b21 100644
+index 0beca69..685982d 100644
 --- a/src/proximity.c
 +++ b/src/proximity.c
-@@ -148,8 +155,9 @@ on_proximity_near_changed (PhoshProximity          *self,
+@@ -7,6 +7,7 @@
+  */
+ 
+ #define G_LOG_DOMAIN "phosh-proximity"
++#define NEAR_POWER_TIMEOUT 5 /* seconds */
+ 
+ #include "config.h"
+ #include "fader.h"
+@@ -34,6 +35,9 @@ typedef struct _PhoshProximity {
+   GObject parent;
+ 
+   gboolean claimed;
++  gboolean near_continue;
++  gint near_timeoutid;
++  int ps_mode;
+   PhoshSensorProxyManager *sensor_proxy_manager;
+   PhoshLockscreenManager *lockscreen_manager;
+   PhoshFader *fader;
+@@ -141,6 +145,19 @@ on_lockscreen_manager_locked (PhoshProximity *self, GParamSpec *pspec,
+   phosh_proximity_claim_proximity (self, !locked);
+ }
+ 
++static gboolean
++on_near_timeout (PhoshProximity *self)
++{
++  gboolean ret;
++  ret = self->near_continue ? G_SOURCE_CONTINUE : G_SOURCE_REMOVE;
++  if (!self->near_continue) {
++      g_debug ("Turn off screens");
++      self->near_timeoutid = 0;
++      self->ps_mode = PHOSH_MONITOR_POWER_SAVE_MODE_OFF;
++  }
++  self->near_continue = FALSE;
++  return ret;
++}
+ 
+ static void
+ on_proximity_near_changed (PhoshProximity          *self,
+@@ -148,20 +165,31 @@ on_proximity_near_changed (PhoshProximity          *self,
                             PhoshSensorProxyManager *sensor)
  {
    gboolean near;
 -  int ps_mode;
-+  int ps_mode;
    PhoshShell *shell = phosh_shell_get_default ();
+-  PhoshMonitor *monitor = phosh_shell_get_builtin_monitor (shell);  
+-  
++  PhoshMonitor *monitor = phosh_shell_get_builtin_monitor (shell);
 +  PhoshWayland *wl = phosh_wayland_get_default ();
-   PhoshMonitor *monitor = phosh_shell_get_builtin_monitor (shell);  
-   
++
    near = phosh_dbus_sensor_proxy_get_proximity_near (
-@@ -157,8 +165,15 @@ on_proximity_near_changed (PhoshProximity          *self,
+     PHOSH_DBUS_SENSOR_PROXY (self->sensor_proxy_manager));
  
    g_debug ("Proximity near changed: %d", near);
-   if (near) {
+-  if (near) {
 -      ps_mode = PHOSH_MONITOR_POWER_SAVE_MODE_OFF;
-+      if (!self->fader) {
-+        self->fader = phosh_fader_new (phosh_wayland_get_zwlr_layer_shell_v1 (wl),
-+                                       monitor->wl_output);
-+        gtk_widget_show (GTK_WIDGET (self->fader));
-+      }
-+      g_timeout_add_seconds (5, continue, self);
-+      ps_mode = PHOSH_MONITOR_POWER_SAVE_MODE_OFF;    
-   } else {
++  self->near_continue = TRUE;
++  if (near && !self->near_timeoutid) {
++    self->near_timeoutid = g_timeout_add_seconds (NEAR_POWER_TIMEOUT,
++                                                 (GSourceFunc)on_near_timeout,
++                                                 self);
++    g_source_set_name_by_id (self->near_timeoutid, "[phosh] near-timeout");
++    if (!self->fader) {
++      self->fader = phosh_fader_new (phosh_wayland_get_zwlr_layer_shell_v1 (wl),
++                                     monitor->wl_output);
++      gtk_widget_show (GTK_WIDGET (self->fader));
++    } else {
 +      g_clear_pointer (&self->fader, phosh_cp_widget_destroy);
-       ps_mode = PHOSH_MONITOR_POWER_SAVE_MODE_ON;
++    }  
+   } else {
+-      ps_mode = PHOSH_MONITOR_POWER_SAVE_MODE_ON;
++      self->ps_mode = PHOSH_MONITOR_POWER_SAVE_MODE_ON;
    }
-   phosh_monitor_set_power_save_mode (monitor, ps_mode);
+-  phosh_monitor_set_power_save_mode (monitor, ps_mode);
++  phosh_monitor_set_power_save_mode (monitor, self->ps_mode);
+ }
+ 
+ static void

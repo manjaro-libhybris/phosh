@@ -2,9 +2,9 @@
 # Contributor: Philip Goto <philip.goto@gmail.com>
 
 pkgname=phosh
-pkgver=0.9.0+13+gfa16c37
+pkgver=0.9.0+22+g8805d01
 _commit=8805d011548a787fd60d7f4fad3945bcdf38a587
-pkgrel=1
+pkgrel=2
 pkgdesc="A pure Wayland shell prototype for GNOME on mobile devices"
 url="https://source.puri.sm/Librem5/phosh"
 license=("GPL3")
@@ -17,6 +17,7 @@ source=(#"git+https://source.puri.sm/Librem5/phosh.git#commit=${_commit}"
         "git+https://source.puri.sm/philm/phosh.git#commit=${_commit}"
         "git+https://gitlab.gnome.org/GNOME/libgnome-volume-control.git"
          0001-system-prompt-allow-blank-passwords.patch
+         0002-fade-for-5s-first.patch
          MR434.patch
          MR434-fix-rotation-on-a-PP.patch
 	 "pam_phosh"
@@ -25,6 +26,7 @@ source=(#"git+https://source.puri.sm/Librem5/phosh.git#commit=${_commit}"
 sha256sums=('SKIP'
             'SKIP'
             '0c5a2dbd0512ab8eca6e667f04ba03ec1b0d2896237b10d239aca63cfc19919e'
+            'ad5ea6847313025a2502cf0e9d699a1fe76f9cd91f7355e2b20a7123b980ad70'
             '4266cf51e66f9c0bc3f42d517f1422ef11af385983ade3328bd8316114e5ad8a'
             '76607a3c283546a072965a444bfc1d5f99d74576b27627fa5ecfd670d5da21ad'
             'b7793f80c533e84ad8adfe8bb46c69f107575e724aa9b53b41f370baa37e4fd5'
