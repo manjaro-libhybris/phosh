@@ -3,7 +3,7 @@
 
 pkgname=phosh
 pkgver=0.9.0+22+g8805d01
-_commit=8805d011548a787fd60d7f4fad3945bcdf38a587
+_commit=68feb1d9a025d5db76b92b03f958279a4b4243e6
 pkgrel=2
 pkgdesc="A pure Wayland shell prototype for GNOME on mobile devices"
 url="https://source.puri.sm/Librem5/phosh"
@@ -17,7 +17,6 @@ source=(#"git+https://source.puri.sm/Librem5/phosh.git#commit=${_commit}"
         "git+https://source.puri.sm/philm/phosh.git#commit=${_commit}"
         "git+https://gitlab.gnome.org/GNOME/libgnome-volume-control.git"
          0001-system-prompt-allow-blank-passwords.patch
-         0002-fade-for-5s-first.patch
          MR434.patch
          MR434-fix-rotation-on-a-PP.patch
 	 "pam_phosh"
