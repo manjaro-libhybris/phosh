@@ -57,20 +57,18 @@ index 1056189f..c56edf9b 100644
    panels_create (self);
    /* Create background after panel since it needs the panel's size */
    priv->background_manager = phosh_background_manager_new ();
-@@ -481,12 +483,11 @@ setup_idle_cb (PhoshShell *self)
-                            self,
+@@ -497,11 +496,9 @@ setup_idle_cb (PhoshShell *self)
                             G_CONNECT_SWAPPED);
  
+   priv->location_manager = phosh_location_manager_new ();
 -  priv->sensor_proxy_manager = phosh_sensor_proxy_manager_get_default_failable ();
    if (priv->sensor_proxy_manager) {
      priv->proximity = phosh_proximity_new (priv->sensor_proxy_manager,
                                             priv->lockscreen_manager);
 -    /* TODO: accelerometer */
    }
-+
    priv->mount_manager = phosh_mount_manager_new ();
  
-   phosh_session_manager_register (priv->session_manager,
 -- 
 2.26.2
 
