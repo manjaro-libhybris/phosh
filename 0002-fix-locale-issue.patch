@@ -1,6 +1,6 @@
-diff -Npur a/phosh/data/phosh.in b/phosh/data/phosh.in
---- a/phosh/data/phosh.in	2021-03-20 13:53:32.367786000 +0100
-+++ b/phosh/data/phosh.in	2021-03-20 13:55:19.327789721 +0100
+diff -Npur a/data/phosh.in b/data/phosh.in
+--- a/data/phosh.in	2021-03-20 13:53:32.367786000 +0100
++++ b/data/phosh.in	2021-03-20 13:55:19.327789721 +0100
 @@ -56,6 +56,10 @@ elif  [ -f /etc/phosh/rootston.ini ]; th
    PHOC_INI=/etc/phosh/rootston.ini
  fi
