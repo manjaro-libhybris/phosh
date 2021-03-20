@@ -2,9 +2,9 @@
 # Contributor: Philip Goto <philip.goto@gmail.com>
 
 pkgname=phosh
-pkgver=0.9.0+33+gd7e48c8
+pkgver=0.9.0+42+g403ce64
 _commit=403ce64610ae3a0ad2d22fe74d259dde740a765c
-pkgrel=1
+pkgrel=2
 pkgdesc="A pure Wayland shell prototype for GNOME on mobile devices"
 url="https://source.puri.sm/Librem5/phosh"
 license=("GPL3")
@@ -17,19 +17,19 @@ source=(#"git+https://source.puri.sm/Librem5/phosh.git#commit=${_commit}"
         "git+https://source.puri.sm/philm/phosh.git#commit=${_commit}"
         "git+https://gitlab.gnome.org/GNOME/libgnome-volume-control.git"
          0001-system-prompt-allow-blank-passwords.patch
+         0002-fix-locale-issue.patch
          MR434.patch
          MR434-fix-rotation-on-a-PP.patch
 	 "pam_phosh"
-	 "sm.puri.OSK0.desktop"
-         "phosh.service")
+	 "sm.puri.OSK0.desktop")
 sha256sums=('SKIP'
             'SKIP'
             '0c5a2dbd0512ab8eca6e667f04ba03ec1b0d2896237b10d239aca63cfc19919e'
+            '7a0449a8d469953e87f14729e37ce5d785d8977cbcdf8825a57f832384b4a3d0'
             'cacfed29c1abefd0ccdd78ebe8f4d5bfd0d709a60f3eac37093e7ce565bc390a'
             '76607a3c283546a072965a444bfc1d5f99d74576b27627fa5ecfd670d5da21ad'
             'b7793f80c533e84ad8adfe8bb46c69f107575e724aa9b53b41f370baa37e4fd5'
-            'f0faa73bb7793b7628b6a4ea8ab0059e13f5d46435efee2f4b8d8ac256311372'
-            '4506a91ccbfdc5c71edd2776024bc667a7f21959b4fd2e4cfae7f82097938a28')
+            'f0faa73bb7793b7628b6a4ea8ab0059e13f5d46435efee2f4b8d8ac256311372')
 
 pkgver() {
   cd $pkgname
@@ -70,7 +70,7 @@ build() {
 package() {
     DESTDIR="${pkgdir}" ninja -C build install
 
-	install -Dm644 "$srcdir"/phosh.service \
+	install -Dm644 "$srcdir"/$pkgname/data/phosh.service \
 		"$pkgdir"/usr/lib/systemd/system/phosh.service
 	install -Dm644 "$srcdir"/pam_phosh \
 		"$pkgdir"/etc/pam.d/phosh
