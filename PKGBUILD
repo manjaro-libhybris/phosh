@@ -3,7 +3,7 @@
 
 pkgname=phosh
 pkgver=0.9.0+42+g403ce64
-_commit=4a09a51181e34202abff75eedd92fc916b33fa9d
+_commit=c4c9979f5dfdd617ab939d49c93ccd09a74d89c2
 pkgrel=3
 pkgdesc="A pure Wayland shell prototype for GNOME on mobile devices"
 url="https://source.puri.sm/Librem5/phosh"
@@ -28,7 +28,7 @@ sha256sums=('SKIP'
             '0c5a2dbd0512ab8eca6e667f04ba03ec1b0d2896237b10d239aca63cfc19919e'
             'b1f9083be8d1cf259a097b47c3fba4f639d597dad2a46e4234dd9c0cd2391bc2'
             '730d5db2f3c5d4769d60e2331fc85dbb916ea4048b6809832d5375be79f3bb46'
-            'cacfed29c1abefd0ccdd78ebe8f4d5bfd0d709a60f3eac37093e7ce565bc390a'
+            '48b26c1c150106fc405e19d064b564f85fe3fc4f8c27b5ff9804d73c07230b1f'
             '76607a3c283546a072965a444bfc1d5f99d74576b27627fa5ecfd670d5da21ad'
             'b7793f80c533e84ad8adfe8bb46c69f107575e724aa9b53b41f370baa37e4fd5'
             'f0faa73bb7793b7628b6a4ea8ab0059e13f5d46435efee2f4b8d8ac256311372')
