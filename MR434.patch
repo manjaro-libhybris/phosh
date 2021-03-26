@@ -1,7 +1,7 @@
 From f9b0442367aec038c2e5d4162293b4be599875e0 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Wed, 5 Aug 2020 16:07:16 +0200
-Subject: [PATCH 01/13] rotateinfo: Fix indentation
+Subject: [PATCH 01/14] rotateinfo: Fix indentation
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -31,7 +31,7 @@ GitLab
 From 2d6690515fb8d9910e64d3d98ca162e492d9bba9 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Fri, 26 Mar 2021 09:37:13 +0100
-Subject: [PATCH 02/13] monitor-manager: Fix doc string
+Subject: [PATCH 02/14] monitor-manager: Fix doc string
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -67,7 +67,7 @@ GitLab
 From f93df56b6941f2c249f541ad87ca79be012aa476 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Thu, 7 Jan 2021 16:39:12 +0100
-Subject: [PATCH 03/13] shell: Create sensor-manager early
+Subject: [PATCH 03/14] shell: Create sensor-manager early
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -110,7 +110,7 @@ GitLab
 From 7428219aec92eeda74a9ec9a058d7b83d86f5e7a Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Thu, 7 Jan 2021 16:36:12 +0100
-Subject: [PATCH 04/13] shell: Don't bother with accelerometer
+Subject: [PATCH 04/14] shell: Don't bother with accelerometer
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -147,7 +147,7 @@ GitLab
 From 977ff67f846a7c1d4a9c567b7e2e6f7355d88b9d Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Thu, 7 Jan 2021 20:32:06 +0100
-Subject: [PATCH 05/13] shell: Decruft builtin monitor setup
+Subject: [PATCH 05/14] shell: Decruft builtin monitor setup
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -240,7 +240,7 @@ GitLab
 From 775336d22a6a10471e508458309ce76571b2fa20 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Tue, 23 Jun 2020 14:05:57 +0200
-Subject: [PATCH 06/13] Add rotation-manager
+Subject: [PATCH 06/14] Add rotation-manager
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -976,7 +976,7 @@ GitLab
 From b1a32cec2ca36b4c9ce94c3b72b611acb99a419d Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Tue, 23 Jun 2020 14:08:53 +0200
-Subject: [PATCH 07/13] rotateinfo: Display either rotation lock or orientation
+Subject: [PATCH 07/14] rotateinfo: Display either rotation lock or orientation
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -1160,7 +1160,7 @@ GitLab
 From fef1bcf1c178adda72f448b6b43efe327b8fe96c Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Tue, 23 Jun 2020 14:10:38 +0200
-Subject: [PATCH 08/13] settings: Add orientation lock to rotate quick setting
+Subject: [PATCH 08/14] settings: Add orientation lock to rotate quick setting
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -1277,7 +1277,7 @@ GitLab
 From f5d845708a037ee5a33890468bcd3fb4630f126b Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Fri, 26 Mar 2021 10:00:37 +0100
-Subject: [PATCH 09/13] Move Lockscreen rotation fixup to rotation-manager
+Subject: [PATCH 09/14] Move Lockscreen rotation fixup to rotation-manager
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -1491,7 +1491,7 @@ GitLab
 From 06669386c6e0a1fe01b333591c5a971fa1b89de8 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Fri, 26 Mar 2021 10:14:54 +0100
-Subject: [PATCH 10/13] settings: Use rotation-manager instead of shell to
+Subject: [PATCH 10/14] settings: Use rotation-manager instead of shell to
  rotate output
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -1530,7 +1530,7 @@ GitLab
 From 3defc37a08dc0ece6f4d3de78e4e02df5d1c3a98 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Fri, 26 Mar 2021 10:31:31 +0100
-Subject: [PATCH 11/13] rotateinfo: Use monitor form rotation-manager
+Subject: [PATCH 11/14] rotateinfo: Use monitor form rotation-manager
  consistently
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -1581,7 +1581,7 @@ GitLab
 From ddb10d8c06a0ee7939eb690d1a115baa37ba70d2 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Fri, 26 Mar 2021 10:31:31 +0100
-Subject: [PATCH 12/13] rotateinfo: Use monitor form rotation-manager
+Subject: [PATCH 12/14] rotateinfo: Use monitor form rotation-manager
  consistently
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -1700,7 +1700,7 @@ GitLab
 From b8851d1f729e029eb2ba85ebb06190d1e59e3998 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Fri, 26 Mar 2021 10:45:19 +0100
-Subject: [PATCH 13/13] shell: Drop transform handling
+Subject: [PATCH 13/14] shell: Drop transform handling
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -1783,6 +1783,58 @@ index d7cfcdbd..d7aee9d5 100644
  void                 phosh_shell_get_usable_area (PhoshShell *self,
                                                    int        *x,
                                                    int        *y,
+-- 
+GitLab
+
+
+From 3ab67a30b74593d5d94186c876095674f5c6f513 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
+Date: Fri, 26 Mar 2021 15:01:24 +0100
+Subject: [PATCH 14/14] rotation-manager: Mess with transform as little as
+ possible
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+On phones when we're already using portrait orientation don't bother
+fixing this up. This allows for e.g. upside down operation.
+
+Signed-off-by: Guido Günther <guido.gunther@puri.sm>
+---
+ src/rotation-manager.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
+
+diff --git a/src/rotation-manager.c b/src/rotation-manager.c
+index d2c296d6..76d850b0 100644
+--- a/src/rotation-manager.c
++++ b/src/rotation-manager.c
+@@ -213,9 +213,9 @@ on_has_accelerometer_changed (PhoshRotationManager    *self,
+ /**
+  * fixup_lockscreen_orientation:
+  * @self: The PhoshRotationManager
+- * @force: Whether to force the monitor to normal orientation
++ * @force: Whether to force the monitor to portait orientation
+  *
+- * On phones the lock screen doesn't work in landscape so fix that
++ * On phones the lock screen doesn't work in landscape so fix that up
+  * until https://source.puri.sm/Librem5/phosh/-/issues/388
+  * is fixed. Keep all of this local to this function.
+  */
+@@ -239,8 +239,12 @@ fixup_lockscreen_orientation (PhoshRotationManager *self, gboolean force)
+ 
+   if (phosh_lockscreen_manager_get_locked (self->lockscreen_manager)) {
+     if (force) {
+-      g_debug ("Forcing normal transform");
+-      apply_transform (self, PHOSH_MONITOR_TRANSFORM_NORMAL);
++      PhoshMonitorTransform transform;
++      /* Use prelock transform if portrait, else use normal */
++      transform = (self->prelock_transform % 2) == 0 ? self->prelock_transform :
++        PHOSH_MONITOR_TRANSFORM_NORMAL;
++      g_debug ("Forcing portrait transform: %d", transform);
++      apply_transform (self, transform);
+     } else {
+       self->prelock_transform = phosh_monitor_get_transform (self->monitor);
+       g_debug ("Saving transform %d", self->prelock_transform);
 -- 
 GitLab
 
