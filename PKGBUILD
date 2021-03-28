@@ -2,7 +2,7 @@
 # Contributor: Philip Goto <philip.goto@gmail.com>
 
 pkgname=phosh
-pkgver=0.9.0+69+gc4c9979
+pkgver=0.9.0+72+g5358906
 _commit=5358906e0d1d82b8ed43c8bb9cca6147e29f5e61
 pkgrel=2
 pkgdesc="A pure Wayland shell prototype for GNOME on mobile devices"
@@ -28,7 +28,7 @@ sha256sums=('SKIP'
             '0c5a2dbd0512ab8eca6e667f04ba03ec1b0d2896237b10d239aca63cfc19919e'
             'b1f9083be8d1cf259a097b47c3fba4f639d597dad2a46e4234dd9c0cd2391bc2'
             '730d5db2f3c5d4769d60e2331fc85dbb916ea4048b6809832d5375be79f3bb46'
-            '013bd016e55e1cbfe1b974c2e4f366bebdbfa797c805d6b7620854c4a4049bf7'
+            '064725a2e97f7470ccdec6691bccbc64ef9b67bb6b614480082b3a3c8ff008b4'
             '76607a3c283546a072965a444bfc1d5f99d74576b27627fa5ecfd670d5da21ad'
             'b7793f80c533e84ad8adfe8bb46c69f107575e724aa9b53b41f370baa37e4fd5'
             'f0faa73bb7793b7628b6a4ea8ab0059e13f5d46435efee2f4b8d8ac256311372')

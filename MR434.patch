@@ -1,7 +1,7 @@
-From f9b0442367aec038c2e5d4162293b4be599875e0 Mon Sep 17 00:00:00 2001
+From 424384e435556a1d70e0671f87ab9dc44fab49da Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Wed, 5 Aug 2020 16:07:16 +0200
-Subject: [PATCH 01/14] rotateinfo: Fix indentation
+Subject: [PATCH 01/15] rotateinfo: Fix indentation
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -28,10 +28,10 @@ index 5cd3ccf7..b673fa3d 100644
 GitLab
 
 
-From 2d6690515fb8d9910e64d3d98ca162e492d9bba9 Mon Sep 17 00:00:00 2001
+From ab897766006205073ccbc055f263486cf7c46853 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Fri, 26 Mar 2021 09:37:13 +0100
-Subject: [PATCH 02/14] monitor-manager: Fix doc string
+Subject: [PATCH 02/15] monitor-manager: Fix doc string
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -64,10 +64,10 @@ index d67f073b..6e48ce26 100644
 GitLab
 
 
-From f93df56b6941f2c249f541ad87ca79be012aa476 Mon Sep 17 00:00:00 2001
+From fa50853816d6a720ff879cfefd31fc0480f7a241 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Thu, 7 Jan 2021 16:39:12 +0100
-Subject: [PATCH 03/14] shell: Create sensor-manager early
+Subject: [PATCH 03/15] shell: Create sensor-manager early
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -107,10 +107,10 @@ index 0aad5403..cb596b45 100644
 GitLab
 
 
-From 7428219aec92eeda74a9ec9a058d7b83d86f5e7a Mon Sep 17 00:00:00 2001
+From 349e80d657a712f6b29be6445aafc16a25e86895 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Thu, 7 Jan 2021 16:36:12 +0100
-Subject: [PATCH 04/14] shell: Don't bother with accelerometer
+Subject: [PATCH 04/15] shell: Don't bother with accelerometer
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -144,10 +144,10 @@ index cb596b45..0bcf6558 100644
 GitLab
 
 
-From 977ff67f846a7c1d4a9c567b7e2e6f7355d88b9d Mon Sep 17 00:00:00 2001
+From ffa17ebcb42c00cd3dd3e87fedaf01c5433f7d09 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Thu, 7 Jan 2021 20:32:06 +0100
-Subject: [PATCH 05/14] shell: Decruft builtin monitor setup
+Subject: [PATCH 05/15] shell: Decruft builtin monitor setup
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -237,10 +237,10 @@ index 0bcf6558..b8a71053 100644
 GitLab
 
 
-From 775336d22a6a10471e508458309ce76571b2fa20 Mon Sep 17 00:00:00 2001
+From b4bdf6235ce3a5260ba446fe33567f60b6a47271 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Tue, 23 Jun 2020 14:05:57 +0200
-Subject: [PATCH 06/14] Add rotation-manager
+Subject: [PATCH 06/15] Add rotation-manager
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -268,10 +268,10 @@ Signed-off-by: Guido Günther <guido.gunther@puri.sm>
  create mode 100644 src/rotation-manager.h
 
 diff --git a/docs/phosh-docs.xml b/docs/phosh-docs.xml
-index 0cb7ce64..b6beaa39 100644
+index e6c0a9db..9900a4ae 100644
 --- a/docs/phosh-docs.xml
 +++ b/docs/phosh-docs.xml
-@@ -101,6 +101,7 @@
+@@ -102,6 +102,7 @@
        <xi:include href="xml/proximity.xml"/>
        <xi:include href="xml/quick-setting.xml"/>
        <xi:include href="xml/rotateinfo.xml"/>
@@ -280,7 +280,7 @@ index 0cb7ce64..b6beaa39 100644
        <xi:include href="xml/sensor-proxy-manager.xml"/>
        <xi:include href="xml/session-manager.xml"/>
 diff --git a/src/meson.build b/src/meson.build
-index bb04e5e8..dd505414 100644
+index 7935b17a..5a0ea2b3 100644
 --- a/src/meson.build
 +++ b/src/meson.build
 @@ -23,6 +23,7 @@ phosh_enum_headers = [
@@ -291,7 +291,7 @@ index bb04e5e8..dd505414 100644
    'shell.h',
  ] + schema_enum_headers
  
-@@ -160,6 +161,8 @@ libphosh_sources = [
+@@ -162,6 +163,8 @@ libphosh_sources = [
    'polkit-auth-prompt.h',
    'proximity.h',
    'proximity.c',
@@ -973,10 +973,10 @@ index 1b21eef8..d7cfcdbd 100644
 GitLab
 
 
-From b1a32cec2ca36b4c9ce94c3b72b611acb99a419d Mon Sep 17 00:00:00 2001
+From 19d106d7e2537deaadec3105ed0f09f0583b91dc Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Tue, 23 Jun 2020 14:08:53 +0200
-Subject: [PATCH 07/14] rotateinfo: Display either rotation lock or orientation
+Subject: [PATCH 07/15] rotateinfo: Display either rotation lock or orientation
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -1157,10 +1157,10 @@ index 2e05f818..1195fed6 100644
 GitLab
 
 
-From fef1bcf1c178adda72f448b6b43efe327b8fe96c Mon Sep 17 00:00:00 2001
+From 42a7d06a1daa771150cfea075802d9fba365e85f Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Tue, 23 Jun 2020 14:10:38 +0200
-Subject: [PATCH 08/14] settings: Add orientation lock to rotate quick setting
+Subject: [PATCH 08/15] settings: Add orientation lock to rotate quick setting
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -1274,10 +1274,10 @@ index da196806..af7ee9ce 100644
 GitLab
 
 
-From f5d845708a037ee5a33890468bcd3fb4630f126b Mon Sep 17 00:00:00 2001
+From 58829894645f4e0da4ea51fb2c2afcd8a80a2665 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Fri, 26 Mar 2021 10:00:37 +0100
-Subject: [PATCH 09/14] Move Lockscreen rotation fixup to rotation-manager
+Subject: [PATCH 09/15] Move Lockscreen rotation fixup to rotation-manager
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -1488,10 +1488,10 @@ index ad61904e..cb60f98e 100644
 GitLab
 
 
-From 06669386c6e0a1fe01b333591c5a971fa1b89de8 Mon Sep 17 00:00:00 2001
+From 90040c3ede7ee082e0ffacba1097405d4697671a Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Fri, 26 Mar 2021 10:14:54 +0100
-Subject: [PATCH 10/14] settings: Use rotation-manager instead of shell to
+Subject: [PATCH 10/15] settings: Use rotation-manager instead of shell to
  rotate output
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -1527,10 +1527,10 @@ index 57d48182..54a60d9a 100644
 GitLab
 
 
-From 3defc37a08dc0ece6f4d3de78e4e02df5d1c3a98 Mon Sep 17 00:00:00 2001
+From fd0a5e5ba796bafd57a4fa7a012f50f5e0d1ef06 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Fri, 26 Mar 2021 10:31:31 +0100
-Subject: [PATCH 11/14] rotateinfo: Use monitor form rotation-manager
+Subject: [PATCH 11/15] rotateinfo: Use monitor form rotation-manager
  consistently
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -1578,10 +1578,10 @@ index 1227d65d..ecfc9cf3 100644
 GitLab
 
 
-From ddb10d8c06a0ee7939eb690d1a115baa37ba70d2 Mon Sep 17 00:00:00 2001
+From 3ceacfd7bb17b95c3b53c7ea5189178f6a7b8de5 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Fri, 26 Mar 2021 10:31:31 +0100
-Subject: [PATCH 12/14] rotateinfo: Use monitor form rotation-manager
+Subject: [PATCH 12/15] rotateinfo: Use monitor form rotation-manager
  consistently
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -1697,10 +1697,10 @@ index cb60f98e..d2c296d6 100644
 GitLab
 
 
-From b8851d1f729e029eb2ba85ebb06190d1e59e3998 Mon Sep 17 00:00:00 2001
+From ae5a41e7321a0e9efb16ad2f62fe0cc63c3d5ff3 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Fri, 26 Mar 2021 10:45:19 +0100
-Subject: [PATCH 13/14] shell: Drop transform handling
+Subject: [PATCH 13/15] shell: Drop transform handling
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -1787,10 +1787,10 @@ index d7cfcdbd..d7aee9d5 100644
 GitLab
 
 
-From 3ab67a30b74593d5d94186c876095674f5c6f513 Mon Sep 17 00:00:00 2001
+From 3916011ed40b2605e0f38aef0708b9f501fdc54f Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Fri, 26 Mar 2021 15:01:24 +0100
-Subject: [PATCH 14/14] rotation-manager: Mess with transform as little as
+Subject: [PATCH 14/15] rotation-manager: Mess with transform as little as
  possible
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -1835,6 +1835,46 @@ index d2c296d6..76d850b0 100644
      } else {
        self->prelock_transform = phosh_monitor_get_transform (self->monitor);
        g_debug ("Saving transform %d", self->prelock_transform);
+-- 
+GitLab
+
+
+From e2551cbe36479b1d39faef329af0a6a3b88d11ad Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
+Date: Sun, 28 Mar 2021 19:27:06 +0200
+Subject: [PATCH 15/15] settings: Don't close menu when toggling rotation lock
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+This makes it consistent with other toggles like feedback toggle.
+
+Signed-off-by: Guido Günther <guido.gunther@puri.sm>
+---
+ src/settings.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/src/settings.c b/src/settings.c
+index 54a60d9a..81a095c9 100644
+--- a/src/settings.c
++++ b/src/settings.c
+@@ -99,6 +99,7 @@ rotation_setting_clicked_cb (PhoshSettings *self)
+     transform = phosh_rotation_manager_get_transform (rotation_manager) ?
+       PHOSH_MONITOR_TRANSFORM_NORMAL : PHOSH_MONITOR_TRANSFORM_270;
+     phosh_rotation_manager_set_transform (rotation_manager, transform);
++    g_signal_emit (self, signals[SETTING_DONE], 0);
+     break;
+   case PHOSH_ROTATION_MANAGER_MODE_SENSOR:
+     locked = phosh_rotation_manager_get_orientation_locked (rotation_manager);
+@@ -107,8 +108,6 @@ rotation_setting_clicked_cb (PhoshSettings *self)
+   default:
+     g_assert_not_reached ();
+   }
+-
+-  g_signal_emit (self, signals[SETTING_DONE], 0);
+ }
+ 
+ static void
 -- 
 GitLab
 
