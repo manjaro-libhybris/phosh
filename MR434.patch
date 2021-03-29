@@ -1,7 +1,7 @@
-From 424384e435556a1d70e0671f87ab9dc44fab49da Mon Sep 17 00:00:00 2001
+From 207e7203a33781cc538b19658f19f4f14f8614a4 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Wed, 5 Aug 2020 16:07:16 +0200
-Subject: [PATCH 01/15] rotateinfo: Fix indentation
+Subject: [PATCH 01/16] rotateinfo: Fix indentation
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -28,10 +28,10 @@ index 5cd3ccf7..b673fa3d 100644
 GitLab
 
 
-From ab897766006205073ccbc055f263486cf7c46853 Mon Sep 17 00:00:00 2001
+From b5545e2428c5816f9e5efd84b41c28a383988983 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Fri, 26 Mar 2021 09:37:13 +0100
-Subject: [PATCH 02/15] monitor-manager: Fix doc string
+Subject: [PATCH 02/16] monitor-manager: Fix doc string
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -64,10 +64,10 @@ index d67f073b..6e48ce26 100644
 GitLab
 
 
-From fa50853816d6a720ff879cfefd31fc0480f7a241 Mon Sep 17 00:00:00 2001
+From ee3cb76591469a608d4ea2113853c9bf0e4d1be1 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Thu, 7 Jan 2021 16:39:12 +0100
-Subject: [PATCH 03/15] shell: Create sensor-manager early
+Subject: [PATCH 03/16] shell: Create sensor-manager early
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -107,10 +107,10 @@ index 0aad5403..cb596b45 100644
 GitLab
 
 
-From 349e80d657a712f6b29be6445aafc16a25e86895 Mon Sep 17 00:00:00 2001
+From 9f3856df6f2cbe817c70cc3ce915c5117a192624 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Thu, 7 Jan 2021 16:36:12 +0100
-Subject: [PATCH 04/15] shell: Don't bother with accelerometer
+Subject: [PATCH 04/16] shell: Don't bother with accelerometer
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -144,10 +144,10 @@ index cb596b45..0bcf6558 100644
 GitLab
 
 
-From ffa17ebcb42c00cd3dd3e87fedaf01c5433f7d09 Mon Sep 17 00:00:00 2001
+From 4064988c7efeb1b74ebf32bbd2df02e8154392cd Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Thu, 7 Jan 2021 20:32:06 +0100
-Subject: [PATCH 05/15] shell: Decruft builtin monitor setup
+Subject: [PATCH 05/16] shell: Decruft builtin monitor setup
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -237,10 +237,108 @@ index 0bcf6558..b8a71053 100644
 GitLab
 
 
-From b4bdf6235ce3a5260ba446fe33567f60b6a47271 Mon Sep 17 00:00:00 2001
+From b8c08549e293471e07d19d06c04ebab84a111687 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
+Date: Mon, 29 Mar 2021 17:51:52 +0200
+Subject: [PATCH 06/16] Avoid sensor-proxy singleton
+
+Treat it as regular initable that is fetched from the shell
+like other managers.
+---
+ src/sensor-proxy-manager.c | 30 ++++++++----------------------
+ src/sensor-proxy-manager.h |  2 +-
+ src/shell.c                |  6 ++++--
+ 3 files changed, 13 insertions(+), 25 deletions(-)
+
+diff --git a/src/sensor-proxy-manager.c b/src/sensor-proxy-manager.c
+index 89b5e8f1..473a6b21 100644
+--- a/src/sensor-proxy-manager.c
++++ b/src/sensor-proxy-manager.c
+@@ -52,27 +52,13 @@ phosh_sensor_proxy_manager_init (PhoshSensorProxyManager *self)
+ 
+ 
+ PhoshSensorProxyManager *
+-phosh_sensor_proxy_manager_get_default_failable (void)
++phosh_sensor_proxy_manager_new (GError **err)
+ {
+-  static PhoshSensorProxyManager *instance;
+-  GError *err = NULL;
+-  GInitable *ret;
+-
+-  if (instance == NULL) {
+-    ret = g_initable_new (PHOSH_TYPE_SENSOR_PROXY_MANAGER, NULL, &err,
+-                          "g-flags", G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_NONE,
+-                          "g-name", IIO_SENSOR_PROXY_DBUS_NAME,
+-                          "g-bus-type", G_BUS_TYPE_SYSTEM,
+-                          "g-object-path", IIO_SENSOR_PROXY_DBUS_OBJECT,
+-                          "g-interface-name", IIO_SENSOR_PROXY_DBUS_IFACE_NAME,
+-                          NULL);
+-    if (ret != NULL) {
+-      instance = PHOSH_SENSOR_PROXY_MANAGER (ret);
+-    } else {
+-      g_warning ("Can't connect to iio-sensor-sensor proxy:  %s", err->message);
+-      return NULL;
+-    }
+-    g_object_add_weak_pointer (G_OBJECT (instance), (gpointer *)&instance);
+-  }
+-  return instance;
++  return g_initable_new (PHOSH_TYPE_SENSOR_PROXY_MANAGER, NULL, err,
++                         "g-flags", G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_NONE,
++                         "g-name", IIO_SENSOR_PROXY_DBUS_NAME,
++                         "g-bus-type", G_BUS_TYPE_SYSTEM,
++                         "g-object-path", IIO_SENSOR_PROXY_DBUS_OBJECT,
++                         "g-interface-name", IIO_SENSOR_PROXY_DBUS_IFACE_NAME,
++                         NULL);
+ }
+diff --git a/src/sensor-proxy-manager.h b/src/sensor-proxy-manager.h
+index 9d140bae..32664a6d 100644
+--- a/src/sensor-proxy-manager.h
++++ b/src/sensor-proxy-manager.h
+@@ -13,6 +13,6 @@
+ G_DECLARE_FINAL_TYPE (PhoshSensorProxyManager, phosh_sensor_proxy_manager,
+                       PHOSH, SENSOR_PROXY_MANAGER, PhoshDBusSensorProxyProxy)
+ 
+-PhoshSensorProxyManager *phosh_sensor_proxy_manager_get_default_failable (void);
++PhoshSensorProxyManager *phosh_sensor_proxy_manager_new (GError **err);
+ gboolean phosh_sensor_proxy_manager_claim_proximity_sync (PhoshSensorProxyManager *self,
+                                                           GError **err);
+diff --git a/src/shell.c b/src/shell.c
+index b8a71053..6f0d3663 100644
+--- a/src/shell.c
++++ b/src/shell.c
+@@ -457,12 +457,15 @@ on_fade_out_timeout (PhoshShell *self)
+ static gboolean
+ setup_idle_cb (PhoshShell *self)
+ {
++  g_autoptr (GError) err = NULL;
+   PhoshShellPrivate *priv = phosh_shell_get_instance_private (self);
+ 
+   priv->session_manager = phosh_session_manager_new ();
+   priv->mode_manager = phosh_mode_manager_new ();
+ 
+-  priv->sensor_proxy_manager = phosh_sensor_proxy_manager_get_default_failable ();
++  priv->sensor_proxy_manager = phosh_sensor_proxy_manager_new (&err);
++  if (!priv->sensor_proxy_manager)
++    g_warning ("Failed to connect to sensor-proxy: %s", err->message);
+ 
+   panels_create (self);
+   /* Create background after panel since it needs the panel's size */
+@@ -493,7 +496,6 @@ setup_idle_cb (PhoshShell *self)
+                            G_CONNECT_SWAPPED);
+ 
+   priv->location_manager = phosh_location_manager_new ();
+-  priv->sensor_proxy_manager = phosh_sensor_proxy_manager_get_default_failable ();
+   if (priv->sensor_proxy_manager) {
+     priv->proximity = phosh_proximity_new (priv->sensor_proxy_manager,
+                                            priv->lockscreen_manager);
+-- 
+GitLab
+
+
+From 66f6fe1bb9a3f66247f42684a65a650466049a79 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Tue, 23 Jun 2020 14:05:57 +0200
-Subject: [PATCH 06/15] Add rotation-manager
+Subject: [PATCH 07/16] Add rotation-manager
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -259,11 +357,11 @@ Signed-off-by: Guido Günther <guido.gunther@puri.sm>
  docs/phosh-docs.xml    |   1 +
  src/meson.build        |   3 +
  src/phosh-enums.c.in   |   1 +
- src/rotation-manager.c | 525 +++++++++++++++++++++++++++++++++++++++++
+ src/rotation-manager.c | 528 +++++++++++++++++++++++++++++++++++++++++
  src/rotation-manager.h |  45 ++++
  src/shell.c            |  22 ++
  src/shell.h            |   2 +
- 7 files changed, 599 insertions(+)
+ 7 files changed, 602 insertions(+)
  create mode 100644 src/rotation-manager.c
  create mode 100644 src/rotation-manager.h
 
@@ -314,10 +412,10 @@ index f001d726..293b97d9 100644
  
 diff --git a/src/rotation-manager.c b/src/rotation-manager.c
 new file mode 100644
-index 00000000..ad61904e
+index 00000000..ec5b7e49
 --- /dev/null
 +++ b/src/rotation-manager.c
-@@ -0,0 +1,525 @@
+@@ -0,0 +1,528 @@
 +/*
 + * Copyright (C) 2021 Purism SPC
 + *
@@ -482,10 +580,10 @@ index 00000000..ad61904e
 +    res, &err);
 +  if (success) {
 +    g_debug ("Released rotation sensor");
-+    self->claimed = FALSE;
 +  } else {
 +    g_warning ("Failed to release rotation sensor: %s", err->message);
 +  }
++  self->claimed = FALSE;
 +  g_object_unref (self);
 +}
 +
@@ -519,12 +617,15 @@ index 00000000..ad61904e
 +                              PhoshSensorProxyManager *proxy)
 +{
 +  gboolean has_accel;
++  PhoshRotationManagerMode mode;
 +
 +  has_accel = phosh_dbus_sensor_proxy_get_has_accelerometer (
 +    PHOSH_DBUS_SENSOR_PROXY (self->sensor_proxy_manager));
 +
 +  g_debug ("Found %s accelerometer", has_accel ? "a" : "no");
-+  phosh_rotation_manager_set_mode (self, PHOSH_ROTATION_MANAGER_MODE_SENSOR);
++
++  mode = has_accel ? PHOSH_ROTATION_MANAGER_MODE_SENSOR : PHOSH_ROTATION_MANAGER_MODE_OFF;
++  phosh_rotation_manager_set_mode (self, mode);
 +}
 +
 +static void
@@ -895,7 +996,7 @@ index 00000000..22b45bf8
 +
 +G_END_DECLS
 diff --git a/src/shell.c b/src/shell.c
-index b8a71053..3d674b47 100644
+index 6f0d3663..57caff0d 100644
 --- a/src/shell.c
 +++ b/src/shell.c
 @@ -59,6 +59,7 @@
@@ -924,7 +1025,7 @@ index b8a71053..3d674b47 100644
    phosh_system_prompter_unregister ();
    g_clear_object (&priv->session_manager);
  
-@@ -1092,6 +1096,24 @@ phosh_shell_get_session_manager (PhoshShell *self)
+@@ -1094,6 +1098,24 @@ phosh_shell_get_session_manager (PhoshShell *self)
  }
  
  
@@ -973,10 +1074,10 @@ index 1b21eef8..d7cfcdbd 100644
 GitLab
 
 
-From 19d106d7e2537deaadec3105ed0f09f0583b91dc Mon Sep 17 00:00:00 2001
+From 430aca791f105ac9652ebbe3a39f1d5279119a12 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Tue, 23 Jun 2020 14:08:53 +0200
-Subject: [PATCH 07/15] rotateinfo: Display either rotation lock or orientation
+Subject: [PATCH 08/16] rotateinfo: Display either rotation lock or orientation
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -1157,10 +1258,10 @@ index 2e05f818..1195fed6 100644
 GitLab
 
 
-From 42a7d06a1daa771150cfea075802d9fba365e85f Mon Sep 17 00:00:00 2001
+From 13163ee91f7e3331b8d9bd9b1e78714920a25a8d Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Tue, 23 Jun 2020 14:10:38 +0200
-Subject: [PATCH 08/15] settings: Add orientation lock to rotate quick setting
+Subject: [PATCH 09/16] settings: Add orientation lock to rotate quick setting
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -1274,10 +1375,10 @@ index da196806..af7ee9ce 100644
 GitLab
 
 
-From 58829894645f4e0da4ea51fb2c2afcd8a80a2665 Mon Sep 17 00:00:00 2001
+From f8fcae87ee061b88a31bc24de04bbf669979c45d Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Fri, 26 Mar 2021 10:00:37 +0100
-Subject: [PATCH 09/15] Move Lockscreen rotation fixup to rotation-manager
+Subject: [PATCH 10/16] Move Lockscreen rotation fixup to rotation-manager
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -1363,7 +1464,7 @@ index 54041c5c..0c8c16b0 100644
    /* Old lockscreen gets remove due to `layer_surface_closed` */
  }
 diff --git a/src/rotation-manager.c b/src/rotation-manager.c
-index ad61904e..cb60f98e 100644
+index ec5b7e49..53fcd512 100644
 --- a/src/rotation-manager.c
 +++ b/src/rotation-manager.c
 @@ -47,6 +47,7 @@ typedef struct _PhoshRotationManager {
@@ -1374,8 +1475,8 @@ index ad61904e..cb60f98e 100644
  
    GSettings               *settings;
    gboolean                 orientation_locked;
-@@ -207,6 +208,67 @@ on_has_accelerometer_changed (PhoshRotationManager    *self,
-   phosh_rotation_manager_set_mode (self, PHOSH_ROTATION_MANAGER_MODE_SENSOR);
+@@ -210,6 +211,67 @@ on_has_accelerometer_changed (PhoshRotationManager    *self,
+   phosh_rotation_manager_set_mode (self, mode);
  }
  
 +/**
@@ -1442,7 +1543,7 @@ index ad61904e..cb60f98e 100644
  static void
  on_lockscreen_manager_locked (PhoshRotationManager *self, GParamSpec *pspec,
                                PhoshLockscreenManager *lockscreen_manager)
-@@ -222,6 +284,8 @@ on_lockscreen_manager_locked (PhoshRotationManager *self, GParamSpec *pspec,
+@@ -225,6 +287,8 @@ on_lockscreen_manager_locked (PhoshRotationManager *self, GParamSpec *pspec,
      claim = !phosh_lockscreen_manager_get_locked (self->lockscreen_manager);
  
    phosh_rotation_manager_claim_accelerometer (self, claim);
@@ -1451,7 +1552,7 @@ index ad61904e..cb60f98e 100644
  }
  
  static void
-@@ -318,8 +382,17 @@ phosh_rotation_manager_constructed (GObject *object)
+@@ -321,8 +385,17 @@ phosh_rotation_manager_constructed (GObject *object)
                              self);
    on_lockscreen_manager_locked (self, NULL, self->lockscreen_manager);
  
@@ -1470,7 +1571,7 @@ index ad61904e..cb60f98e 100644
  
    g_signal_connect_swapped (self->sensor_proxy_manager,
                              "notify::accelerometer-orientation",
-@@ -355,7 +428,12 @@ phosh_rotation_manager_dispose (GObject *object)
+@@ -358,7 +431,12 @@ phosh_rotation_manager_dispose (GObject *object)
                                            self);
      g_clear_object (&self->lockscreen_manager);
    }
@@ -1488,10 +1589,10 @@ index ad61904e..cb60f98e 100644
 GitLab
 
 
-From 90040c3ede7ee082e0ffacba1097405d4697671a Mon Sep 17 00:00:00 2001
+From 879a531cee07b8061b12dc7f914974358a711ded Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Fri, 26 Mar 2021 10:14:54 +0100
-Subject: [PATCH 10/15] settings: Use rotation-manager instead of shell to
+Subject: [PATCH 11/16] settings: Use rotation-manager instead of shell to
  rotate output
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -1527,10 +1628,10 @@ index 57d48182..54a60d9a 100644
 GitLab
 
 
-From fd0a5e5ba796bafd57a4fa7a012f50f5e0d1ef06 Mon Sep 17 00:00:00 2001
+From 9c02bfc71796f63ea574a0d820c7b0cd336131c6 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Fri, 26 Mar 2021 10:31:31 +0100
-Subject: [PATCH 11/15] rotateinfo: Use monitor form rotation-manager
+Subject: [PATCH 12/16] rotateinfo: Use monitor form rotation-manager
  consistently
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -1578,10 +1679,10 @@ index 1227d65d..ecfc9cf3 100644
 GitLab
 
 
-From 3ceacfd7bb17b95c3b53c7ea5189178f6a7b8de5 Mon Sep 17 00:00:00 2001
+From ef5989d56101791e15bf9da9c7834b0371414070 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Fri, 26 Mar 2021 10:31:31 +0100
-Subject: [PATCH 12/15] rotateinfo: Use monitor form rotation-manager
+Subject: [PATCH 13/16] rotateinfo: Use monitor form rotation-manager
  consistently
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -1610,7 +1711,7 @@ index ecfc9cf3..149b5d4d 100644
                             G_CALLBACK (on_transform_changed),
                             self,
 diff --git a/src/rotation-manager.c b/src/rotation-manager.c
-index cb60f98e..d2c296d6 100644
+index 53fcd512..73b9dc8e 100644
 --- a/src/rotation-manager.c
 +++ b/src/rotation-manager.c
 @@ -36,6 +36,7 @@ enum {
@@ -1629,7 +1730,7 @@ index cb60f98e..d2c296d6 100644
    PhoshMonitorTransform    prelock_transform;
  
    GSettings               *settings;
-@@ -299,6 +301,26 @@ on_accelerometer_orientation_changed (PhoshRotationManager    *self,
+@@ -302,6 +304,26 @@ on_accelerometer_orientation_changed (PhoshRotationManager    *self,
    match_orientation (self);
  }
  
@@ -1656,7 +1757,7 @@ index cb60f98e..d2c296d6 100644
  static void
  phosh_rotation_manager_set_property (GObject      *object,
                                       guint         property_id,
-@@ -354,6 +376,9 @@ phosh_rotation_manager_get_property (GObject    *object,
+@@ -357,6 +379,9 @@ phosh_rotation_manager_get_property (GObject    *object,
    case PROP_MODE:
      g_value_set_enum (value, self->mode);
      break;
@@ -1666,7 +1767,7 @@ index cb60f98e..d2c296d6 100644
    default:
      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
      break;
-@@ -388,6 +413,11 @@ phosh_rotation_manager_constructed (GObject *object)
+@@ -391,6 +416,11 @@ phosh_rotation_manager_constructed (GObject *object)
                              self);
    on_power_mode_changed (self, NULL, self->monitor);
  
@@ -1678,7 +1779,7 @@ index cb60f98e..d2c296d6 100644
  
    if (!self->sensor_proxy_manager) {
      g_warning ("Got not sensor-proxy, no automatic rotation");
-@@ -490,6 +520,14 @@ phosh_rotation_manager_class_init (PhoshRotationManagerClass *klass)
+@@ -493,6 +523,14 @@ phosh_rotation_manager_class_init (PhoshRotationManagerClass *klass)
        PHOSH_ROTATION_MANAGER_MODE_OFF,
        G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
  
@@ -1697,10 +1798,10 @@ index cb60f98e..d2c296d6 100644
 GitLab
 
 
-From ae5a41e7321a0e9efb16ad2f62fe0cc63c3d5ff3 Mon Sep 17 00:00:00 2001
+From 2d37270baba43c1a6e8399c7ea65f951e7cb0172 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Fri, 26 Mar 2021 10:45:19 +0100
-Subject: [PATCH 13/15] shell: Drop transform handling
+Subject: [PATCH 14/16] shell: Drop transform handling
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -1717,10 +1818,10 @@ Signed-off-by: Guido Günther <guido.gunther@puri.sm>
  2 files changed, 38 deletions(-)
 
 diff --git a/src/shell.c b/src/shell.c
-index 3d674b47..45b49f4a 100644
+index 57caff0d..3fcd83ba 100644
 --- a/src/shell.c
 +++ b/src/shell.c
-@@ -510,10 +510,6 @@ setup_idle_cb (PhoshShell *self)
+@@ -512,10 +512,6 @@ setup_idle_cb (PhoshShell *self)
                                    g_getenv ("DESKTOP_AUTOSTART_ID"));
    g_unsetenv ("DESKTOP_AUTOSTART_ID");
  
@@ -1731,7 +1832,7 @@ index 3d674b47..45b49f4a 100644
    priv->gnome_shell_manager = phosh_gnome_shell_manager_get_default ();
  
    priv->startup_finished = TRUE;
-@@ -770,38 +766,6 @@ phosh_shell_init (PhoshShell *self)
+@@ -772,38 +768,6 @@ phosh_shell_init (PhoshShell *self)
  }
  
  
@@ -1787,10 +1888,10 @@ index d7cfcdbd..d7aee9d5 100644
 GitLab
 
 
-From 3916011ed40b2605e0f38aef0708b9f501fdc54f Mon Sep 17 00:00:00 2001
+From 690e55ffaab976d35b495c14e18a81072015eec1 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Fri, 26 Mar 2021 15:01:24 +0100
-Subject: [PATCH 14/15] rotation-manager: Mess with transform as little as
+Subject: [PATCH 15/16] rotation-manager: Mess with transform as little as
  possible
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -1805,10 +1906,10 @@ Signed-off-by: Guido Günther <guido.gunther@puri.sm>
  1 file changed, 8 insertions(+), 4 deletions(-)
 
 diff --git a/src/rotation-manager.c b/src/rotation-manager.c
-index d2c296d6..76d850b0 100644
+index 73b9dc8e..f8d6156b 100644
 --- a/src/rotation-manager.c
 +++ b/src/rotation-manager.c
-@@ -213,9 +213,9 @@ on_has_accelerometer_changed (PhoshRotationManager    *self,
+@@ -216,9 +216,9 @@ on_has_accelerometer_changed (PhoshRotationManager    *self,
  /**
   * fixup_lockscreen_orientation:
   * @self: The PhoshRotationManager
@@ -1820,7 +1921,7 @@ index d2c296d6..76d850b0 100644
   * until https://source.puri.sm/Librem5/phosh/-/issues/388
   * is fixed. Keep all of this local to this function.
   */
-@@ -239,8 +239,12 @@ fixup_lockscreen_orientation (PhoshRotationManager *self, gboolean force)
+@@ -242,8 +242,12 @@ fixup_lockscreen_orientation (PhoshRotationManager *self, gboolean force)
  
    if (phosh_lockscreen_manager_get_locked (self->lockscreen_manager)) {
      if (force) {
@@ -1839,10 +1940,10 @@ index d2c296d6..76d850b0 100644
 GitLab
 
 
-From e2551cbe36479b1d39faef329af0a6a3b88d11ad Mon Sep 17 00:00:00 2001
+From 270ebafd0e37f6ce024057dac8a0411bb8394917 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Sun, 28 Mar 2021 19:27:06 +0200
-Subject: [PATCH 15/15] settings: Don't close menu when toggling rotation lock
+Subject: [PATCH 16/16] settings: Don't close menu when toggling rotation lock
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
