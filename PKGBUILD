@@ -3,7 +3,7 @@
 
 pkgname=phosh
 pkgver=0.10.2+134+gb2e68d2
-_commit=b2e68d269bb58f53e3b3bb690abe3b803a6c9535
+_commit=3c1a018f67fe72fe92efa73cd5e6215e3ddd0913
 pkgrel=2
 pkgdesc="A pure Wayland shell prototype for GNOME on mobile devices"
 url="https://source.puri.sm/Librem5/phosh"
@@ -21,7 +21,6 @@ source=("git+https://source.puri.sm/Librem5/phosh.git#commit=${_commit}"
          0003-fix-locale-issue-in-service-file.patch
          821.patch
          822.patch
-         823.patch
 	 "pam_phosh"
 	 "sm.puri.OSK0.desktop")
 sha256sums=('SKIP'
