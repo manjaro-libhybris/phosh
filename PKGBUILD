@@ -19,7 +19,6 @@ source=("git+https://source.puri.sm/Librem5/phosh.git#commit=${_commit}"
          0001-system-prompt-allow-blank-passwords.patch
          0002-fix-locale-issue.patch
          0003-fix-locale-issue-in-service-file.patch
-         833.patch
          777.patch
 	 "pam_phosh"
 	 "sm.puri.OSK0.desktop")
@@ -28,7 +27,6 @@ sha256sums=('SKIP'
             '0c5a2dbd0512ab8eca6e667f04ba03ec1b0d2896237b10d239aca63cfc19919e'
             'b1f9083be8d1cf259a097b47c3fba4f639d597dad2a46e4234dd9c0cd2391bc2'
             '730d5db2f3c5d4769d60e2331fc85dbb916ea4048b6809832d5375be79f3bb46'
-            '9c165a530be4b4d19361aee93d179c578c723f1f6c89d495443d035963b3dd61'
             'f3e319dc73609c0c1a69b4edd73e5a0e29df43b2ebf32625688587c6c3b5b91c'
             'b7793f80c533e84ad8adfe8bb46c69f107575e724aa9b53b41f370baa37e4fd5'
             'f0faa73bb7793b7628b6a4ea8ab0059e13f5d46435efee2f4b8d8ac256311372')
