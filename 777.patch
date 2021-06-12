@@ -997,15 +997,15 @@ index 6465fd40..e0353f02 100644
 +#include "calls-manager.h"
  #include "docked-manager.h"
  #include "feedback-manager.h"
- #include "hks-manager.h"
-@@ -72,6 +73,7 @@ PhoshMonitor        *phosh_shell_get_primary_monitor (PhoshShell *self);
- PhoshMonitor        *phosh_shell_get_builtin_monitor (PhoshShell *self);
+ #include "gtk-mount-manager.h"
+@@ -77,6 +78,7 @@ PhoshBackgroundManager *phosh_shell_get_background_manager (PhoshShell *self);
+ PhoshFeedbackManager   *phosh_shell_get_feedback_manager   (PhoshShell *self);
+ PhoshGtkMountManager   *phosh_shell_get_gtk_mount_manager  (PhoshShell *self);
  PhoshLockscreenManager *phosh_shell_get_lockscreen_manager (PhoshShell *self);
- PhoshBackgroundManager *phosh_shell_get_background_manager (PhoshShell *self);
-+PhoshCallsManager *phosh_shell_get_calls_manager (PhoshShell *self);
- PhoshModeManager    *phosh_shell_get_mode_manager    (PhoshShell *self);
- PhoshMonitorManager *phosh_shell_get_monitor_manager (PhoshShell *self);
- PhoshOskManager     *phosh_shell_get_osk_manager     (PhoshShell *self);
++PhoshCallsManager      *phosh_shell_get_calls_manager      (PhoshShell *self);
+ PhoshModeManager       *phosh_shell_get_mode_manager       (PhoshShell *self);
+ PhoshMonitorManager    *phosh_shell_get_monitor_manager    (PhoshShell *self);
+ PhoshToplevelManager   *phosh_shell_get_toplevel_manager   (PhoshShell *self);
 -- 
 GitLab
 
