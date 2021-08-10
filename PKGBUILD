@@ -10,7 +10,7 @@ url="https://source.puri.sm/Librem5/phosh"
 license=("GPL3")
 arch=('i686' 'x86_64' 'armv6h' 'armv7h' 'aarch64')
 depends=('gtk3' 'libhandy>=1.1.90' 'gnome-desktop' 'gnome-session'
-         'upower-mobile' 'libpulse' 'gcr' 'feedbackd' 'libnm'
+         'upower' 'libpulse' 'gcr' 'feedbackd' 'libnm'
          'phoc>=0.8.0' 'gnome-shell' 'callaudiod')
 makedepends=('meson' 'git')
 source=("git+https://gitlab.gnome.org/World/Phosh/phosh.git#commit=${_commit}"
