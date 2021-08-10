@@ -2,8 +2,8 @@
 # Contributor: Philip Goto <philip.goto@gmail.com>
 
 pkgname=phosh
-pkgver=0.12.1
-_commit=f10df68ebf4c93fa186711f66e36526039d29c03
+pkgver=0.13.0
+_commit=3141fc1c989ff0ab477c9e963f216d6428621782
 pkgrel=1
 pkgdesc="A pure Wayland shell prototype for GNOME on mobile devices"
 url="https://source.puri.sm/Librem5/phosh"
@@ -11,11 +11,11 @@ license=("GPL3")
 arch=('i686' 'x86_64' 'armv6h' 'armv7h' 'aarch64')
 depends=('gtk3' 'libhandy>=1.1.90' 'gnome-desktop' 'gnome-session'
          'upower-mobile' 'libpulse' 'gcr' 'feedbackd' 'libnm'
-         'phoc>=0.7.0' 'gnome-shell')
+         'phoc>=0.8.0' 'gnome-shell' 'callaudiod')
 makedepends=('meson' 'git')
-source=("git+https://source.puri.sm/Librem5/phosh.git#commit=${_commit}"
-        #"git+https://source.puri.sm/philm/phosh.git#commit=${_commit}"
+source=("git+https://gitlab.gnome.org/World/Phosh/phosh.git#commit=${_commit}"
         "git+https://gitlab.gnome.org/GNOME/libgnome-volume-control.git"
+        "git+https://gitlab.gnome.org/guidog/libcall-ui.git"
          0001-system-prompt-allow-blank-passwords.patch
          0002-fix-locale-issue.patch
          0003-fix-locale-issue-in-service-file.patch
@@ -47,6 +47,10 @@ prepare() {
 
     git submodule init
     git config --local submodule.subprojects/gvc.url "$srcdir/libgnome-volume-control"
+    git submodule update
+    
+    git submodule init
+    git config --local submodule.subprojects/gvc.url "$srcdir/libcall-ui"
     git submodule update
 
     local src
