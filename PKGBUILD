@@ -3,8 +3,8 @@
 
 pkgname=phosh
 pkgver=0.12.1+28+ge2d34c2
-_commit=e2d34c2eef4c48dc924ec9cbb3909a18da957b21
-pkgrel=2
+_commit=aea285d000c99cf444bb436bea39cf232b596d36
+pkgrel=1
 pkgdesc="A pure Wayland shell prototype for GNOME on mobile devices"
 url="https://gitlab.gnome.org/World/Phosh/phosh"
 license=("GPL3")
@@ -15,21 +15,18 @@ depends=('gtk3' 'libhandy>=1.1.90' 'gnome-desktop' 'gnome-session'
 makedepends=('meson' 'git')
 source=("git+https://gitlab.gnome.org/World/Phosh/phosh.git#commit=${_commit}"
         "git+https://gitlab.gnome.org/GNOME/libgnome-volume-control.git"
-        #"git+https://gitlab.gnome.org/guidog/libcall-ui.git"
+        "git+https://gitlab.gnome.org/guidog/libcall-ui.git"
          0001-system-prompt-allow-blank-passwords.patch
          0002-fix-locale-issue.patch
          0003-fix-locale-issue-in-service-file.patch
-         $url/-/commit/2cbc5e1e2ff11ff97ed1ae3814ab93f0a06c28ee.patch
-         $url/-/commit/28f17e921d31b7fbe9cd65232c3eddcf6754d9a3.patch
 	 "pam_phosh"
 	 "sm.puri.OSK0.desktop")
 sha256sums=('SKIP'
             'SKIP'
+            'SKIP'
             '0c5a2dbd0512ab8eca6e667f04ba03ec1b0d2896237b10d239aca63cfc19919e'
             'b1f9083be8d1cf259a097b47c3fba4f639d597dad2a46e4234dd9c0cd2391bc2'
             '68265553dde43f02dfc91a5df09dee31d3320b114e10a46ed84ddb53f9d52489'
-            'edc8c81dfbec5f1f8842b7a186e52d2f9297a936204ba8517ea0a4b8ecff2e14'
-            '4b347a14ff4ce3982c50841d6327854b0896cfad04c3fc2ff556f8083690f833'
             'b7793f80c533e84ad8adfe8bb46c69f107575e724aa9b53b41f370baa37e4fd5'
             'f0faa73bb7793b7628b6a4ea8ab0059e13f5d46435efee2f4b8d8ac256311372')
 
@@ -53,9 +50,9 @@ prepare() {
     git config --local submodule.subprojects/gvc.url "$srcdir/libgnome-volume-control"
     git submodule update
     
-    #git submodule init
-    #git config --local submodule.subprojects/gvc.url "$srcdir/libcall-ui"
-    #git submodule update
+    git submodule init
+    git config --local submodule.subprojects/gvc.url "$srcdir/libcall-ui"
+    git submodule update
 
     local src
     for src in "${source[@]}"; do
