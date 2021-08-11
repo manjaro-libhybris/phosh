@@ -3,7 +3,7 @@
 
 pkgname=phosh
 pkgver=0.13.0
-_commit=3141fc1c989ff0ab477c9e963f216d6428621782
+_commit=e2d34c2eef4c48dc924ec9cbb3909a18da957b21
 pkgrel=1
 pkgdesc="A pure Wayland shell prototype for GNOME on mobile devices"
 url="https://source.puri.sm/Librem5/phosh"
@@ -15,7 +15,7 @@ depends=('gtk3' 'libhandy>=1.1.90' 'gnome-desktop' 'gnome-session'
 makedepends=('meson' 'git')
 source=("git+https://gitlab.gnome.org/World/Phosh/phosh.git#commit=${_commit}"
         "git+https://gitlab.gnome.org/GNOME/libgnome-volume-control.git"
-        "git+https://gitlab.gnome.org/guidog/libcall-ui.git"
+        #"git+https://gitlab.gnome.org/guidog/libcall-ui.git"
          0001-system-prompt-allow-blank-passwords.patch
          0002-fix-locale-issue.patch
          0003-fix-locale-issue-in-service-file.patch
@@ -23,7 +23,7 @@ source=("git+https://gitlab.gnome.org/World/Phosh/phosh.git#commit=${_commit}"
 	 "sm.puri.OSK0.desktop")
 sha256sums=('SKIP'
             'SKIP'
-            'SKIP'
+            #'SKIP'
             '0c5a2dbd0512ab8eca6e667f04ba03ec1b0d2896237b10d239aca63cfc19919e'
             'b1f9083be8d1cf259a097b47c3fba4f639d597dad2a46e4234dd9c0cd2391bc2'
             '68265553dde43f02dfc91a5df09dee31d3320b114e10a46ed84ddb53f9d52489'
@@ -50,9 +50,9 @@ prepare() {
     git config --local submodule.subprojects/gvc.url "$srcdir/libgnome-volume-control"
     git submodule update
     
-    git submodule init
-    git config --local submodule.subprojects/gvc.url "$srcdir/libcall-ui"
-    git submodule update
+    #git submodule init
+    #git config --local submodule.subprojects/gvc.url "$srcdir/libcall-ui"
+    #git submodule update
 
     local src
     for src in "${source[@]}"; do
