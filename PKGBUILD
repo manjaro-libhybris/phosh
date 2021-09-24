@@ -3,7 +3,7 @@
 
 pkgname=phosh
 pkgver=0.13.1
-_commit=fe7038ce3f6079b7b2761866b3d3e97a4967849a
+_commit=c66b31e48e70a912aefa06ca83c2da8fa850d50e
 pkgrel=1
 pkgdesc="A pure Wayland shell prototype for GNOME on mobile devices"
 url="https://gitlab.gnome.org/World/Phosh/phosh"
