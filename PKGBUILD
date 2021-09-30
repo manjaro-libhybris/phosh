@@ -3,7 +3,7 @@
 
 pkgname=phosh
 pkgver=0.13.1+16+gc66b31e
-_commit=c66b31e48e70a912aefa06ca83c2da8fa850d50e
+_commit=7621ed0036f169d9cfd9f24563efad76161a4096
 pkgrel=5
 pkgdesc="A pure Wayland shell prototype for GNOME on mobile devices"
 url="https://gitlab.gnome.org/World/Phosh/phosh"
@@ -19,7 +19,6 @@ source=("git+https://gitlab.gnome.org/World/Phosh/phosh.git#commit=${_commit}"
          0001-system-prompt-allow-blank-passwords.patch
          0002-fix-locale-issue.patch
          0003-fix-locale-issue-in-service-file.patch
-         https://gitlab.gnome.org/World/Phosh/phosh/-/merge_requests/886.patch
 	 "pam_phosh"
 	 "sm.puri.OSK0.desktop")
 sha256sums=('SKIP'
@@ -28,7 +27,6 @@ sha256sums=('SKIP'
             '0c5a2dbd0512ab8eca6e667f04ba03ec1b0d2896237b10d239aca63cfc19919e'
             'b1f9083be8d1cf259a097b47c3fba4f639d597dad2a46e4234dd9c0cd2391bc2'
             '68265553dde43f02dfc91a5df09dee31d3320b114e10a46ed84ddb53f9d52489'
-            '1f2da4f304141bfd05c7ff8262e250fdaab7cb8b2edc89926ea1f5a7e5064e75'
             'b7793f80c533e84ad8adfe8bb46c69f107575e724aa9b53b41f370baa37e4fd5'
             'f0faa73bb7793b7628b6a4ea8ab0059e13f5d46435efee2f4b8d8ac256311372')
 
