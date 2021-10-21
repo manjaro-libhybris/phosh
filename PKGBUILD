@@ -2,9 +2,9 @@
 # Contributor: Philip Goto <philip.goto@gmail.com>
 
 pkgname=phosh
-pkgver=0.13.1+100+g86d2e04
-_commit=86d2e0482316f81abc38a5bff6df31ca08fded84
-pkgrel=3
+pkgver=0.13.1+113+gc910e1d
+_commit=c910e1d3e18b9ba756a78bde0947efb26f17999c
+pkgrel=1
 pkgdesc="A pure Wayland shell prototype for GNOME on mobile devices"
 url="https://gitlab.gnome.org/World/Phosh/phosh"
 license=("GPL3")
@@ -20,8 +20,6 @@ source=("git+https://gitlab.gnome.org/World/Phosh/phosh.git#commit=${_commit}"
          0002-fix-locale-issue.patch
          0003-fix-locale-issue-in-service-file.patch
          https://gitlab.gnome.org/World/Phosh/phosh/-/merge_requests/912.patch
-         https://gitlab.gnome.org/World/Phosh/phosh/-/merge_requests/913.patch
-         https://gitlab.gnome.org/World/Phosh/phosh/-/merge_requests/914.patch
          https://gitlab.gnome.org/World/Phosh/phosh/-/merge_requests/918.patch
 	 "pam_phosh"
 	 "sm.puri.OSK0.desktop")
@@ -32,8 +30,6 @@ sha256sums=('SKIP'
             'b1f9083be8d1cf259a097b47c3fba4f639d597dad2a46e4234dd9c0cd2391bc2'
             '68265553dde43f02dfc91a5df09dee31d3320b114e10a46ed84ddb53f9d52489'
             'f2950469b591e10d5832accaf1b38da8b054b7cf7fea017d7d07c465d73822bf'
-            '38556c8fcaae2e83057fe5b66c69fa0cf8198f2bfe327d3c1d0441c1aeaab2af'
-            'b65733ee4dd19e94b53744d4458ca8e74605289bc77b90fcf0ab38d2d86b8f2f'
             'b05f2c46fed1994955eaa6e34e6512bf5aae61e41d0444ef389a100c7d13bb9f'
             'b7793f80c533e84ad8adfe8bb46c69f107575e724aa9b53b41f370baa37e4fd5'
             'f0faa73bb7793b7628b6a4ea8ab0059e13f5d46435efee2f4b8d8ac256311372')
