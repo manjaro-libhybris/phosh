@@ -15,7 +15,7 @@ depends=('gtk3' 'libhandy>=1.1.90' 'gnome-desktop' 'gnome-session'
 makedepends=('meson' 'git')
 source=("git+https://gitlab.gnome.org/World/Phosh/phosh.git#commit=${_commit}"
         "git+https://gitlab.gnome.org/GNOME/libgnome-volume-control.git"
-        "git+https://gitlab.gnome.org/guidog/libcall-ui.git"
+        "git+https://gitlab.gnome.org/World/Phosh/libcall-ui.git"
          0001-system-prompt-allow-blank-passwords.patch
          0002-fix-locale-issue.patch
          0003-fix-locale-issue-in-service-file.patch
