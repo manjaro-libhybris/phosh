@@ -20,6 +20,7 @@ source=("git+https://gitlab.gnome.org/World/Phosh/phosh.git#commit=${_commit}"
          0002-fix-locale-issue.patch
          0003-fix-locale-issue-in-service-file.patch
          https://gitlab.gnome.org/World/Phosh/phosh/-/merge_requests/917.patch
+         https://gitlab.gnome.org/World/Phosh/phosh/-/merge_requests/925.patch
 	 "pam_phosh"
 	 "sm.puri.OSK0.desktop")
 sha256sums=('SKIP'
@@ -29,6 +30,7 @@ sha256sums=('SKIP'
             'b1f9083be8d1cf259a097b47c3fba4f639d597dad2a46e4234dd9c0cd2391bc2'
             '68265553dde43f02dfc91a5df09dee31d3320b114e10a46ed84ddb53f9d52489'
             '8c9fc8cb0a841d7022e5d375c128209142a0a0ac51b3327e1773e9d074051a5e'
+            '9f187c59299409fe808914107846b29bc66324b5a2cf4d72d067e63f986b143d'
             'b7793f80c533e84ad8adfe8bb46c69f107575e724aa9b53b41f370baa37e4fd5'
             'f0faa73bb7793b7628b6a4ea8ab0059e13f5d46435efee2f4b8d8ac256311372')
 
