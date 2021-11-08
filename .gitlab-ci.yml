@@ -22,7 +22,8 @@
 build-package:
   tags:
     # change the tag to your gitlab-runner
-    - fosshost
+    - aarch64
+    - bigbuilds
   script:
     # build pkg via chrootbuild
     - export PKG=${PWD##*/}
