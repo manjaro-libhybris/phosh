@@ -25,7 +25,7 @@ source=("git+https://gitlab.gnome.org/World/Phosh/phosh.git#commit=${_commit}"
 sha256sums=('SKIP'
             'SKIP'
             'SKIP'
-            'f99e8dacb18e7063ed86eed0903b0e090447689ca8dfbc4df691ec5776bd2bd0'
+            'ad7a675a06a8bff5fb7e3b96dd9caf708033509b4e29c1fe77127321c3f48b10'
             '0c5a2dbd0512ab8eca6e667f04ba03ec1b0d2896237b10d239aca63cfc19919e'
             'b1f9083be8d1cf259a097b47c3fba4f639d597dad2a46e4234dd9c0cd2391bc2'
             '68265553dde43f02dfc91a5df09dee31d3320b114e10a46ed84ddb53f9d52489'
