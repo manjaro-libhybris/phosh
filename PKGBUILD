@@ -2,8 +2,8 @@
 # Contributor: Philip Goto <philip.goto@gmail.com>
 
 pkgname=phosh
-pkgver=0.14.0+31+g46b4f0ff
-_commit=46b4f0ff5218c520fdeb53cbb4b70f8af5b64442
+pkgver=0.14.0+43+gf3625702
+_commit=f3625702e91d124f621fab01de8ff6fa5f290c7f
 pkgrel=1
 pkgdesc="A pure Wayland shell prototype for GNOME on mobile devices"
 url="https://gitlab.gnome.org/World/Phosh/phosh"
@@ -16,7 +16,6 @@ makedepends=('meson' 'git')
 source=("git+https://gitlab.gnome.org/World/Phosh/phosh.git#commit=${_commit}"
         "git+https://gitlab.gnome.org/GNOME/libgnome-volume-control.git"
         "git+https://gitlab.gnome.org/World/Phosh/libcall-ui.git"
-         https://gitlab.gnome.org/World/Phosh/phosh/-/merge_requests/938.patch
          0001-system-prompt-allow-blank-passwords.patch
          0002-fix-locale-issue.patch
          0003-fix-locale-issue-in-service-file.patch
@@ -25,7 +24,6 @@ source=("git+https://gitlab.gnome.org/World/Phosh/phosh.git#commit=${_commit}"
 sha256sums=('SKIP'
             'SKIP'
             'SKIP'
-            'ad7a675a06a8bff5fb7e3b96dd9caf708033509b4e29c1fe77127321c3f48b10'
             '0c5a2dbd0512ab8eca6e667f04ba03ec1b0d2896237b10d239aca63cfc19919e'
             'b1f9083be8d1cf259a097b47c3fba4f639d597dad2a46e4234dd9c0cd2391bc2'
             '68265553dde43f02dfc91a5df09dee31d3320b114e10a46ed84ddb53f9d52489'
