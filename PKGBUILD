@@ -2,8 +2,8 @@
 # Contributor: Philip Goto <philip.goto@gmail.com>
 
 pkgname=phosh
-pkgver=0.14.1+19+g45596931
-_commit=455969313d79cac7b5e50313f690b3f1bedd257e
+pkgver=0.14.1+23+g8fc370de
+_commit=8fc370de1c0dad61a7f25e697dab1943daa65404
 pkgrel=1
 pkgdesc="A pure Wayland shell prototype for GNOME on mobile devices"
 url="https://gitlab.gnome.org/World/Phosh/phosh"
