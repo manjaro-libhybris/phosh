@@ -1,8 +1,11 @@
-# Maintainer. Dan Johansen <strit@manjaro.org>
+# Maintainer: Erik Inkinen <erik.inkinen@gmail.com>
+# Contributor: Dan Johansen <strit@manjaro.org>
 # Contributor: Philip Goto <philip.goto@gmail.com>
 
-pkgname=phosh
-pkgver=0.14.1+23+g8fc370de
+pkgname=phosh-hybris
+provides=(phosh)
+conflicts=(phosh)
+pkgver=0.14.1+23+g8fc370d
 _commit=8fc370de1c0dad61a7f25e697dab1943daa65404
 pkgrel=1
 pkgdesc="A pure Wayland shell prototype for GNOME on mobile devices"
@@ -11,7 +14,7 @@ license=("GPL3")
 arch=('i686' 'x86_64' 'armv6h' 'armv7h' 'aarch64')
 depends=('gtk3' 'libhandy>=1.1.90' 'gnome-desktop' 'gnome-session'
          'upower' 'libpulse' 'gcr' 'feedbackd' 'libnm'
-         'phoc>=0.8.0' 'gnome-shell' 'callaudiod')
+         'phoc-hybris>=0.8.0' 'gnome-shell' 'callaudiod-hybris')
 makedepends=('meson' 'git')
 source=("git+https://gitlab.gnome.org/World/Phosh/phosh.git#commit=${_commit}"
         "git+https://gitlab.gnome.org/GNOME/libgnome-volume-control.git"
@@ -31,7 +34,7 @@ sha256sums=('SKIP'
             'f0faa73bb7793b7628b6a4ea8ab0059e13f5d46435efee2f4b8d8ac256311372')
 
 pkgver() {
-  cd $pkgname
+  cd phosh
   git describe --tags | sed 's/^v//;s/-/+/g'
 }
 
@@ -39,7 +42,7 @@ _reverts=(
 )
 
 prepare() {
-    cd $pkgname
+    cd phosh
 
   for _c in "${_reverts[@]}"; do
     git log --oneline -1 "${_c}"
@@ -73,7 +76,7 @@ build() {
 package() {
     DESTDIR="${pkgdir}" ninja -C build install
 
-	install -Dm644 "$srcdir"/$pkgname/data/phosh.service \
+	install -Dm644 "$srcdir"/phosh/data/phosh.service \
 		"$pkgdir"/usr/lib/systemd/system/phosh.service
 	install -Dm644 "$srcdir"/pam_phosh \
 		"$pkgdir"/etc/pam.d/phosh
