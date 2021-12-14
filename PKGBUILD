@@ -22,6 +22,7 @@ source=("git+https://gitlab.gnome.org/World/Phosh/phosh.git#commit=${_commit}"
          0001-system-prompt-allow-blank-passwords.patch
          0002-fix-locale-issue.patch
          0003-fix-locale-issue-in-service-file.patch
+	 0004-fix-hwcomposer.patch
 	 "pam_phosh"
 	 "sm.puri.OSK0.desktop")
 sha256sums=('SKIP'
@@ -30,6 +31,7 @@ sha256sums=('SKIP'
             '0c5a2dbd0512ab8eca6e667f04ba03ec1b0d2896237b10d239aca63cfc19919e'
             'b1f9083be8d1cf259a097b47c3fba4f639d597dad2a46e4234dd9c0cd2391bc2'
             '68265553dde43f02dfc91a5df09dee31d3320b114e10a46ed84ddb53f9d52489'
+            '385f643453018e6ca1418b8594fcacbd79edb8e45a41491f63d2d621555ffb49'
             'b7793f80c533e84ad8adfe8bb46c69f107575e724aa9b53b41f370baa37e4fd5'
             'f0faa73bb7793b7628b6a4ea8ab0059e13f5d46435efee2f4b8d8ac256311372')
 
