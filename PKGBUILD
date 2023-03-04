@@ -6,8 +6,8 @@
 pkgname=phosh-hybris
 provides=(phosh)
 conflicts=(phosh)
-pkgver=0.24.0
-_commit=81ec8c868ba26f513c2d3e3c0c2cbc4817d10f6f
+pkgver=0.25.0+10+gd0b9dcd4
+_commit=d0b9dcd4506289f2efad22a43333da58b185ae66
 pkgrel=1
 pkgdesc="A pure Wayland shell prototype for GNOME on mobile devices"
 url="https://gitlab.gnome.org/World/Phosh/phosh"
